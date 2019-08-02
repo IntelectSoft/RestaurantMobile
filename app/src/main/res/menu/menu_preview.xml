@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.igor.restaurantmobile.PreviewActivity">
+    <item
+        android:id="@+id/action_edit_line"
+        android:icon="@drawable/baseline_edit_white_36dp"
+        android:title="@string/title_activity_cnt"
+        app:showAsAction="always"
+        android:visible="true"/>
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@drawable/delete_white_36dp"
+        android:title="@string/item_refresh"
+        app:showAsAction="always"
+        android:visible="true"/>
+
+</menu>

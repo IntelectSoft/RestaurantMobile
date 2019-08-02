@@ -1,0 +1,45 @@
+<resources>
+    <string name="app_name">RestaurantMobile</string>
+    <string name="list_bil">Continutul contului:</string>
+    <string name="action_set">Setting</string>
+    <string name="action_show">Hide/Show line</string>
+    <string name="title_activity_cnt">Restaurant Mobile</string>
+    <string name="item_refresh">Refresh</string>
+    <string name="name_3activity">Mesele:</string>
+    <string name="name_2activity">Comenzi:</string>
+    <string name="name_4activity">Assortiment</string>
+    <string name="hint">IP address</string>
+    <string name="btn_test">Test</string>
+    <string name="hint_port">Port</string>
+    <string name="check_test">check_test</string>
+    <string name="hint_id">ID</string>
+    <string name="tv_result">Result</string>
+    <string name="get_asl">Save</string>
+    <string name="dev_id_">ID:</string>
+    <string name="ip_adrs">IP:</string>
+    <string name="port">Port:</string>
+    <string name="todo_IMG">TODO</string>
+    <string name="save_btn">Salveaza</string>
+    <string name="hint_dialog">Introduceti cantitatea</string>
+    <string name="name_5activity">Cantitatea:</string>
+    <string name="name_6activity">Setari:</string>
+    <string name="seet">Assortiment</string>
+    <string name="title_activity_assortiment">AssortimentActivity</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="assortiment_incount">Assortiment:</string>
+    <string name="bill_close_type">Bill close type:</string>
+    <string name="folder_count_stng">Folder:</string>
+    <string name="assortiment_count_stng">Asortiment:</string>
+    <string name="TODO">TODO</string>
+    <string name="save_setting">OK</string>
+    <string name="cancel_setting">Renunt</string>
+    <string name="test_btn_connection">Test</string>
+    <string name="title_activity_preview">Previzualizare</string>
+    <string name="title_activity_tabbed">TabbedActivity</string>
+    <string name="tab_text_1">Conectare</string>
+    <string name="tab_text_2">Altele</string>
+    <string name="action_settings">Setari</string>
+
+    <string name="title_activity_fullscreen">FullsreenActivity</string>
+    <string name="title_activity_tab_set">TabSetActivity</string>
+</resources>

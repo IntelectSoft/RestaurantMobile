@@ -1,0 +1,32 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.igor.restaurantmobile.MainActivity">
+    <item
+    android:id="@+id/action_edit"
+    android:icon="@drawable/baseline_edit_white_36dp"
+    android:title="@string/title_activity_cnt"
+    app:showAsAction="always" />
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/refresh_white_36dp"
+        android:title="@string/item_refresh"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_settings"
+
+        android:orderInCategory="101"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_exit"
+        android:orderInCategory="102"
+        android:title="Iesire"
+        app:showAsAction="never" />
+    <!--<item-->
+        <!--android:id="@+id/action_show"-->
+        <!--android:orderInCategory="102"-->
+        <!--android:title="@string/action_show"-->
+        <!--android:checkable="true"-->
+        <!--app:showAsAction="never" />-->
+</menu>
