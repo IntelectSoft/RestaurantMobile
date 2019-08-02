@@ -234,6 +234,7 @@ public class AssortimentActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_sales);
         setSupportActionBar(toolbar);
         pgH=new ProgressDialog(context);
+        //addcomentTesxt
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         FloatingActionButton fab_preview = (FloatingActionButton) findViewById(R.id.fab_preview);
         fab.setOnClickListener(new View.OnClickListener() {
