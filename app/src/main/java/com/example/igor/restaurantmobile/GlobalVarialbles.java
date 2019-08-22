@@ -8,6 +8,10 @@ import com.example.igor.restaurantmobile.AssortimentList.ClosureType;
 import com.example.igor.restaurantmobile.AssortimentList.Comments;
 import com.example.igor.restaurantmobile.AssortimentList.Table;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 public class GlobalVarialbles extends Application {
@@ -21,12 +25,19 @@ public class GlobalVarialbles extends Application {
     public static final String mMapAssortmentCount = "AssortmentCount";
     public static final String mMapAssortmentIcon = "AssortmentIcon";
     public static final String mMapAssortmentPrice = "AssortmentPrice";
+    public static final String mMapAssortmentIsFolder = "AssortmentIsFolder";
+    public static final String mMapAssortmentParenGuid = "AssortmentParenGuid";
+    public static final String mMapAssortmentGuid = "AssortmentGuid";
+    public static final String mMapAssortmentKitMembers = "AssortmentKitMembers";
+    public static final String mMapAssortmentComments = "AssortmentComments";
+    public static final String mMapAssortmentPriceLineGuid = "AssortmentLineGuid";
     public static final String mNewBillGuid = "NewBill";
     public static final String mGuidZero = "00000000-0000-0000-0000-000000000000";
     public static final String mNewBillTableGuid = "TableGuidNewBill";
     public static final String mIPConnect = "IP";
     public static final String mPortConnect = "Port";
     public static final String mDeviceID = "ID_Device";
+
 
     List<Assortiment> assortmentList ;
     List<Table> tableList;
@@ -111,5 +122,56 @@ public class GlobalVarialbles extends Application {
             }
         }
         return assortmentPrice;
+    }
+    public ArrayList<HashMap<String, Object>> getAssortmentFromParent(String parentID){
+        ArrayList<HashMap<String, Object>> assortment_list = new ArrayList<>();
+        for (Assortiment assortment:assortmentList) {
+            String parentGUID = assortment.getParentUid();
+            if (parentGUID.equals(parentID)){
+                HashMap<String, Object> assortmentMap = new HashMap<>();
+                boolean isFolder = assortment.getIsFolder();
+                if(isFolder){
+                    assortmentMap.put(mMapAssortmentIsFolder,isFolder);
+                    assortmentMap.put(mMapAssortmentName, assortment.getName());
+                    assortmentMap.put(mMapAssortmentGuid,assortment.getUid());
+                    assortmentMap.put(mMapAssortmentParenGuid,assortment.getParentUid());
+                    assortmentMap.put(mMapAssortmentIcon,R.mipmap.folder);
+                    assortment_list.add(assortmentMap);
+                }
+                else{
+                    assortmentMap.put(mMapAssortmentIsFolder,isFolder);
+                    assortmentMap.put(mMapAssortmentName, assortment.getName());
+                    assortmentMap.put(mMapAssortmentGuid,assortment.getUid());
+                    assortmentMap.put(mMapAssortmentParenGuid,assortment.getParentUid());
+                    assortmentMap.put(mMapAssortmentPrice,assortment.getPrice()+" lei");
+                    assortmentMap.put(mMapAssortmentPriceLineGuid,assortment.getPricelineUid());
+                    assortmentMap.put(mMapAssortmentComments,assortment.getComments());
+                    assortmentMap.put(mMapAssortmentKitMembers,assortment.getKitMembers());
+                    assortmentMap.put(mMapAssortmentIcon,R.drawable.asl901);
+                    assortment_list.add(assortmentMap);
+                }
+            }
+        }
+        SortAssortmentList(assortment_list);
+        return assortment_list;
+    }
+
+    private static void SortAssortmentList(ArrayList<HashMap<String, Object>> asl_list) {
+        Collections.sort(asl_list, new Comparator<HashMap<String, Object>>() {
+
+            public int compare(HashMap<String, Object> o1, HashMap<String, Object> o2) {
+
+                String xy1 = String.valueOf(o1.get(mMapAssortmentIsFolder));
+                String xy2 = String.valueOf(o2.get(mMapAssortmentIsFolder));
+                int sComp = xy2.compareTo(xy1);
+
+                if (sComp != 0) {
+                    return sComp;
+                } else {
+                    String x1 = o1.get(mMapAssortmentName).toString();
+                    String x2 = o2.get(mMapAssortmentName).toString();
+                    return x1.compareTo (x2);
+                }
+            }});
     }
 }
