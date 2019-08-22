@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import com.example.igor.restaurantmobile.utilis.ViewPageAdapter;
 
-public class TabSetActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     private ViewPageAdapter mSectionsPagerAdapter;
     FloatingActionButton btn_save;
