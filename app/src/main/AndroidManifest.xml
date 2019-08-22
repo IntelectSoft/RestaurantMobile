@@ -9,7 +9,7 @@
     <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
 
     <application
-
+        android:name=".GlobalVarialbles"
         android:icon="@drawable/icon_waiter"
         android:label="@string/title_activity_cnt"
         android:roundIcon="@drawable/icon_waiter"
@@ -101,17 +101,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TabSetActivity"
+            android:name=".SettingsActivity"
             android:label="@string/title_activity_tab_set"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
-                <action android:name=".TabSetActivity" />
+                <action android:name=".SettingsActivity" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="bb23252915ed55596257f7e1c85fd17cc9a35497" />
     </application>
 
 </manifest>

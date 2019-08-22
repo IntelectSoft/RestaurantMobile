@@ -57,7 +57,7 @@ public class TabSetting extends Fragment {
     EditText portField;
     final String IP_save = "IP";
     final String Port_save = "Port";
-    final String ID_resp = "ID_Mob";
+    final String ID_resp = "ID_Device";
     final String Response = "Response";
     final Context context = getContext();
     private String port;

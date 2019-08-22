@@ -63,13 +63,13 @@
                 app:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/item_close"
+                android:id="@+id/item_print"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/close"
                 app:fab_colorNormal="@color/colorPrimary"
                 app:fab_colorPressed="#3395FF"
-                app:fab_label="Inchide cont"
+                app:fab_label="Print cont"
                 app:fab_size="mini" />
 
             <com.github.clans.fab.FloatingActionButton

@@ -2,179 +2,82 @@ package com.example.igor.restaurantmobile;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.support.annotation.NonNull;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Display;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.igor.restaurantmobile.Bill.ServiceGetBill;
+import com.example.igor.restaurantmobile.BillList.Bill;
+import com.example.igor.restaurantmobile.BillList.BillListResponseService;
+import com.example.igor.restaurantmobile.BillList.BillsLine;
+import com.example.igor.restaurantmobile.BillList.ServiceBillList;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mGuidZero;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentCount;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentName;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillGuid;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillNumber;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillSum;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillSumAfterDiscount;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapTableName;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillGuid;
 
 public class MainActivity extends AppCompatActivity {
     final Context context = this;
-    final int REQUEST_CODE_NewBill = 1;
-    final int REQUEST_CODE_Setng = 4;
-    final int REQUEST_CODE_EDBill = 5;
-    final String IP_save = "IP";
-    final String Port_save = "Port";
-    final String ID_resp_save = "ID_Mob";
-    String ip_,port,id_base_tel,A_JSon,B_Json,Bill_list,table_name,uid_table,closeUid;
-    int Number,Number_closed;
-    String uid_table_in_bill,sum_bill,name_tabl,uid_billa,uid_bill_to_close,uid_billchecked=null,Sum_closed;
-    GridView list_bills_;
-    SimpleAdapter simpleAdapterASL,simpleAdapterShow,simpleAdapterType;
-    SharedPreferences sPref;
-    final static String LOG_TAG = "myLogs";
-    ArrayAdapter<String> adapter;
-    AlertDialog.Builder builderType;
-    int countH=0;
-    int defoult,result_forSetting;
-    ListView listContent;
     ProgressDialog pgH;
     FloatingActionMenu menu_bill;
 
-    class querryGetBill extends AsyncTask<URL, String, String> {
+    String mBillID,mTableID,mTableName,mDeviceID, mPortConnect,mIPConnect, mGuidBillClicked = null ,IP_save = "IP",Port_save = "Port",Device_save = "ID_Device";
+    int mBillNumber ,mDisplayDefaultHeight;
+    int MESSAGE_SUCCES = 0,MESSAGE_RESULT_CODE = 1,MESSAGE_NULL_BODY = 2 , MESSAGE_FAILURE = 3 ,REQUEST_CODE_NewBill = 4,REQUEST_CODE_Settings = 5,REQUEST_CODE_EditBill = 6,MESSAGE_BILL_SUCCES = 7,
+            MESSAGE_BILL_RESULT_CODE = 8;
+    double mBillSumAfterDiscount,mBillSum;
+    boolean mShowLine;
 
-        @Override
-        protected String doInBackground(URL... urls) {
-            String response_getbill = "null";
-            try {
-                response_getbill = getResponseFromGetBill(urls[0]);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return response_getbill;
-        }
+    SimpleAdapter mAdapterShowLine, mAdapterBills;
+    SharedPreferences sPrefSettings;
+    GridView mGridViewList_Bills;
+    ListView mListViewShowLine;
+    ArrayList<HashMap<String, Object>> bills_list = new ArrayList<>();
+    ArrayList<HashMap<String, Object>> bill_lines = new ArrayList<>();
 
-        @Override
-        protected void onPostExecute(String response_getbill) {
-            if (!response_getbill.equals("")) {
-                pgH.dismiss();
-                SharedPreferences.Editor ed = sPref.edit();
-                ed.putString("bills_uid", "00000000-0000-0000-0000-000000000000");
-                ed.apply();
-                Bill_list = response_getbill;
-                bills_list.clear();
-                setBills();
-            }else {
-                pgH.dismiss();
-                Toast.makeText(context, "Eroare! Finisat dupa timeout.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-    class querryCloseBill extends AsyncTask<URL, String, String> {
-
-        @Override
-        protected String doInBackground(URL... urls) {
-            String response_closebill = "null";
-            try {
-                response_closebill = getResponseFromCloseBill(urls[0]);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return response_closebill;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            if(!response.equals("null")) {
-                try {
-                    JSONObject response_to_close = new JSONObject(response);
-                    int result = response_to_close.getInt("Result");
-                    String resultMessage = response_to_close.getString("ResultMessage");
-                    if (result == 0) {
-                        pgH.dismiss();
-                        Toast.makeText(context, "Contul a fost inchis!", Toast.LENGTH_SHORT).show();
-                        bills_list.clear();
-                        URL generatedURLGet_Bill = generateURLGetBill(ip_, port, id_base_tel);
-                        new querryGetBill().execute(generatedURLGet_Bill);
-                        SharedPreferences.Editor ed = sPref.edit();
-                        ed.putString("bills_uid", "00000000-0000-0000-0000-000000000000");
-                        ed.apply();
-                        bill_lines.clear();
-                        listContent.setAdapter(simpleAdapterShow);
-                    } else {
-                        pgH.dismiss();
-                        Toast.makeText(context, resultMessage, Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }else{
-                pgH.dismiss();
-                Toast.makeText(context, response, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-    class querryGetBillLines extends AsyncTask<URL, String, String> {
-
-        @Override
-        protected String doInBackground(URL... urls) {
-            String response_getsbills = "null";
-            try {
-                response_getsbills = getResponseFromGetsBills(urls[0]);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            B_Json=response_getsbills;
-            return response_getsbills;
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            bill_lines.clear();
-            ShowLines(response);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                bill_lines.sort(new Comparator<HashMap<String, Object>>() {
-                    @Override
-                    public int compare(HashMap<String, Object> o1, HashMap<String, Object> o2) {
-                        return o1.get("Name").toString().compareTo(o2.get("Name").toString());
-                    }
-                });
-            }
-            listContent.setAdapter(simpleAdapterShow);
-        }
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -182,126 +85,20 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("bills_uid","00000000-0000-0000-0000-000000000000");
-        ed.apply();
-
-        list_bills_ = findViewById(R.id.list_bill);
-        listContent=findViewById(R.id.contentBillList);
-        FloatingActionButton fab_show_line = findViewById(R.id.item_show_line);
-        FloatingActionButton fab_close = findViewById(R.id.item_close);
-
-
-        ip_=(sPref.getString(IP_save,""));
-        port=(sPref.getString(Port_save,""));
-        id_base_tel = (sPref.getString(ID_resp_save,""));
-
         pgH=new ProgressDialog(context);
-        pgH.setMessage("Asteptati...");
-        pgH.setIndeterminate(true);
-        pgH.setCancelable(false);
-        pgH.show();
-        URL generatedURLGet_Bill = generateURLGetBill(ip_,port,id_base_tel);
-        new querryGetBill().execute(generatedURLGet_Bill);
-
-        final LinearLayout mainLayout = (LinearLayout)findViewById(R.id.LGridView);
-        final LinearLayout ShowLayout = (LinearLayout)findViewById(R.id.ShowLine);
-        final LinearLayout.LayoutParams gridviewLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        final LinearLayout.LayoutParams LineLayout = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        simpleAdapterShow = new SimpleAdapter(this, bill_lines,R.layout.bill_show, new String[]{"Name","Count"}, new int[]{R.id.textName,R.id.textCount});
-        Display display = getWindowManager().getDefaultDisplay();
-        final int height = display.getHeight();
-        final SharedPreferences checkTable = getSharedPreferences("Tables",MODE_PRIVATE);
-
-        int heightnew1 = height / 3 ;
-        final int heightGrid = (heightnew1*2)-100;
-        final int heightShow = height - heightGrid;
-        defoult= height;
-        gridviewLayout.height=heightGrid;
-        LineLayout.height=heightShow+20;
-        mainLayout.setLayoutParams(gridviewLayout);
-        ShowLayout.setLayoutParams(LineLayout);
-        countH=1;
-        if (uid_billchecked!= null) {
-            URL generatedURLGets_Bills = generateURLGetBillLines(ip_, port, id_base_tel, uid_billchecked);
-            new querryGetBillLines().execute(generatedURLGets_Bills);
-        }
-        fab_show_line.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(countH==0){
-                    defoult= height;
-                    gridviewLayout.height=heightGrid;
-                    LineLayout.height=heightShow+20;
-                    mainLayout.setLayoutParams(gridviewLayout);
-                    ShowLayout.setLayoutParams(LineLayout);
-                    countH=1;
-                    if (uid_billchecked!= null) {
-                        URL generatedURLGets_Bills = generateURLGetBillLines(ip_, port, id_base_tel, uid_billchecked);
-                        new querryGetBillLines().execute(generatedURLGets_Bills);
-                    }
-                }else if (countH==1) {
-                    gridviewLayout.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-                    mainLayout.setLayoutParams(gridviewLayout);
-                    LineLayout.height = 0;
-                    ShowLayout.setLayoutParams(LineLayout);
-                    countH = 0;
-                }
-                menu_bill.close(true);
-            }
-        });
-
-
+        mGridViewList_Bills = findViewById(R.id.list_bill);
+        mListViewShowLine=findViewById(R.id.contentBillList);
         menu_bill = findViewById(R.id.fab1);
         FloatingActionButton fab_add = findViewById(R.id.item_add);
-        fab_add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final Integer NrTable=checkTable.getInt("CountTable",0);
-                if (NrTable!=0) {
-                    sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                    SharedPreferences.Editor ed = sPref.edit();
-                    ed.putString("TableUid","");
-                    ed.putString("bills_uid", "00000000-0000-0000-0000-000000000000");
-                    ed.apply();
-                    Intent new_bill_activity = new Intent(".TableActivityRestaurant");
-                    startActivityForResult(new_bill_activity, REQUEST_CODE_NewBill);
-                    menu_bill.close(true);
-                }else{
-                    sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                    SharedPreferences.Editor ed = sPref.edit();
-                    ed.putString("bills_uid", "00000000-0000-0000-0000-000000000000");
-                    ed.putString("TableUid","");
-                    ed.apply();
-                    Intent new_bill_activity = new Intent(".AssortimentActivityRestaurant");
-                    startActivityForResult(new_bill_activity, REQUEST_CODE_EDBill);
-                    menu_bill.close(true);
-                }
-            }
-        });
-
-        fab_close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                uid_bill_to_close =(sPref.getString("bills_uid",""));
-                String uid="00000000-0000-0000-0000-000000000000";
-                Boolean selector = uid_bill_to_close.contains(uid);
-                if (selector){
-                    Toast.makeText(context,"Alegeti contul!",Toast.LENGTH_SHORT).show();
-                }else {
-                    close_bill();
-                    onCloseType();
-                }
-                menu_bill.close(true);
-            }
-        });
-
+        FloatingActionButton fab_show_line = findViewById(R.id.item_show_line);
+        FloatingActionButton fab_print = findViewById(R.id.item_print);
+        final LinearLayout mMainLayout = (LinearLayout)findViewById(R.id.LGridView);
+        final LinearLayout mShowLineLayout = (LinearLayout)findViewById(R.id.ShowLine);
+        final LinearLayout.LayoutParams mMainParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        final LinearLayout.LayoutParams mShowLineParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.INTERNET)
@@ -315,37 +112,100 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
             }
         }
-        simpleAdapterASL = new SimpleAdapter(this, bills_list,R.layout.lis_bills, new String[]{"Name","Number"}, new int[]{R.id.text1,R.id.text2});
 
+        Display display = getWindowManager().getDefaultDisplay();
+        final int mDisplayHeight = display.getHeight();
+        int mNewDisplayHeight = mDisplayHeight / 3 ;
+        final int mHeightGrid = (mNewDisplayHeight * 2) - 100;
+        final int mShowLinwHeight = mDisplayHeight - mHeightGrid;
+        mDisplayDefaultHeight = mDisplayHeight;
+        mMainParams.height = mHeightGrid;
+        mShowLineParams.height = mShowLinwHeight + 20;
+        mMainLayout.setLayoutParams(mMainParams);
+        mShowLineLayout.setLayoutParams(mShowLineParams);
 
-        list_bills_.setOnItemClickListener (new AdapterView.OnItemClickListener() {
+        sPrefSettings = getSharedPreferences("Save setting", MODE_PRIVATE);
+        mAdapterShowLine = new SimpleAdapter(this, bill_lines,R.layout.bill_show, new String[]{mMapAssortmentName,mMapAssortmentCount}, new int[]{R.id.textName,R.id.textCount});
+        mAdapterBills = new SimpleAdapter(this, bills_list,R.layout.lis_bills, new String[]{mMapTableName,mMapBillNumber}, new int[]{R.id.text1,R.id.text2});
+
+        mShowLine = true;
+        mIPConnect=(sPrefSettings.getString(IP_save,""));
+        mPortConnect=(sPrefSettings.getString(Port_save,""));
+        mDeviceID = (sPrefSettings.getString(Device_save,""));
+
+        showDialog();
+        getBillList(mIPConnect,mPortConnect,mDeviceID,false);
+
+        fab_show_line.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!mShowLine){
+                    mDisplayDefaultHeight = mDisplayHeight;
+                    mMainParams.height = mHeightGrid;
+                    mShowLineParams.height = mShowLinwHeight + 20;
+                    mMainLayout.setLayoutParams(mMainParams);
+                    mShowLineLayout.setLayoutParams(mShowLineParams);
+                    mShowLine = true;
+                    if (mGuidBillClicked != null) getBill(mIPConnect, mPortConnect, mDeviceID, mGuidBillClicked);
+                }
+                else {
+                    mMainParams.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                    mMainLayout.setLayoutParams(mMainParams);
+                    mShowLineParams.height = 0;
+                    mShowLineLayout.setLayoutParams(mShowLineParams);
+                    mShowLine = false;
+                }
+                menu_bill.close(true);
+            }
+        });
+        fab_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final int mTableListSize = ((GlobalVarialbles)getApplication()).getTableListSize();
+                if (mTableListSize != 0) {
+                    Intent new_bill_activity = new Intent(".TableActivityRestaurant");
+                    new_bill_activity.putExtra(mNewBillGuid,mGuidZero);
+                    startActivity(new_bill_activity);
+                }else{
+                    Intent new_bill_activity = new Intent(".AssortimentActivityRestaurant");
+                    new_bill_activity.putExtra(mNewBillGuid,mGuidZero);
+                    startActivityForResult(new_bill_activity, REQUEST_CODE_EditBill);
+                }
+                menu_bill.close(true);
+            }
+        });
+
+        fab_print.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                uid_bill_to_close =(sPref.getString("bills_uid",""));
+//                String uid="00000000-0000-0000-0000-000000000000";
+//                boolean selector = uid_bill_to_close.contains(uid);
+//                if (selector){
+//                    Toast.makeText(context,"Alegeti contul!",Toast.LENGTH_SHORT).show();
+//                }else {
+//                    close_bill();
+//                    onCloseType();
+//                }
+//                menu_bill.close(true);
+            }
+        });
+
+        mGridViewList_Bills.setOnItemClickListener (new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                list_bills_.setItemChecked(position, true);
-                list_bills_.setSelected(true);
-                uid_billchecked  = (String) bills_list.get(position).get("Uid") ;
-                Number_closed = (Integer)bills_list.get(position).get("Number");
-                Sum_closed = (String)bills_list.get(position).get("Sum");
-                SharedPreferences.Editor ed = sPref.edit();
-                ed.putString("bills_uid",uid_billchecked);
-                ed.apply();
-                if (countH==1){
-                    URL generatedURLGets_Bills = generateURLGetBillLines(ip_, port, id_base_tel, uid_billchecked);
-                    new querryGetBillLines().execute(generatedURLGets_Bills);
-                }
+                mGridViewList_Bills.setItemChecked(position, true);
+                mGridViewList_Bills.setSelected(true);
+                mGuidBillClicked  = (String) bills_list.get(position).get(mMapBillGuid);
+                if (mShowLine) getBill(mIPConnect, mPortConnect, mDeviceID, mGuidBillClicked);
             }
-        });//list_bils click listener
-
-        list_bills_.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        });
+        mGridViewList_Bills.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String NameTable = (String)bills_list.get(i).get("Name");
-                String Suma = (String)bills_list.get(i).get("Suma");
-                int number = (Integer)bills_list.get(i).get("Number");
-                String sum = (String)bills_list.get(i).get("Sum");
                 AlertDialog.Builder detail_bill = new AlertDialog.Builder(context);
-                detail_bill.setTitle("Detalii cont: " +number );
-                detail_bill.setMessage("Nr. contului: " + number +"\nMasa: "+NameTable +"\nSuma: "+Suma+ "\nSuma cu reducere: " + sum );
+                detail_bill.setTitle("Detalii cont: " + (Integer)bills_list.get(i).get(mMapBillNumber) );
+                detail_bill.setMessage("\nMasa: "+ (String)bills_list.get(i).get(mMapTableName) + "\nSuma: "+ (String)bills_list.get(i).get(mMapBillSum) + "\nSuma cu reducere: " + (String)bills_list.get(i).get(mMapBillSumAfterDiscount) );
                 detail_bill.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -356,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }//OnCreate
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -368,28 +228,23 @@ public class MainActivity extends AppCompatActivity {
         switch (id){
             case R.id.action_settings :{
                 Intent setting_activity = new Intent(".TabSetActivity");
-                startActivityForResult(setting_activity,REQUEST_CODE_Setng);
+                startActivityForResult(setting_activity,REQUEST_CODE_Settings);
             }break;
             case R.id.action_refresh: {
-                pgH=new ProgressDialog(context);
-                pgH.setMessage("Asteptati...");
-                pgH.setIndeterminate(true);
-                pgH.setCancelable(false);
-                pgH.show();
+                showDialog();
                 bill_lines.clear();
-                listContent.setAdapter(simpleAdapterShow);
-                URL generatedURLGet_Bill = generateURLGetBill(ip_,port,id_base_tel);
-                new querryGetBill().execute(generatedURLGet_Bill);
+                mGuidBillClicked = null;
+                mListViewShowLine.setAdapter(mAdapterShowLine);
+                // TODO get billsList Refresh
+                getBillList(mIPConnect,mPortConnect,mDeviceID,false);
             }break;
             case R.id.action_edit : {
-                String uid_bila2 =(sPref.getString("bills_uid",""));
-                String uid1="00000000-0000-0000-0000-000000000000";
-                Boolean selector = uid_bila2.contains(uid1);
-                if (selector){
+                if (mGuidBillClicked == null){
                     Toast.makeText(context,"Alegeti contul!",Toast.LENGTH_SHORT).show();
                 }else {
                     Intent new_bill_activity = new Intent(".AssortimentActivityRestaurant");
-                    startActivityForResult(new_bill_activity, REQUEST_CODE_EDBill);
+                    new_bill_activity.putExtra(mNewBillGuid,mGuidBillClicked);
+                    startActivityForResult(new_bill_activity, REQUEST_CODE_EditBill);
                 }
             }break;
             case R.id.action_exit :{
@@ -398,376 +253,209 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    final ArrayList closure_lists = new ArrayList();
-    ArrayList<HashMap<String, Object>> closure_list = new ArrayList<>();
-    ArrayList<HashMap<String, Object>> bills_list = new ArrayList<>();
-    ArrayList<HashMap<String, Object>> bill_lines = new ArrayList<>();
-    public  URL generateURLGetBill (String ip, String port, String id){
-        Uri getUri;
-        getUri =Uri.parse("http://" + ip + ":" + port + "/MobileCash/json/GetBillsList?deviceId=" + id+"&includeLines=false")
-                .buildUpon()
-                .build();
-        URL url_bill = null;
-        try {
-            url_bill =new URL (getUri.toString());
-        } catch (MalformedURLException e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        }
-        return url_bill;
-
-    }
-    public String getResponseFromGetBill (URL url_bill) {
-        String data = "";
-        HttpURLConnection get_bill_Connection=null;
-        try {
-            get_bill_Connection =(HttpURLConnection) url_bill.openConnection();
-            get_bill_Connection.setRequestMethod("GET");
-            get_bill_Connection.setConnectTimeout(8000);
-            InputStream in = get_bill_Connection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(in);
-            int inputStreamData = inputStreamReader.read();
-
-            while (inputStreamData != -1) {
-                char current = (char) inputStreamData;
-                inputStreamData = inputStreamReader.read();
-                data += current;
-            }
-
-        } catch (Exception e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        } finally {
-            get_bill_Connection.disconnect();
-        }
-        return data;
-
-    }
-    private void reload_billlist(){
-        SharedPreferences tables = getSharedPreferences("Tables",MODE_PRIVATE);
-        try {
-            JSONObject bill_list_json = new JSONObject(Bill_list);
-            JSONArray bill_array = bill_list_json.getJSONArray("BillsList");
-            for (int i = 0; i < bill_array.length(); i++) {
-                JSONObject object = bill_array.getJSONObject(i);
-                Number = object.getInt("Number");
-                uid_table_in_bill=object.getString("TableUid");
-                name_tabl=tables.getString(uid_table_in_bill,"");
-                uid_billa = object.getString("Uid");
-                sum_bill = object.getString("SumAfterDiscount");
-                String sum = object.getString("Sum");
-                HashMap<String, Object> bill_ = new HashMap<>();
-                if(name_tabl.equals("")){
-                    name_tabl="--";
-                }
-                bill_.put("Number",Number);
-                bill_.put("Name",name_tabl);
-                bill_.put("Uid",uid_billa);
-                bill_.put("Sum",sum_bill);
-                bill_.put("Suma",sum);
-                bills_list.add(bill_);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-    private void setBills(){
-        reload_billlist();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            bills_list.sort(new Comparator<HashMap<String, Object>>() {
-                @Override
-                public int compare(HashMap<String, Object> o1, HashMap<String, Object> o2) {
-                    return o2.get("Number").toString().compareTo(o1.get("Number").toString());
-                }
-            });
-        }
-        list_bills_.setAdapter(simpleAdapterASL);
-    }
-    private void close_bill(){
-        String closure_name;
-        A_JSon = (sPref.getString("JSONObject", ""));
-        try {
-            JSONObject A_json = new JSONObject(A_JSon);
-            JSONArray closure_array = A_json.getJSONArray("ClosureTypeList");
-            for (int i = 0; i < closure_array.length(); i++) {
-                JSONObject object = closure_array.getJSONObject(i);
-                closure_name = object.getString("Name");
-                closeUid = object.getString("Uid");
-                HashMap<String,Object> type = new HashMap<>();
-                type.put("NameC",closure_name);
-                type.put("UidC",closeUid);
-                closure_list.add(type);
-                closure_lists.add(closure_name);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-    protected void onCloseType() {
-        adapter = new ArrayAdapter<String>(this,android.R.layout.select_dialog_singlechoice, closure_lists);
-        simpleAdapterType = new SimpleAdapter(this, closure_list,android.R.layout.simple_list_item_1, new String[]{"NameС"}, new int[]{android.R.id.text1});
-        builderType = new AlertDialog.Builder(context);
-        builderType.setTitle("Inchiderea contului: "+Number_closed+ "\nSuma contului: " + Sum_closed );
-        builderType.setNegativeButton("Renunt", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                closure_list.clear();
-                closure_lists.clear();
-                dialogInterface.dismiss();
-            }
-        });
-        builderType.setAdapter(adapter, new DialogInterface.OnClickListener(){
-            @Override
-            public void onClick(DialogInterface dialog, int wich) {
-                pgH=new ProgressDialog(context);
-                pgH.setMessage("Asteptati...");
-                pgH.setIndeterminate(true);
-                pgH.setCancelable(false);
-                pgH.show();
-                String type_guid= String.valueOf(closure_list.get(wich).get("UidC"));
-                URL generatedURLClose_Bill = generateURLCloseBill(ip_,port,id_base_tel,uid_bill_to_close,type_guid);
-                new querryCloseBill().execute(generatedURLClose_Bill);
-                  closure_list.clear();
-                  closure_lists.clear();
-              }
-        });
-        builderType.setCancelable(false);
-        builderType.show();
-
-
-    }//onCloseType
-    private void ShowLines(String bill_response){
-        SharedPreferences asl_u = getSharedPreferences("Assortiment",MODE_PRIVATE);
-        try {
-            JSONObject bill_content_json = new JSONObject(bill_response);
-            JSONArray billis= bill_content_json.getJSONArray("BillsList");
-            JSONObject cont= billis.getJSONObject(0);
-            JSONArray bill_array = cont.getJSONArray("Lines");
-            for (int l = 0; l < bill_array.length(); l++) {
-                JSONObject object = bill_array.getJSONObject(l);
-                String uid_asortiment = object.getString("AssortimentUid");
-                String nameASL= asl_u.getString(uid_asortiment,"");
-                Double countASL = object.getDouble("Count");
-                HashMap<String, Object> bill_l = new HashMap<>();
-                String Count = String.valueOf(countASL) + " ";
-                bill_l.put("Name",nameASL);
-                bill_l.put("Count",Count);
-                bill_lines.add(bill_l);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-}
-    public URL generateURLCloseBill (String ip, String port, String id ,String bill_uid,String TypeUid){
-        Uri getUri;
-        getUri =Uri.parse("http://" + ip + ":" + port + "/MobileCash/json/CloseBill?deviceId=" + id+"&billUid=" +bill_uid+"&closeTypeUid="+TypeUid)
-                .buildUpon()
-                .build();
-        URL url_bill = null;
-        try {
-            url_bill =new URL (getUri.toString());
-        } catch (MalformedURLException e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        }
-        return url_bill;
-
-    }
-    public String getResponseFromCloseBill (URL url_bill) {
-        String data = "";
-        HttpURLConnection get_bill_Connection=null;
-        try {
-            get_bill_Connection =(HttpURLConnection) url_bill.openConnection();
-            get_bill_Connection.setRequestMethod("GET");
-            get_bill_Connection.setConnectTimeout(5000);
-            InputStream in = get_bill_Connection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(in);
-            int inputStreamData = inputStreamReader.read();
-
-            while (inputStreamData != -1) {
-                char current = (char) inputStreamData;
-                inputStreamData = inputStreamReader.read();
-                data += current;
-            }
-
-        } catch (Exception e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        } finally {
-            get_bill_Connection.disconnect();
-        }
-        return data;
-
-    }
-    public URL generateURLGetBillLines(String ip, String port, String id , String bill_uids){
-        Uri getUri;
-        getUri =Uri.parse("http://" + ip + ":" + port + "/MobileCash/json/GetBill?deviceId=" + id+"&billUid=" +bill_uids)
-                .buildUpon()
-                .build();
-        URL url_bill = null;
-        try {
-            url_bill =new URL (getUri.toString());
-        } catch (MalformedURLException e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        }
-        return url_bill;
-
-    }
-    public String getResponseFromGetsBills (URL url_bill) {
-        String data = "";
-        HttpURLConnection get_bill_Connection=null;
-        try {
-            get_bill_Connection =(HttpURLConnection) url_bill.openConnection();
-            get_bill_Connection.setRequestMethod("GET");
-            InputStream in = get_bill_Connection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(in);
-            int inputStreamData = inputStreamReader.read();
-
-            while (inputStreamData != -1) {
-                char current = (char) inputStreamData;
-                inputStreamData = inputStreamReader.read();
-                data += current;
-            }
-
-        } catch (Exception e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        } finally {
-            get_bill_Connection.disconnect();
-        }
-        return data;
-
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode==REQUEST_CODE_NewBill) {
             if (resultCode == RESULT_OK) {
-                ip_=(sPref.getString(IP_save,""));
-                port=(sPref.getString(Port_save,""));
-                id_base_tel = (sPref.getString(ID_resp_save,""));
-                pgH=new ProgressDialog(context);
-                pgH.setMessage("Asteptati...");
-                pgH.setIndeterminate(true);
-                pgH.setCancelable(false);
-                pgH.show();
+                showDialog();
                 bill_lines.clear();
-                listContent.setAdapter(simpleAdapterShow);
-                URL generatedURLGet_Bill = generateURLGetBill(ip_,port,id_base_tel);
-                new querryGetBill().execute(generatedURLGet_Bill);
-            }else if (resultCode == RESULT_CANCELED){
-                SharedPreferences.Editor ed = sPref.edit();
-                ed.putString("bills_uid",uid_billchecked);
-                ed.apply();
+                mListViewShowLine.setAdapter(mAdapterShowLine);
+                // TODO get billsList return on new Bill
+                getBillList(mIPConnect,mPortConnect,mDeviceID,false);
+
             }
         }
-        if (requestCode==REQUEST_CODE_Setng) {
+        if (requestCode==REQUEST_CODE_Settings) {
             if (resultCode == RESULT_OK) {
-                ip_=(sPref.getString(IP_save,""));
-                port=(sPref.getString(Port_save,""));
-                id_base_tel = (sPref.getString(ID_resp_save,""));
+                mIPConnect = (sPrefSettings.getString(IP_save,""));
+                mPortConnect = (sPrefSettings.getString(Port_save,""));
+                mDeviceID = (sPrefSettings.getString(Device_save,""));
                 bills_list.clear();
-                pgH=new ProgressDialog(context);
-                pgH.setMessage("Asteptati...");
-                pgH.setIndeterminate(true);
-                pgH.setCancelable(false);
-                pgH.show();
-                URL generatedURLGet_Bill = generateURLGetBill(ip_, port, id_base_tel);
-                new querryGetBill().execute(generatedURLGet_Bill);
+                showDialog();
+                // TODO get billsList return on Settings
+                getBillList(mIPConnect,mPortConnect,mDeviceID,false);
             }
         }
-        if (requestCode==REQUEST_CODE_EDBill) {
+        if (requestCode==REQUEST_CODE_EditBill) {
             if (resultCode == RESULT_OK) {
                 bill_lines.clear();
-                listContent.setAdapter(simpleAdapterShow);
-                ip_=(sPref.getString(IP_save,""));
-                port=(sPref.getString(Port_save,""));
-                id_base_tel = (sPref.getString(ID_resp_save,""));
-                pgH=new ProgressDialog(context);
-                pgH.setMessage("Asteptati...");
-                pgH.setIndeterminate(true);
-                pgH.setCancelable(false);
-                pgH.show();
-                URL generatedURLGet_Bill = generateURLGetBill(ip_,port,id_base_tel);
-                new querryGetBill().execute(generatedURLGet_Bill);
+                mListViewShowLine.setAdapter(mAdapterShowLine);
+                showDialog();
+                //TODO get biilsList return on EditBill
+                getBillList(mIPConnect,mPortConnect,mDeviceID,false);
             }
         }
+    }
+    private void getBill(final String ipAdress, final String portNumber, final String deviceID, final String billID){
+        bill_lines.clear();
+        Thread mGetBillsList = new Thread(new Runnable() {
+            public void run() {
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .connectTimeout(3, TimeUnit.MINUTES)
+                        .readTimeout(4, TimeUnit.MINUTES)
+                        .writeTimeout(2, TimeUnit.MINUTES)
+                        .build();
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl("http://" + ipAdress + ":" + portNumber)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .client(okHttpClient)
+                        .build();
+                ServiceGetBill serviceGetBill = retrofit.create(ServiceGetBill.class);
+                final Call<BillListResponseService> getBillCall = serviceGetBill.getBill(deviceID, billID);
+                getBillCall.enqueue(new Callback<BillListResponseService>() {
+                    @Override
+                    public void onResponse(Call<BillListResponseService> call, Response<BillListResponseService> response) {
+                        BillListResponseService responseBillsList = response.body();
+                        if(responseBillsList!=null){
+                            int mErrorCode = responseBillsList.getResult();
+                            if(mErrorCode == 0){
+                                List<Bill> billsList = responseBillsList.getBillsList();
+                                List<BillsLine> mBillLines = billsList.get(0).getLines();
+                                for (BillsLine line:mBillLines) {
+                                    HashMap<String, Object> bill_line = new HashMap<>();
+                                    bill_line.put(mMapAssortmentName,((GlobalVarialbles)getApplication()).getAssortmentName(line.getAssortimentUid()));
+                                    bill_line.put(mMapAssortmentCount,line.getCount());
+                                    bill_lines.add(bill_line);
+                                }
+                                mHandlerBills.obtainMessage(MESSAGE_BILL_SUCCES).sendToTarget();
+                            }
+                            else{
+                                mHandlerBills.obtainMessage(MESSAGE_BILL_RESULT_CODE,mErrorCode).sendToTarget();
+                            }
+
+                        }
+                        else{
+                            mHandlerBills.obtainMessage(MESSAGE_NULL_BODY).sendToTarget();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<BillListResponseService> call, Throwable t) {
+                        mHandlerBills.obtainMessage(MESSAGE_FAILURE,t.getMessage()).sendToTarget();
+                    }
+                });
+            }
+        });
+        mGetBillsList.start();
+    }
+    private void getBillList(final String ipAdress, final String portNumber, final String deviceID, final boolean includeLines){
+        Thread mGetBillsList = new Thread(new Runnable() {
+            public void run() {
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .connectTimeout(3, TimeUnit.MINUTES)
+                        .readTimeout(4, TimeUnit.MINUTES)
+                        .writeTimeout(2, TimeUnit.MINUTES)
+                        .build();
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl("http://" + ipAdress + ":" + portNumber)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .client(okHttpClient)
+                        .build();
+                ServiceBillList getBillListServiceApi = retrofit.create(ServiceBillList.class);
+                final Call<BillListResponseService> billListCall = getBillListServiceApi.getBillsList(deviceID, includeLines);
+                bills_list.clear();
+                billListCall.enqueue(new Callback<BillListResponseService>() {
+                    @Override
+                    public void onResponse(Call<BillListResponseService> call, Response<BillListResponseService> response) {
+                        BillListResponseService responseBillsList = response.body();
+                        if(responseBillsList!=null){
+                            int mErrorCode = responseBillsList.getResult();
+                            if(mErrorCode == 0){
+                                List<Bill > billsList = responseBillsList.getBillsList();
+
+                                for (int i = 0; i < billsList.size(); i++) {
+                                    mBillNumber = billsList.get(i).getNumber();
+                                    mBillID = billsList.get(i).getUid();
+                                    mTableID = billsList.get(i).getTableUid();
+                                    mBillSumAfterDiscount = billsList.get(i).getSumAfterDiscount();
+                                    mBillSum = billsList.get(i).getSum();
+                                    mTableName = ((GlobalVarialbles)getApplication()).getTableName(mTableID);
+
+                                    HashMap<String, Object> bill_ = new HashMap<>();
+                                    bill_.put(mMapBillNumber,mBillNumber);
+                                    bill_.put(mMapTableName,mTableName);
+                                    bill_.put(mMapBillGuid,mBillID);
+                                    bill_.put(mMapBillSumAfterDiscount,mBillSumAfterDiscount);
+                                    bill_.put(mMapBillSum,mBillSum);
+                                    bills_list.add(bill_);
+                                }
+                                mHandlerBills.obtainMessage(MESSAGE_SUCCES).sendToTarget();
+                            }
+                            else{
+                                mHandlerBills.obtainMessage(MESSAGE_RESULT_CODE,mErrorCode).sendToTarget();
+                            }
+                        }
+                        else{
+                            mHandlerBills.obtainMessage(MESSAGE_NULL_BODY).sendToTarget();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<BillListResponseService> call, Throwable t) {
+                        mHandlerBills.obtainMessage(MESSAGE_FAILURE,t.getMessage()).sendToTarget();
+                    }
+                });
+            }
+        });
+        mGetBillsList.start();
+    }
+    private final Handler mHandlerBills = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MESSAGE_SUCCES) {
+                pgH.dismiss();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    bills_list.sort(new Comparator<HashMap<String, Object>>() {
+                        @Override
+                        public int compare(HashMap<String, Object> o1, HashMap<String, Object> o2) {
+                            return o2.get(mMapBillNumber).toString().compareTo(o1.get(mMapBillNumber).toString());
+                        }
+                    });
+                }
+                mGridViewList_Bills.setAdapter(mAdapterBills);
+            }
+            else if (msg.what == MESSAGE_RESULT_CODE) {
+                pgH.dismiss();
+                int errorCode = Integer.valueOf(msg.obj.toString());
+
+            }
+            else if(msg.what == MESSAGE_BILL_SUCCES){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    bill_lines.sort(new Comparator<HashMap<String, Object>>() {
+                        @Override
+                        public int compare(HashMap<String, Object> o1, HashMap<String, Object> o2) {
+                            return o1.get(mMapAssortmentName).toString().compareTo(o2.get(mMapAssortmentName).toString());
+                        }
+                    });
+                }
+                mListViewShowLine.setAdapter(mAdapterShowLine);
+            }
+            else if(msg.what == MESSAGE_BILL_RESULT_CODE){
+                int errorCode = Integer.valueOf(msg.obj.toString());
+            }
+            else if (msg.what == MESSAGE_NULL_BODY) { }
+            else if (msg.what == MESSAGE_FAILURE){ }
+        }
+    };
+    private void showDialog(){
+        pgH.setMessage("Asteptati...");
+        pgH.setIndeterminate(true);
+        pgH.setCancelable(false);
+        pgH.show();
     }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            mDecorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            );
         }
-    }
-    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if (v instanceof EditText) {
-                v.clearFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
-            }
-        }
-        menu_bill.close(true);
-        return super.dispatchTouchEvent(event);
     }
 }

@@ -7,15 +7,16 @@
     android:layout_height="match_parent"
     tools:context=".StartedActivity">
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/side_tree_theme_background_main"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar_started"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" >
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
@@ -24,12 +25,14 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/appbar"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="65dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginStart="1dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginTop="8dp"
         android:padding="5dp"
-        app:srcCompat="@drawable/offic"
-        android:layout_alignParentLeft="true" />
+        app:srcCompat="@drawable/offic" />
 
     <Button
         android:id="@+id/btn_start"

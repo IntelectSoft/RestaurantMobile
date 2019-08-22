@@ -53,17 +53,26 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mDeviceID;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mIPConnect;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentIcon;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentName;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentPrice;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillTableGuid;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mPortConnect;
+
 public class AssortimentActivity extends AppCompatActivity {
-    final static String LOG_TAG = "myLogs";
-    ListView asl_view;
-    SimpleAdapter simpleAdapterASL;
-    public String cnt;
-    final String IP_save = "IP";
-    final String Port_save = "Port";
-    final String ID_resp_save = "ID_Mob";
     final Context context = this;
+    ListView mListViewShowAssortment;
+    SimpleAdapter mAdapterShowAssortment;
+    String mIPAdress,mPortNumber,mDeviceNumber, mTableGuid;
+    ArrayList mArrayCommentList;
+
+    public String cnt;
+
+
     JSONObject _ass,finalbil;
-    String ip_,port,id_base_tel,uid_billsa,asl_name_kit,table_uid,asl_name,price_asl,guid,Price_uid,folder_asl,A_JSon,Kit_membr;
+    String uid_billsa,asl_name_kit,asl_name,price_asl,guid,Price_uid,folder_asl,A_JSon,Kit_membr;
     JSONArray jsonArray;
     private EditText queryEditText;
     List<String> a=new ArrayList<>();
@@ -72,10 +81,10 @@ public class AssortimentActivity extends AppCompatActivity {
     ArrayAdapter<String> adapter;
     AlertDialog.Builder builderkit;
     SimpleAdapter simpleAdapterKIT;
-    ArrayList com_lists;
-    TextView text_asl ,text_price;
+
     ProgressDialog pgH;
-    Boolean one_step;
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu1) {
         getMenuInflater().inflate(R.menu.asortiment_menu, menu1);
@@ -233,10 +242,35 @@ public class AssortimentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_assortiment);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_sales);
         setSupportActionBar(toolbar);
+        Intent startIntent = getIntent();
+
         pgH=new ProgressDialog(context);
-        //addcomentTesxt
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        queryEditText = toolbar.findViewById(R.id.search_edit_text);
+        mListViewShowAssortment = findViewById(R.id.list_aslsale);
+
+        SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
+        SharedPreferences sPrefPre = getSharedPreferences("Bill_previewg", MODE_PRIVATE);
+
+        A_JSon = (sPref.getString("JSONObject", ""));
+        mIPAdress = (sPref.getString(mIPConnect,""));
+        mPortNumber = (sPref.getString(mPortConnect,""));
+        mDeviceNumber = (sPref.getString(mDeviceID,""));
+
+        mTableGuid = startIntent.getStringExtra(mNewBillTableGuid);
+        guid="00000000-0000-0000-0000-000000000000";
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         FloatingActionButton fab_preview = (FloatingActionButton) findViewById(R.id.fab_preview);
+
+        mAdapterShowAssortment = new SimpleAdapter(this, asl_list,R.layout.tesrt, new String[]{mMapAssortmentName,mMapAssortmentIcon,mMapAssortmentPrice}, new int[]{R.id.text_view_asl,R.id.image_view_asl_xm,R.id.text_test2});
+        mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
+
+        finalbil= new JSONObject();
+        jsonArray = new JSONArray();
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -312,20 +346,7 @@ public class AssortimentActivity extends AppCompatActivity {
                 startActivityForResult(new_bill_activity, REQUEST_CODE_PreviewBill);
             }
         });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        queryEditText = toolbar.findViewById(R.id.search_edit_text);
-        SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-        SharedPreferences sPrefPre = getSharedPreferences("Bill_previewg", MODE_PRIVATE);
-        A_JSon = (sPref.getString("JSONObject", ""));
-        ip_=(sPref.getString(IP_save,""));
-        port=(sPref.getString(Port_save,""));
-        id_base_tel = (sPref.getString(ID_resp_save,""));
-        table_uid = sPref.getString("TableUid","");
-        guid="00000000-0000-0000-0000-000000000000";
-        asl_view = findViewById(R.id.list_aslsale);
-        text_asl = findViewById(R.id.text_view_asl);
-        text_price= findViewById(R.id.text_test2);
+
         try {
             JSONArray orders = new JSONArray(sPrefPre.getString("orders",""));
             resultIn=orders.length();
@@ -333,11 +354,7 @@ public class AssortimentActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         initASLList();
-        simpleAdapterASL = new SimpleAdapter(this, asl_list,R.layout.tesrt, new String[]{"Name","icon","Price"}, new int[]{R.id.text_view_asl,R.id.image_view_asl_xm,R.id.text_test2});
-        asl_view.setAdapter(simpleAdapterASL);
 
-        finalbil= new JSONObject();
-        jsonArray = new JSONArray();
         asl_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
