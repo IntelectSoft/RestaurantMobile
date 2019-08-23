@@ -4,8 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Build;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -29,27 +27,158 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.example.igor.restaurantmobile.AssortimentList.Assortiment;
+import com.example.igor.restaurantmobile.AssortimentList.KitMember;
+import com.example.igor.restaurantmobile.CreateNewBill.Order;
+import com.example.igor.restaurantmobile.CreateNewBill.OrderParcelable;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentGuid;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapCommentGuid;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapCommentName;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mSaveOrderIntent;
 
 public class CountActivity extends AppCompatActivity {
     final Context context = this;
-    String name_asl,price_asl,comentarii,A_JSon,value,Kit_membr;
-    Boolean IntegerSales;
+    boolean mAllowNonIntegerSales,mCanSaveOrder;
     EditText Count_enter;
     ImageButton btn_plus,btn_del;
-    TextView name_forasl,price_forasl,ViewCom,btn_save,btn_cancel,add_comment;
-    ListView coment_view;
-    final static String LOG_TAG = "myLogs";
-    int h,k,g=1;
-    int i = 0;
-    ArrayList com_lists;
+    TextView mTextViewName,mTextViewPrice,mTextViewComments,btn_save,btn_cancel,add_comment;
+    ListView mListViewComments;
+    ArrayList<String> mArrayCommentsListAdded  = new ArrayList<>();
+    ArrayList<HashMap<String, Object>> mArrayCommentsList = new ArrayList<>();
+    ArrayList<HashMap<String, Object>> kitAssortmentList = new ArrayList<>();
+    List<KitMember> mKitMebmers = new List<KitMember>() {
+        @Override
+        public int size() {
+            return 0;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return false;
+        }
+
+        @Override
+        public Iterator<KitMember> iterator() {
+            return null;
+        }
+
+        @Override
+        public Object[] toArray() {
+            return new Object[0];
+        }
+
+        @Override
+        public <T> T[] toArray(T[] ts) {
+            return null;
+        }
+
+        @Override
+        public boolean add(KitMember kitMember) {
+            return false;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return false;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends KitMember> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean addAll(int i, @NonNull Collection<? extends KitMember> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public void clear() {
+
+        }
+
+        @Override
+        public KitMember get(int i) {
+            return null;
+        }
+
+        @Override
+        public KitMember set(int i, KitMember kitMember) {
+            return null;
+        }
+
+        @Override
+        public void add(int i, KitMember kitMember) {
+
+        }
+
+        @Override
+        public KitMember remove(int i) {
+            return null;
+        }
+
+        @Override
+        public int indexOf(Object o) {
+            return 0;
+        }
+
+        @Override
+        public int lastIndexOf(Object o) {
+            return 0;
+        }
+
+        @NonNull
+        @Override
+        public ListIterator<KitMember> listIterator() {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public ListIterator<KitMember> listIterator(int i) {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public List<KitMember> subList(int i, int i1) {
+            return null;
+        }
+    };
+    int indexKitMember = 0,kitSizeMembers;
+    String mGuidAssortment,mPriceLineGuid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,41 +187,44 @@ public class CountActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_count);
-        Count_enter = findViewById(R.id.edt_cnt);
-        btn_plus = findViewById(R.id.image_btn_add);
-        btn_del = findViewById(R.id.image_btn_del);
-        btn_save = findViewById(R.id.imageButton_save);
-        btn_cancel = findViewById(R.id.imageButton_cancel);
-        name_forasl = findViewById(R.id.name_asl_for_count);
-        price_forasl =findViewById(R.id.priceasl_for_count);
-        coment_view = findViewById(R.id.txt_coment);
-        add_comment=findViewById(R.id.img_add_comment);
-        coment_view.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        ViewCom=findViewById(R.id.txtViewCom);
-
-        SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-        SharedPreferences asl_u = getSharedPreferences("Assortiment",MODE_PRIVATE);
-        SharedPreferences asl_price = getSharedPreferences("Assortiment_price",MODE_PRIVATE);
-        SharedPreferences asl_sales = getSharedPreferences("Assortiment_Sales",MODE_PRIVATE);
-        A_JSon = (sPref.getString("JSONObject", ""));
-        String uid_save = (sPref.getString("Guid_Assortiment", ""));
-        name_asl = (asl_u.getString(uid_save, ""));
-        price_asl = (asl_price.getString(uid_save, ""));
-        comentarii =(sPref.getString("coments_Assortiment", ""));
-        Kit_membr = (sPref.getString("Sagi", ""));
-        IntegerSales=(asl_sales.getBoolean(uid_save,false));
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_count);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        Count_enter = findViewById(R.id.edt_cnt);
+        btn_plus = findViewById(R.id.image_btn_add);
+        btn_del = findViewById(R.id.image_btn_del);
+        btn_save = findViewById(R.id.imageButton_save);
+        btn_cancel = findViewById(R.id.imageButton_cancel);
+        mTextViewName = findViewById(R.id.name_asl_for_count);
+        mTextViewPrice =findViewById(R.id.priceasl_for_count);
+        mListViewComments = findViewById(R.id.txt_coment);
+        add_comment=findViewById(R.id.img_add_comment);
+        mListViewComments.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        mTextViewComments=findViewById(R.id.txtViewCom);
 
-        name_forasl.setText(name_asl);
-        price_forasl.setText("Pretul: "+price_asl);
-        com_lists = new ArrayList();
-        initist();
-        final SimpleAdapter simpleAdapterCOM = new SimpleAdapter(this, comm_list,R.layout.comment, new String[]{"Comentarii"}, new int[]{R.id.text_view_comment});
-        coment_view.setAdapter(simpleAdapterCOM);
+        Intent startIntent = getIntent();
+        mGuidAssortment = startIntent.getStringExtra(mMapAssortmentGuid);
+
+        final Assortiment assortiment = ((GlobalVarialbles)getApplication()).getAssortmentFromID(mGuidAssortment);
+        mAllowNonIntegerSales = assortiment.getAllowNonIntegerSale();
+        mPriceLineGuid = assortiment.getPricelineUid();
+        List<String> mCommentsList = assortiment.getComments();
+        mKitMebmers = assortiment.getKitMembers();
+
+        if(mCommentsList!= null){
+            for (String commentGuid:mCommentsList) {
+                HashMap<String, Object> commentMap = new HashMap<>();
+                commentMap.put(mMapCommentName,((GlobalVarialbles)getApplication()).getCommentName(commentGuid));
+                commentMap.put(mMapCommentGuid,commentGuid);
+                mArrayCommentsList.add(commentMap);
+            }
+        }
+        mTextViewName.setText(assortiment.getName());
+        mTextViewPrice.setText("Pretul: "+ assortiment.getPrice());
+        final SimpleAdapter mAdapterComments = new SimpleAdapter(this, mArrayCommentsList,R.layout.comment, new String[]{mMapCommentName}, new int[]{R.id.text_view_comment});
+        mListViewComments.setAdapter(mAdapterComments);
 
         Count_enter.addTextChangedListener(new TextWatcher() {
         @Override
@@ -100,149 +232,81 @@ public class CountActivity extends AppCompatActivity {
         }
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            if (IntegerSales) {
-                if (isDigits(String.valueOf(charSequence))) {
-                } else {
-                    Count_enter.setError("Format incorect!");
-                }
-            }else{
-                if (isDigitInteger(Count_enter.getText().toString())) {
-                } else {
+            if (!mAllowNonIntegerSales) {
+                if (!isInteger(Count_enter.getText().toString())) {
                     Count_enter.setError("Numai numere intregi!");
+                    mCanSaveOrder = false;
                 }
+                else mCanSaveOrder = true;
             }
+            else mCanSaveOrder = true;
         }
         @Override
         public void afterTextChanged(Editable editable) {
         }
-    });
+        });
         Count_enter.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int keyCode, KeyEvent event) {
                 if (keyCode == EditorInfo.IME_ACTION_DONE) {
-                    if (IntegerSales) {
-                        if (isDigits(Count_enter.getText().toString())) {
-                            SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                            SharedPreferences.Editor ed = sPref.edit();
-                            ed.putString("coments_Assortiment", "");
-                            ed.apply();
-                            Intent intent = new Intent();
-                            intent.putExtra("count", String.valueOf(Count_enter.getText()));
-                            intent.putExtra("comentar", com_lists);
-                            setResult(RESULT_OK, intent);
-                            finish();
-                            comm_list.clear();
-                        }
-                    } else {
-                        if (isDigitInteger(Count_enter.getText().toString())) {
-                            SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                            SharedPreferences.Editor ed = sPref.edit();
-                            ed.putString("coments_Assortiment", "");
-                            ed.apply();
-                            Intent intent = new Intent();
-                            intent.putExtra("count", String.valueOf(Count_enter.getText()));
-                            intent.putExtra("comentar", com_lists);
-                            setResult(RESULT_OK, intent);
-                            finish();
-                            comm_list.clear();
-                        }
-                    }
+                    saveOrder();
                 }
                 return false;
             }
         });
 
-        View.OnClickListener _save = new View.OnClickListener() {
+        btn_save.setOnClickListener (new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (IntegerSales) {
-                        if (isDigits(Count_enter.getText().toString())) {
-                            SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                            SharedPreferences.Editor ed = sPref.edit();
-                            ed.putString("coments_Assortiment", "");
-                            ed.apply();
-                            Intent intent = new Intent();
-                            intent.putExtra("count", String.valueOf(Count_enter.getText()));
-                            intent.putExtra("comentar", com_lists);
-                            setResult(RESULT_OK, intent);
-                            finish();
-                            comm_list.clear();
-                        }
-                    } else {
-                        if (isDigitInteger(Count_enter.getText().toString())) {
-                            SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                            SharedPreferences.Editor ed = sPref.edit();
-                            ed.putString("coments_Assortiment", "");
-                            ed.apply();
-                            Intent intent = new Intent();
-                            intent.putExtra("count", String.valueOf(Count_enter.getText()));
-                            intent.putExtra("comentar", com_lists);
-                            setResult(RESULT_OK, intent);
-                            finish();
-                            comm_list.clear();
-                        }
+                saveOrder();
+            }
+        });
+        btn_plus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mAllowNonIntegerSales) {
+                    Double curr = 0.0;
+                    try{
+                        curr = Double.valueOf(Count_enter.getText().toString());
+                    }catch (Exception e){
+                        curr = Double.valueOf(Count_enter.getText().toString().replace(",","."));
+                    }
+
+
+                    curr += 1;
+                    Count_enter.setText(String.valueOf(curr));
+                }
+                else{
+                    Integer curr = Integer.valueOf(Count_enter.getText().toString());
+                    curr += 1;
+                    Count_enter.setText(String.valueOf(curr));
                 }
             }
-        };
-        View.OnClickListener _add = new View.OnClickListener() {
+        });
+        btn_del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (IntegerSales) {
-                    if (isDigits(Count_enter.getText().toString())) {
-                        Double curr = Double.valueOf(String.valueOf(Count_enter.getText()));
-                        curr += 1;
-                        Count_enter.setText(String.valueOf(curr));
-                    }
-                }else{
-                    if (isDigitInteger(Count_enter.getText().toString())) {
-                        Integer curr = Integer.valueOf(Count_enter.getText().toString());
-                        curr += 1;
-                        Count_enter.setText(String.valueOf(curr));
-                    }
+                if (mAllowNonIntegerSales) {
+                    Double curr = Double.valueOf(String.valueOf(Count_enter.getText()));
+                    if (curr - 1 >= 0) curr -= 1;
+                    Count_enter.setText(String.valueOf(curr));
+                }
+                else{
+                    Integer curr = Integer.valueOf(Count_enter.getText().toString());
+                    if (curr - 1 >= 0) curr -= 1;
+                    Count_enter.setText(String.valueOf(curr));
                 }
             }
-        };
-        View.OnClickListener _del = new View.OnClickListener() {
+        });
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (IntegerSales) {
-                    if (isDigits(Count_enter.getText().toString())) {
-                        Double curr = Double.valueOf(String.valueOf(Count_enter.getText()));
-                        if (curr - 1 <= 0) {
-
-                        } else {
-                            curr -= 1;
-                        }
-                        Count_enter.setText(String.valueOf(curr));
-                    }
-                }else{
-                    if (isDigitInteger(Count_enter.getText().toString())) {
-                        Integer curr = Integer.valueOf(Count_enter.getText().toString());
-                        if (curr - 1 <= 0) {
-
-                        } else {
-                            curr -= 1;
-                        }
-                        Count_enter.setText(String.valueOf(curr));
-                    }
-                }
-
-            }
-        };
-        View.OnClickListener _cancel = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                SharedPreferences.Editor ed = sPref.edit();
-                ed.putString("coments_Assortiment","");
-                ed.apply();
-                Intent intent_cancel = new Intent();
-                setResult(RESULT_CANCELED,intent_cancel);
+                setResult(RESULT_CANCELED);
                 finish();
             }
-        };
+        });
 
-        View.OnClickListener _add_comm = new View.OnClickListener() {
+        add_comment.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -252,12 +316,12 @@ public class CountActivity extends AppCompatActivity {
                 input.setFocusable(true);
                 input.setInputType(InputType.TYPE_CLASS_TEXT);
                 builder.setView(input);
-                builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton("Adauga", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String singur_com= input.getText().toString();
-                        com_lists.add(singur_com);
-                        ViewCom.append(singur_com+ ", ");
+                        String mInputComment= input.getText().toString();
+                        mArrayCommentsListAdded.add(mInputComment);
+                        mTextViewComments.append( ", " + mInputComment);
                     }
                 });
                 builder.setNegativeButton("Renunt", new DialogInterface.OnClickListener() {
@@ -270,75 +334,25 @@ public class CountActivity extends AppCompatActivity {
                 dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
                 dialog.show();
             }
-        };
-        coment_view.setOnItemClickListener (new AdapterView.OnItemClickListener() {
+        });
+        mListViewComments.setOnItemClickListener (new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                coment_view.setItemChecked(position, true);
-                coment_view.setSelected(true);
-                String name_com =(String)comm_list.get(position).get("Comentarii");
-                com_lists.add(name_com);
-
-
+                mListViewComments.setItemChecked(position, true);
+                mListViewComments.setSelected(true);
+                mArrayCommentsListAdded.add((String)mArrayCommentsList.get(position).get(mMapCommentGuid));
             }
-        });//list_bils click listener
-        btn_del.setOnClickListener(_del);
-        btn_plus.setOnClickListener(_add);
-        btn_save.setOnClickListener(_save);
-        btn_cancel.setOnClickListener(_cancel);
-        add_comment.setOnClickListener(_add_comm);
-
-    }//onCreat
-    ArrayList<HashMap<String, Object>> comm_list = new ArrayList<>();
-    ArrayList<HashMap<String, Object>> sag_list = new ArrayList<>();
-    private void initist() {
-        SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-        A_JSon = (sPref.getString("JSONObject", ""));
-        try {
-            JSONObject asl_json = new JSONObject(A_JSon);
-            JSONArray asl_array = asl_json.getJSONArray("CommentsList");
-            JSONArray coment_json =  new JSONArray(comentarii);
-            for (int i = 0; i < coment_json.length(); i++) {
-                value = coment_json.getString(i);
-                for (int j = 0; j < asl_array.length(); j++) {
-                    JSONObject object = asl_array.getJSONObject(j);
-                    String com_name = object.getString("Comment");
-                    String uid_comm = object.getString("Uid");
-                    Integer price = object.getInt("Price");
-                    Boolean paranoid = uid_comm.contains(value);
-                    HashMap<String, Object> comm_ = new HashMap<>();
-                    if (paranoid) {
-                        comm_.put("Comentarii",com_name);
-                         comm_.put("Uid_com",uid_comm);
-//                         comm_.put("Price",String.valueOf(price));
-                        comm_list.add(comm_);
-                    }
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    } //initASLList
+        });
+    }
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
-            case android.R.id.home : {
-                Intent result_main = new Intent();
-                setResult(RESULT_CANCELED, result_main);
-                finish();
-            }break;
+        if (id == android.R.id.home) {
+            setResult(RESULT_CANCELED);
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
-    private static boolean isDigits(String s) throws NumberFormatException {
-        try {
-            Double.parseDouble(s);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-    private static boolean isDigitInteger(String s) throws NumberFormatException {
+    private static boolean isInteger(String s) throws NumberFormatException {
         try {
             Integer.parseInt(s);
             return true;
@@ -346,7 +360,6 @@ public class CountActivity extends AppCompatActivity {
             return false;
         }
     }
-
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             View v = getCurrentFocus();
@@ -374,5 +387,132 @@ public class CountActivity extends AppCompatActivity {
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             );
         }
+    }
+
+    private void saveOrder (){
+            if (mCanSaveOrder){
+                if(mKitMebmers == null || mKitMebmers.size() == 0 ) {
+                    Order newOrder = new Order();
+                    newOrder.setAssortimentUid(mGuidAssortment);
+                    newOrder.setCount(Count_enter.getText().toString());
+                    newOrder.setPriceLineUid(mPriceLineGuid);
+                    newOrder.setComments(mArrayCommentsListAdded);
+
+                    OrderParcelable saveOrder = new OrderParcelable(newOrder);
+
+                    Intent intent = new Intent();
+                    intent.putExtra(mSaveOrderIntent,saveOrder);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+                else{
+                    showKitMembers();
+                }
+            }
+            else Count_enter.setError("Cantitate introdus incorect!");
+    }
+    private void showKitMembers() {
+        kitAssortmentList = new ArrayList<>();
+        kitSizeMembers = mKitMebmers.size();
+        if(indexKitMember < kitSizeMembers){
+            KitMember kitMember = mKitMebmers.get(indexKitMember);
+            List<String> assortmentListKitMember = kitMember.getAssortimentList();
+            int kitStepNumber = kitMember.getStepNumber();
+            boolean kitMandatory = kitMember.getMandatory();
+
+            for (int i = 0; i < assortmentListKitMember.size(); i++){
+                String kitName = ((GlobalVarialbles)getApplication()).getAssortmentName(assortmentListKitMember.get(i));
+                HashMap<String, Object> asortimentKitMebmerMap = new HashMap<>();
+                asortimentKitMebmerMap.put("Name",kitName);
+                asortimentKitMebmerMap.put("Guid",assortmentListKitMember.get(i));
+                kitAssortmentList.add(asortimentKitMebmerMap);
+            }
+            if(assortmentListKitMember.size() == 1 && kitMandatory){
+                mArrayCommentsListAdded.add((String)kitAssortmentList.get(0).get("Guid"));
+                if (indexKitMember < kitSizeMembers) {
+                    indexKitMember += 1;
+                    showKitMembers();
+                } else {
+                    Order newOrder = new Order();
+                    newOrder.setAssortimentUid(mGuidAssortment);
+                    newOrder.setCount(Count_enter.getText().toString());
+                    newOrder.setPriceLineUid(mPriceLineGuid);
+                    newOrder.setComments(mArrayCommentsListAdded);
+                    OrderParcelable saveOrder = new OrderParcelable(newOrder);
+
+                    Intent intent = new Intent();
+                    intent.putExtra(mSaveOrderIntent,saveOrder);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+            }
+            else{
+                SimpleAdapter adapterKitMebmers = new SimpleAdapter(this, kitAssortmentList, android.R.layout.simple_list_item_1, new String[]{"Name"}, new int[]{android.R.id.text1});
+                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                dialog.setTitle("Kit step: " + kitStepNumber);
+                dialog.setCancelable(false);
+                dialog.setAdapter(adapterKitMebmers, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int wich) {
+                        mArrayCommentsListAdded.add((String)kitAssortmentList.get(wich).get("Guid"));
+                        if (indexKitMember < kitSizeMembers) {
+                            indexKitMember += 1;
+                            showKitMembers();
+                        } else {
+                            Order newOrder = new Order();
+                            newOrder.setAssortimentUid(mGuidAssortment);
+                            newOrder.setCount(Count_enter.getText().toString());
+                            newOrder.setPriceLineUid(mPriceLineGuid);
+                            newOrder.setComments(mArrayCommentsListAdded);
+                            OrderParcelable saveOrder = new OrderParcelable(newOrder);
+
+                            Intent intent = new Intent();
+                            intent.putExtra(mSaveOrderIntent,saveOrder);
+                            setResult(RESULT_OK, intent);
+                            finish();
+                        }
+                    }
+                });
+                if(!kitMandatory){
+                    dialog.setPositiveButton("Next", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (indexKitMember < kitSizeMembers) {
+                                indexKitMember += 1;
+                                showKitMembers();
+                            } else {
+                                Order newOrder = new Order();
+                                newOrder.setAssortimentUid(mGuidAssortment);
+                                newOrder.setCount(Count_enter.getText().toString());
+                                newOrder.setPriceLineUid(mPriceLineGuid);
+                                newOrder.setComments(mArrayCommentsListAdded);
+                                OrderParcelable saveOrder = new OrderParcelable(newOrder);
+
+                                Intent intent = new Intent();
+                                intent.putExtra(mSaveOrderIntent,saveOrder);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            }
+                        }
+                    });
+                }
+                dialog.show();
+            }
+
+        }
+        else{
+            Order newOrder = new Order();
+            newOrder.setAssortimentUid(mGuidAssortment);
+            newOrder.setCount(Count_enter.getText().toString());
+            newOrder.setPriceLineUid(mPriceLineGuid);
+            newOrder.setComments(mArrayCommentsListAdded);
+            OrderParcelable saveOrder = new OrderParcelable(newOrder);
+
+            Intent intent = new Intent();
+            intent.putExtra(mSaveOrderIntent,saveOrder);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+
     }
 }

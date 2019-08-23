@@ -6,7 +6,9 @@ import com.example.igor.restaurantmobile.AssortimentList.Assortiment;
 import com.example.igor.restaurantmobile.AssortimentList.AssortmentService;
 import com.example.igor.restaurantmobile.AssortimentList.ClosureType;
 import com.example.igor.restaurantmobile.AssortimentList.Comments;
+import com.example.igor.restaurantmobile.AssortimentList.KitMember;
 import com.example.igor.restaurantmobile.AssortimentList.Table;
+import com.example.igor.restaurantmobile.CreateNewBill.NewBill;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +31,9 @@ public class GlobalVarialbles extends Application {
     public static final String mMapAssortmentParenGuid = "AssortmentParenGuid";
     public static final String mMapAssortmentGuid = "AssortmentGuid";
     public static final String mMapAssortmentKitMembers = "AssortmentKitMembers";
-    public static final String mMapAssortmentComments = "AssortmentComments";
+    public static final String mMapCommentPriceLineGuid = "AssortmentComments";
+    public static final String mMapCommentName = "CommentName";
+    public static final String mMapCommentGuid = "CommentGuid";
     public static final String mMapAssortmentPriceLineGuid = "AssortmentLineGuid";
     public static final String mNewBillGuid = "NewBill";
     public static final String mGuidZero = "00000000-0000-0000-0000-000000000000";
@@ -37,13 +41,14 @@ public class GlobalVarialbles extends Application {
     public static final String mIPConnect = "IP";
     public static final String mPortConnect = "Port";
     public static final String mDeviceID = "ID_Device";
+    public static final String mSaveOrderIntent = "SavedOrder";
 
 
     List<Assortiment> assortmentList ;
     List<Table> tableList;
     List<ClosureType> closureTypeLists;
     List<Comments> commentsLists;
-    Table mTable;
+    NewBill mNewBill;
 
     public void setAssortmentList (List<Assortiment> assortmentService){
         this.assortmentList = assortmentService;
@@ -88,18 +93,6 @@ public class GlobalVarialbles extends Application {
         return tableList.size();
     }
 
-    public boolean getAssortmentAllowNonIntegerSale (String assortmentId){
-        boolean assortmentNonIntegerSales = false;
-        for (Assortiment assortiment:assortmentList) {
-            String assortmentGuid = assortiment.getUid();
-            if(assortmentGuid.equals(assortmentId)){
-                assortmentNonIntegerSales = assortiment.getAllowNonIntegerSale();
-                break;
-            }
-        }
-        return assortmentNonIntegerSales;
-    }
-
     public String getAssortmentName (String assortmentId){
         String assortmentName = null;
         for (Assortiment assortiment:assortmentList) {
@@ -112,17 +105,18 @@ public class GlobalVarialbles extends Application {
         return assortmentName;
     }
 
-    public double getAssortmentPrice (String assortmentId){
-        double assortmentPrice = 0;
-        for (Assortiment assortiment:assortmentList) {
-            String assortmentGuid = assortiment.getUid();
-            if(assortmentGuid.equals(assortmentId)){
-                assortmentPrice = assortiment.getPrice();
+    public String getCommentName (String commentId){
+        String commentName = null;
+        for (Comments comment:commentsLists) {
+            String assortmentGuid = comment.getUid();
+            if(assortmentGuid.equals(commentId)){
+                commentName = comment.getComment();
                 break;
             }
         }
-        return assortmentPrice;
+        return commentName;
     }
+
     public ArrayList<HashMap<String, Object>> getAssortmentFromParent(String parentID){
         ArrayList<HashMap<String, Object>> assortment_list = new ArrayList<>();
         for (Assortiment assortment:assortmentList) {
@@ -143,10 +137,8 @@ public class GlobalVarialbles extends Application {
                     assortmentMap.put(mMapAssortmentName, assortment.getName());
                     assortmentMap.put(mMapAssortmentGuid,assortment.getUid());
                     assortmentMap.put(mMapAssortmentParenGuid,assortment.getParentUid());
-                    assortmentMap.put(mMapAssortmentPrice,assortment.getPrice()+" lei");
+                    assortmentMap.put(mMapAssortmentPrice,assortment.getPrice());
                     assortmentMap.put(mMapAssortmentPriceLineGuid,assortment.getPricelineUid());
-                    assortmentMap.put(mMapAssortmentComments,assortment.getComments());
-                    assortmentMap.put(mMapAssortmentKitMembers,assortment.getKitMembers());
                     assortmentMap.put(mMapAssortmentIcon,R.drawable.asl901);
                     assortment_list.add(assortmentMap);
                 }
@@ -155,6 +147,58 @@ public class GlobalVarialbles extends Application {
         SortAssortmentList(assortment_list);
         return assortment_list;
     }
+
+    public ArrayList<HashMap<String, Object>> getAssortmentFromName(String name){
+        ArrayList<HashMap<String, Object>> assortment_list = new ArrayList<>();
+        for (Assortiment assortment:assortmentList) {
+            String nameAssortment = assortment.getName().toLowerCase();
+            if (nameAssortment.equals(name.toLowerCase())){
+                HashMap<String, Object> assortmentMap = new HashMap<>();
+                boolean isFolder = assortment.getIsFolder();
+                if(isFolder){
+                    assortmentMap.put(mMapAssortmentIsFolder,isFolder);
+                    assortmentMap.put(mMapAssortmentName, assortment.getName());
+                    assortmentMap.put(mMapAssortmentGuid,assortment.getUid());
+                    assortmentMap.put(mMapAssortmentParenGuid,assortment.getParentUid());
+                    assortmentMap.put(mMapAssortmentIcon,R.mipmap.folder);
+                    assortment_list.add(assortmentMap);
+                }
+                else{
+                    assortmentMap.put(mMapAssortmentIsFolder,isFolder);
+                    assortmentMap.put(mMapAssortmentName, assortment.getName());
+                    assortmentMap.put(mMapAssortmentGuid,assortment.getUid());
+                    assortmentMap.put(mMapAssortmentParenGuid,assortment.getParentUid());
+                    assortmentMap.put(mMapAssortmentPrice,assortment.getPrice()+" lei");
+                    assortmentMap.put(mMapAssortmentPriceLineGuid,assortment.getPricelineUid());
+                    assortmentMap.put(mMapAssortmentIcon,R.drawable.asl901);
+                    assortment_list.add(assortmentMap);
+                }
+            }
+        }
+        SortAssortmentList(assortment_list);
+        return assortment_list;
+    }
+
+    public Assortiment getAssortmentFromID(String id){
+       Assortiment assortiment = null;
+        for (Assortiment assortment:assortmentList) {
+            String idAssortment = assortment.getUid();
+            if (idAssortment.equals(id)){
+               assortiment = assortment;
+               break;
+
+            }
+        }
+        return assortiment;
+    }
+
+    public void setNewBill (NewBill bill){
+        this.mNewBill = bill;
+    }
+    public NewBill getNewBill (){
+        return mNewBill;
+    }
+
 
     private static void SortAssortmentList(ArrayList<HashMap<String, Object>> asl_list) {
         Collections.sort(asl_list, new Comparator<HashMap<String, Object>>() {

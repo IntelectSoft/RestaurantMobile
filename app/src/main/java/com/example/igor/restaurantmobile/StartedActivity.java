@@ -294,9 +294,11 @@ public class StartedActivity extends AppCompatActivity {
 
             }
             else if (msg.what == MESSAGE_NULL_BODY) {
-
+                Toast.makeText(StartedActivity.this, "body is null", Toast.LENGTH_SHORT).show();
             }
             else if (msg.what == MESSAGE_FAILURE){
+                String masjFailure = msg.obj.toString();
+                Toast.makeText(StartedActivity.this, masjFailure, Toast.LENGTH_SHORT).show();
 
             }
         }

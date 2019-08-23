@@ -36,6 +36,11 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.igor.restaurantmobile.AssortimentList.Comments;
+import com.example.igor.restaurantmobile.CreateNewBill.NewBill;
+import com.example.igor.restaurantmobile.CreateNewBill.Order;
+import com.example.igor.restaurantmobile.CreateNewBill.OrderParcelable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,50 +53,168 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mDeviceID;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mIPConnect;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentIcon;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentIsFolder;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentName;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentParenGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentPrice;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillTableGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mPortConnect;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mSaveOrderIntent;
 
 public class AssortimentActivity extends AppCompatActivity {
     final Context context = this;
     ListView mListViewShowAssortment;
     SimpleAdapter mAdapterShowAssortment;
-    String mIPAdress,mPortNumber,mDeviceNumber, mTableGuid,mGuidBill;
-    ArrayList mArrayCommentList;
+    String mIPAdress,mPortNumber,mDeviceNumber, mTableGuid,mGuidBillClicked,mGuidBillIntent;
+    boolean mAssortmentIsFolder;
 
     ArrayList<HashMap<String, Object>> mArrayAsssortmentList = new ArrayList<>();
-    final ArrayList kit_lists = new ArrayList();
-    ArrayList<HashMap<String, Object>> kit_list = new ArrayList<>();
+
     int mIndexClickedItem = 0;
-    List<String> mListClickedItems = new ArrayList<>();//List<String> a = new ArrayList<>();
-// int j = 0;
-
-    public String cnt;
+    List<String> mListClickedItems = new ArrayList<>();
 
 
-    JSONObject _ass,finalbil;
-    String uid_billsa,asl_name_kit,asl_name,price_asl,guid,Price_uid,folder_asl,A_JSon,Kit_membr;
+    JSONObject finalbil;
     JSONArray jsonArray;
     private EditText queryEditText;
 
     final int REQUEST_CODE_forCount = 3,REQUEST_CODE_PreviewBill=8;
-    int h,k,g,numberKit,mas,i,resultIn ,resultOut,x;
-    ArrayAdapter<String> adapter;
-    AlertDialog.Builder builderkit;
-    SimpleAdapter simpleAdapterKIT;
+    int resultIn ,resultOut,x;
 
     ProgressDialog pgH;
+    NewBill mCreateEditBill = new NewBill();
+    List<Order> orderListCreateEditBill = new List<Order>() {
+        @Override
+        public int size() {
+            return 0;
+        }
 
+        @Override
+        public boolean isEmpty() {
+            return false;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return false;
+        }
+
+        @Override
+        public Iterator<Order> iterator() {
+            return null;
+        }
+
+        @Override
+        public Object[] toArray() {
+            return new Object[0];
+        }
+
+        @Override
+        public <T> T[] toArray(T[] ts) {
+            return null;
+        }
+
+        @Override
+        public boolean add(Order order) {
+            return false;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return false;
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends Order> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean addAll(int i, @NonNull Collection<? extends Order> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> collection) {
+            return false;
+        }
+
+        @Override
+        public void clear() {
+
+        }
+
+        @Override
+        public Order get(int i) {
+            return null;
+        }
+
+        @Override
+        public Order set(int i, Order order) {
+            return null;
+        }
+
+        @Override
+        public void add(int i, Order order) {
+
+        }
+
+        @Override
+        public Order remove(int i) {
+            return null;
+        }
+
+        @Override
+        public int indexOf(Object o) {
+            return 0;
+        }
+
+        @Override
+        public int lastIndexOf(Object o) {
+            return 0;
+        }
+
+        @NonNull
+        @Override
+        public ListIterator<Order> listIterator() {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public ListIterator<Order> listIterator(int i) {
+            return null;
+        }
+
+        @NonNull
+        @Override
+        public List<Order> subList(int i, int i1) {
+            return null;
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu1) {
@@ -103,8 +226,7 @@ public class AssortimentActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case android.R.id.home : {
-                int siz = a.size();
-                if (siz==0) {
+                if (mListClickedItems.size() == 0) {
                         resultOut=jsonArray.length();
                     if (resultIn==resultOut){
                         Intent intent2 = new Intent();
@@ -125,53 +247,41 @@ public class AssortimentActivity extends AppCompatActivity {
                         exit.setPositiveButton("Da", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                                uid_billsa = (sPref.getString("bills_uid", ""));
-                                String uid="00000000-0000-0000-0000-000000000000";
-                                Boolean selector = uid_billsa.contains(uid);
                                 try {
-                                    finalbil.put("deviceId",id_base_tel);
-                                    if (selector){
-                                        finalbil.put("tableUid",table_uid);
-                                    }
-                                    finalbil.put("billUid", uid_billsa);
-                                    finalbil.put("tableUid", table_uid);
+                                    finalbil.put("deviceId",mDeviceNumber);
+                                    finalbil.put("billUid", mGuidBillIntent);
+                                    finalbil.put("tableUid", mTableGuid);
                                     finalbil.put("orders", jsonArray);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-                                URL generateURLSendBil = generateURLSendBill(ip_, port);
+                                URL generateURLSendBil = generateURLSendBill(mIPAdress, mPortNumber);
                                 new querrySendbill().execute(generateURLSendBil);
                             }
                         });
                         exit.show();
                     }
                 }else{
-                    x=siz-1;
-                    j-=1;
-                    guid=a.get(x);
-                    asl_list.clear();
-                    initASLList();
-                    asl_view.setAdapter(simpleAdapterASL);
-                    a.remove(x);
+                    x = mListClickedItems.size() - 1;
+                    mIndexClickedItem -= 1;
+                    mGuidBillClicked = mListClickedItems.get(x);
+                    initAssortmentList(mGuidBillClicked);
+                    mListClickedItems.remove(x);
                 }
             }break;
             case R.id.action_home : {
                 queryEditText.clearFocus();
                 queryEditText.setText("");
-                a.clear();
-                j=0;
-                guid="00000000-0000-0000-0000-000000000000";
-                asl_list.clear();
-                initASLList();
-                asl_view.setAdapter(simpleAdapterASL);
+                mListClickedItems.clear();
+                mIndexClickedItem = 0;
+                mGuidBillClicked = "00000000-0000-0000-0000-000000000000";
+                initAssortmentList(mGuidBillClicked);
             }break;
             case R.id.action_search : {
-                int siz = a.size();
                 String text_search =queryEditText.getText().toString();
-                asl_list.clear();
-                onSearch(text_search);
-                asl_view.setAdapter(simpleAdapterASL);
+                mArrayAsssortmentList.clear();
+                mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromName(text_search);
+                mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
             }break;
         }
         return super.onOptionsItemSelected(item);
@@ -261,7 +371,7 @@ public class AssortimentActivity extends AppCompatActivity {
         FloatingActionButton mSaveBill = (FloatingActionButton) findViewById(R.id.save_bill);
         FloatingActionButton mFabPreviewBill = (FloatingActionButton) findViewById(R.id.preview_bill);
 
-        mAdapterShowAssortment = new SimpleAdapter(this, mArrayAsssortmentList,R.layout.tesrt, new String[]{mMapAssortmentName,mMapAssortmentIcon,mMapAssortmentPrice}, new int[]{R.id.text_view_asl,R.id.image_view_asl_xm,R.id.text_test2});
+
         mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
 
         SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
@@ -272,57 +382,24 @@ public class AssortimentActivity extends AppCompatActivity {
         mDeviceNumber = (sPref.getString(mDeviceID,""));
 
         mTableGuid = startIntent.getStringExtra(mNewBillTableGuid);
-        mGuidBill = startIntent.getStringExtra(mNewBillGuid);
+        mGuidBillIntent = startIntent.getStringExtra(mNewBillGuid);
 
-        initAssortmentList();
 
-        A_JSon = (sPref.getString("JSONObject", ""));
+
+        initAssortmentList("00000000-0000-0000-0000-000000000000");
+
         finalbil= new JSONObject();
         jsonArray = new JSONArray();
-
-        try {
-            JSONArray orders = new JSONArray(sPrefPre.getString("orders",""));
-            resultIn=orders.length();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
 
         mSaveBill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                uid_billsa =(sPref.getString("bills_uid",""));
-                String uid="00000000-0000-0000-0000-000000000000";
-                Boolean selector = uid_billsa.contains(uid);
-                try {
-                    finalbil.put("deviceId",id_base_tel);
-                    if (selector){
-                        if (!table_uid.equals("")) {
-                            finalbil.put("tableUid", table_uid);
-                        }
-                    }
-                    finalbil.put("billUid",uid_billsa);
-                    finalbil.put("orders",jsonArray);
-                } catch (JSONException e) {
-                    final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-                    eroare.setTitle("Atentie!");
-                    eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-                    eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                mCreateEditBill.setDeviceId(mDeviceNumber);
+                mCreateEditBill.setTableUid(mTableGuid);
+                mCreateEditBill.setBillUid(mGuidBillIntent);
+                mCreateEditBill.setOrders(orderListCreateEditBill);
 
-                        }
-                    });
-                    eroare.show();
-                }
 
-                pgH.setMessage("Asteptati...");
-                pgH.setCancelable(false);
-                pgH.setIndeterminate(true);
-                pgH.show();
-                URL generateURLSendBil = generateURLSendBill(ip_,port);
-                new querrySendbill().execute(generateURLSendBil);
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
             }
@@ -330,35 +407,12 @@ public class AssortimentActivity extends AppCompatActivity {
         mFabPreviewBill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                uid_billsa =(sPref.getString("bills_uid",""));
-                String uid="00000000-0000-0000-0000-000000000000";
-                Boolean selector = uid_billsa.contains(uid);
-                try {
-                    finalbil.put("deviceId",id_base_tel);
-                    if (selector){
-                        if (!table_uid.equals("")) {
-                            finalbil.put("tableUid", table_uid);
-                        }
-                    }
-                    finalbil.put("billUid",uid_billsa);
-                    finalbil.put("orders",jsonArray);
-                } catch (JSONException e) {
-                    final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-                    eroare.setTitle("Atentie!");
-                    eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-                    eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                mCreateEditBill.setDeviceId(mDeviceNumber);
+                mCreateEditBill.setTableUid(mTableGuid);
+                mCreateEditBill.setBillUid(mGuidBillIntent);
+                mCreateEditBill.setOrders(orderListCreateEditBill);
 
-                        }
-                    });
-                    eroare.show();
-                }
-                SharedPreferences previewBill= getSharedPreferences("Bill_preview",MODE_PRIVATE);
-                SharedPreferences.Editor inputBill =previewBill.edit();
-                inputBill.putString("CreatedBill",String.valueOf(finalbil));
-                inputBill.apply();
+                ((GlobalVarialbles)getApplication()).setNewBill(mCreateEditBill);
                 Intent new_bill_activity = new Intent(".PreviewActivityRestaurant");
                 startActivityForResult(new_bill_activity, REQUEST_CODE_PreviewBill);
             }
@@ -366,67 +420,29 @@ public class AssortimentActivity extends AppCompatActivity {
         mListViewShowAssortment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mGuidBillClicked = (String)mArrayAsssortmentList.get(position).get(mMapAssortmentGuid);
+                String ParentUid = (String)mArrayAsssortmentList.get(position).get(mMapAssortmentParenGuid);
+                mAssortmentIsFolder = (Boolean) mArrayAsssortmentList.get(position).get(mMapAssortmentIsFolder);
 
-
-
-
-
-                SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                SharedPreferences.Editor ed = sPref.edit();
-                guid=(String)asl_list.get(position).get("Udale");
-                folder_asl=(String)asl_list.get(position).get("Folder_is");
-                Price_uid=(String) asl_list.get(position).get("Price_line_uid") ;
-                price_asl = (String) asl_list.get(position).get("Price") ;
-                asl_name  = (String) asl_list.get(position).get("Name");
-                String comentar = (String) asl_list.get(position).get("Comentarii");
-                String saghi = (String) asl_list.get(position).get("Sag");
-                String ParentUid = (String)asl_list.get(position).get("Parent_uid");
-
-                if(folder_asl=="false"){
-                    if (comentar!="null"){
-                        ed.putString("coments_Assortiment", comentar);
-                    }
-                    if(saghi!="null"){
-                        ed.putString("Sagi", saghi);
-                    }else{
-                        ed.putString("Sagi", "0");
-                    }
-                    ed.putString("Guid_Assortiment", guid);
-                    ed.apply();
+                if(!mAssortmentIsFolder){
                     Intent count_activity = new Intent(".CountActivityRestaurant");
+                    count_activity.putExtra(mMapAssortmentGuid,mGuidBillClicked);
                     startActivityForResult(count_activity,REQUEST_CODE_forCount);
-                    _ass = new JSONObject();
-                    try {
-                        _ass.put("AssortimentUid", guid);
-                        _ass.put("PriceLineUid", Price_uid);
-                    } catch (JSONException e) {
-                        final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-                        eroare.setTitle("Atentie!");
-                        eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-                        eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        });
-                        eroare.show();
-                    }
-
                 }else {
                     mListClickedItems.add(mIndexClickedItem,ParentUid);
                     mArrayAsssortmentList.clear();
-                    initAssortmentList();
+                    initAssortmentList(mGuidBillClicked);
                     mIndexClickedItem += 1;
                 }
             }
-        });//OnItemClickListener
+        });
         queryEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     String text_search =queryEditText.getText().toString().toLowerCase();
-                    asl_list.clear();
-                    onSearch(text_search);
+                    mArrayAsssortmentList.clear();
+                    mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromName(text_search);
                     mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
                     return true;
                 }
@@ -440,35 +456,13 @@ public class AssortimentActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_forCount) {
             if (resultCode == RESULT_OK) {
-                SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                SharedPreferences.Editor ed = sPref.edit();
-                ed.putString("coments_Assortiment", "");
-                ed.apply();
-                cnt = data.getStringExtra("count");
-                com_lists = data.getStringArrayListExtra("comentar");
-                Kit_membr = (sPref.getString("Sagi", ""));
-                if (!Kit_membr.equals("0")) {
-                    g = 1;
-                    i = 0;
-                    initKitMember();
-                    onP();
-                } else if (Kit_membr.equals("0")) {
-                    try {
-                        JSONArray comen__ = new JSONArray(com_lists);
-                        _ass.put("Count", cnt);
-                        _ass.put("Comments", comen__);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    jsonArray.put(_ass);
-                }
-            } else {
-                SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                SharedPreferences.Editor ed = sPref.edit();
-                ed.putString("coments_Assortiment", "");
-                ed.commit();
-
+                OrderParcelable parcelableOrder = data.getParcelableExtra(mSaveOrderIntent);
+                Order saveOrder = new Order();
+                saveOrder.setPriceLineUid(parcelableOrder.getPriceLineUid());
+                saveOrder.setCount(parcelableOrder.getCount());
+                saveOrder.setAssortimentUid(parcelableOrder.getAssortimentUid());
+                saveOrder.setComments(parcelableOrder.getComments());
+                orderListCreateEditBill.add(saveOrder);
             }
         }
         if (requestCode==REQUEST_CODE_PreviewBill){
@@ -498,8 +492,10 @@ public class AssortimentActivity extends AppCompatActivity {
         }
     }
 
-    private void initAssortmentList() {
-        mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromParent("00000000-0000-0000-0000-000000000000");
+    private void initAssortmentList(String guidClicked) {
+        mArrayAsssortmentList.clear();
+        mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromParent(guidClicked);
+        mAdapterShowAssortment = new SimpleAdapter(this, mArrayAsssortmentList,R.layout.tesrt, new String[]{mMapAssortmentName,mMapAssortmentIcon,mMapAssortmentPrice}, new int[]{R.id.text_view_asl,R.id.image_view_asl_xm,R.id.text_test2});
         mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
     }
     public URL generateURLSendBill (String ip,String port){
@@ -556,113 +552,6 @@ public class AssortimentActivity extends AppCompatActivity {
         }
         return data;
     }
-    private void initKitMember() {
-        try {
-            JSONObject asl_jsonKIT = new JSONObject(A_JSon);
-            JSONArray asl_arrayKIT = asl_jsonKIT.getJSONArray("AssortimentList");
-            JSONArray kitM_json =  new JSONArray(Kit_membr);
-            mas =kitM_json.length();
-            for (; i < g; i++) {  //Array KitMembers
-                JSONObject object = kitM_json.getJSONObject(i);
-                JSONArray asl_lis =object.getJSONArray("AssortimentList");
-                Boolean mandator = object.getBoolean("Mandatory");
-                numberKit = object.getInt("StepNumber");
-                kit_list.clear();
-                kit_lists.clear();
-                for (h= 0; h < asl_lis.length(); h++) {      //AsortimentList din KitMembers
-                    String asl_guid = asl_lis.getString(h);
-                    for (k = 0; k < asl_arrayKIT.length(); k++) {//AsortimentList din ttot Json-ul
-                        JSONObject object_asl = asl_arrayKIT.getJSONObject(k);
-                        asl_name_kit = object_asl.getString("Name");
-                        String uid_asl = object_asl.getString("Uid");
-                        boolean paranoid = uid_asl.contains(asl_guid);
-                        HashMap<String, Object> asortiment = new HashMap<>();
-                        if (paranoid) {
-                            asortiment.put("Names", asl_name_kit);
-                            asortiment.put("Uid_kit", asl_guid);
-                            asortiment.put("Mandatory", mandator);
-                            kit_list.add(asortiment);
-                            kit_lists.add(asl_name_kit);
-                        }
-                    } // 3 for
-                }//2 for
-            } //1 for
-
-        } catch (JSONException e) {
-           e.printStackTrace();
-        }
-    } //initKitMember
-    protected void onP() {
-        adapter = new ArrayAdapter<String>(this,android.R.layout.select_dialog_item, kit_lists);
-        simpleAdapterKIT = new SimpleAdapter(this, kit_list,android.R.layout.simple_list_item_1, new String[]{"Name"}, new int[]{android.R.id.text1});
-        builderkit = new AlertDialog.Builder(context);
-        builderkit.setTitle("Kit step: " + numberKit);
-        builderkit.setAdapter(adapter, new DialogInterface.OnClickListener(){
-            @Override
-            public void onClick(DialogInterface dialog, int wich) {
-                com_lists.add(kit_list.get(wich).get("Uid_kit"));
-                if(i<mas) {
-                    kit_lists.clear();
-                    g += 1;
-                    initKitMember();
-                    onP();
-
-                }else{
-                    try {
-                        JSONArray comen__ = new JSONArray(com_lists);
-                        _ass.put("Count", cnt);
-                        _ass.put("Comments", comen__);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    jsonArray.put(_ass);
-                }
-            }
-        });
-        builderkit.show();
-    }
-    private void onSearch(String search_text) {
-        try {
-            JSONObject asl_json = new JSONObject(A_JSon);
-            JSONArray asl_array = asl_json.getJSONArray("AssortimentList");
-            for (int l = 0; l < asl_array.length(); l++) {
-                JSONObject object = asl_array.getJSONObject(l);
-                String asl_name = object.getString("Name");
-                String uid_asl = object.getString("Uid");
-                Integer price = object.getInt("Price");
-                String kit_sag =object.getString("KitMembers");
-                Boolean is_folder = object.getBoolean("IsFolder");
-                String price_line_uid = object.getString("PricelineUid");
-                Boolean paranoid = asl_name.toLowerCase().contains(search_text);
-                HashMap<String, Object> asl_ = new HashMap<>();
-                String coment = object.getString("Comments");
-                if (paranoid) {
-                    if (!is_folder){
-                        asl_.put("Folder_is",String.valueOf(is_folder));
-                        asl_.put("icon",R.drawable.asl901);
-                        asl_.put("Name", asl_name);
-                        asl_.put("Udale",uid_asl);
-                        asl_.put("Sag",kit_sag);
-                        asl_.put("Comentarii", coment);
-                        asl_.put("Price",String.valueOf(price));
-                        asl_.put("Price_line_uid",String.valueOf(price_line_uid));
-                        asl_list.add(asl_);
-                    }
-                }
-            }
-        } catch (JSONException e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        }
-    }
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -694,8 +583,7 @@ public class AssortimentActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        int siz = a.size();
-        if (siz==0) {
+        if (mListClickedItems.size() == 0) {
             resultOut=jsonArray.length();
             if (resultIn==resultOut){
                 Intent intent2 = new Intent();
@@ -716,35 +604,26 @@ public class AssortimentActivity extends AppCompatActivity {
                 exit.setPositiveButton("Da", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                        uid_billsa = (sPref.getString("bills_uid", ""));
-                        String uid="00000000-0000-0000-0000-000000000000";
-                        Boolean selector = uid_billsa.contains(uid);
                         try {
-                            finalbil.put("deviceId",id_base_tel);
-                            if (selector){
-                                finalbil.put("tableUid",table_uid);
-                            }
-                            finalbil.put("billUid", uid_billsa);
-                            finalbil.put("tableUid", table_uid);
+                            finalbil.put("deviceId",mDeviceNumber);
+                            finalbil.put("billUid", mGuidBillIntent);
+                            finalbil.put("tableUid", mTableGuid);
                             finalbil.put("orders", jsonArray);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        URL generateURLSendBil = generateURLSendBill(ip_, port);
+                        URL generateURLSendBil = generateURLSendBill(mIPAdress, mPortNumber);
                         new querrySendbill().execute(generateURLSendBil);
                     }
                 });
                 exit.show();
             }
         }else{
-            x=siz-1;
-            j-=1;
-            guid=a.get(x);
-            asl_list.clear();
-            initASLList();
-            asl_view.setAdapter(simpleAdapterASL);
-            a.remove(x);
+            x = mListClickedItems.size() - 1;
+            mIndexClickedItem -= 1;
+            mGuidBillClicked = mListClickedItems.get(x);
+            initAssortmentList(mGuidBillClicked);
+            mListClickedItems.remove(x);
         }
     }
 }
