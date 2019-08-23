@@ -43,7 +43,7 @@
     <include layout="@layout/content_assortiment" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/save_bill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
@@ -52,7 +52,7 @@
         app:srcCompat="@drawable/save_white_48dp" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_preview"
+        android:id="@+id/preview_bill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

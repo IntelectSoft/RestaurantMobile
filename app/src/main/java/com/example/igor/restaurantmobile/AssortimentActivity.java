@@ -58,6 +58,7 @@ import static com.example.igor.restaurantmobile.GlobalVarialbles.mIPConnect;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentIcon;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentName;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentPrice;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillTableGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mPortConnect;
 
@@ -65,8 +66,15 @@ public class AssortimentActivity extends AppCompatActivity {
     final Context context = this;
     ListView mListViewShowAssortment;
     SimpleAdapter mAdapterShowAssortment;
-    String mIPAdress,mPortNumber,mDeviceNumber, mTableGuid;
+    String mIPAdress,mPortNumber,mDeviceNumber, mTableGuid,mGuidBill;
     ArrayList mArrayCommentList;
+
+    ArrayList<HashMap<String, Object>> mArrayAsssortmentList = new ArrayList<>();
+    final ArrayList kit_lists = new ArrayList();
+    ArrayList<HashMap<String, Object>> kit_list = new ArrayList<>();
+    int mIndexClickedItem = 0;
+    List<String> mListClickedItems = new ArrayList<>();//List<String> a = new ArrayList<>();
+// int j = 0;
 
     public String cnt;
 
@@ -75,9 +83,9 @@ public class AssortimentActivity extends AppCompatActivity {
     String uid_billsa,asl_name_kit,asl_name,price_asl,guid,Price_uid,folder_asl,A_JSon,Kit_membr;
     JSONArray jsonArray;
     private EditText queryEditText;
-    List<String> a=new ArrayList<>();
+
     final int REQUEST_CODE_forCount = 3,REQUEST_CODE_PreviewBill=8;
-    int h,k,g,numberKit,mas,i,resultIn ,resultOut,j=0,x;
+    int h,k,g,numberKit,mas,i,resultIn ,resultOut,x;
     ArrayAdapter<String> adapter;
     AlertDialog.Builder builderkit;
     SimpleAdapter simpleAdapterKIT;
@@ -242,36 +250,45 @@ public class AssortimentActivity extends AppCompatActivity {
         setContentView(R.layout.activity_assortiment);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_sales);
         setSupportActionBar(toolbar);
-        Intent startIntent = getIntent();
 
-        pgH=new ProgressDialog(context);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        Intent startIntent = getIntent();
+        pgH=new ProgressDialog(context);
         queryEditText = toolbar.findViewById(R.id.search_edit_text);
         mListViewShowAssortment = findViewById(R.id.list_aslsale);
+        FloatingActionButton mSaveBill = (FloatingActionButton) findViewById(R.id.save_bill);
+        FloatingActionButton mFabPreviewBill = (FloatingActionButton) findViewById(R.id.preview_bill);
+
+        mAdapterShowAssortment = new SimpleAdapter(this, mArrayAsssortmentList,R.layout.tesrt, new String[]{mMapAssortmentName,mMapAssortmentIcon,mMapAssortmentPrice}, new int[]{R.id.text_view_asl,R.id.image_view_asl_xm,R.id.text_test2});
+        mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
 
         SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
         SharedPreferences sPrefPre = getSharedPreferences("Bill_previewg", MODE_PRIVATE);
 
-        A_JSon = (sPref.getString("JSONObject", ""));
         mIPAdress = (sPref.getString(mIPConnect,""));
         mPortNumber = (sPref.getString(mPortConnect,""));
         mDeviceNumber = (sPref.getString(mDeviceID,""));
 
         mTableGuid = startIntent.getStringExtra(mNewBillTableGuid);
-        guid="00000000-0000-0000-0000-000000000000";
+        mGuidBill = startIntent.getStringExtra(mNewBillGuid);
 
+        initAssortmentList();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        FloatingActionButton fab_preview = (FloatingActionButton) findViewById(R.id.fab_preview);
-
-        mAdapterShowAssortment = new SimpleAdapter(this, asl_list,R.layout.tesrt, new String[]{mMapAssortmentName,mMapAssortmentIcon,mMapAssortmentPrice}, new int[]{R.id.text_view_asl,R.id.image_view_asl_xm,R.id.text_test2});
-        mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
-
+        A_JSon = (sPref.getString("JSONObject", ""));
         finalbil= new JSONObject();
         jsonArray = new JSONArray();
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        try {
+            JSONArray orders = new JSONArray(sPrefPre.getString("orders",""));
+            resultIn=orders.length();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        mSaveBill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
@@ -310,7 +327,7 @@ public class AssortimentActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
             }
         });
-        fab_preview.setOnClickListener(new View.OnClickListener() {
+        mFabPreviewBill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
@@ -346,18 +363,14 @@ public class AssortimentActivity extends AppCompatActivity {
                 startActivityForResult(new_bill_activity, REQUEST_CODE_PreviewBill);
             }
         });
-
-        try {
-            JSONArray orders = new JSONArray(sPrefPre.getString("orders",""));
-            resultIn=orders.length();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        initASLList();
-
-        asl_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListViewShowAssortment.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+
+
+
                 SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
                 SharedPreferences.Editor ed = sPref.edit();
                 guid=(String)asl_list.get(position).get("Udale");
@@ -368,6 +381,7 @@ public class AssortimentActivity extends AppCompatActivity {
                 String comentar = (String) asl_list.get(position).get("Comentarii");
                 String saghi = (String) asl_list.get(position).get("Sag");
                 String ParentUid = (String)asl_list.get(position).get("Parent_uid");
+
                 if(folder_asl=="false"){
                     if (comentar!="null"){
                         ed.putString("coments_Assortiment", comentar);
@@ -399,11 +413,10 @@ public class AssortimentActivity extends AppCompatActivity {
                     }
 
                 }else {
-                    a.add(j,ParentUid);
-                    asl_list.clear();
-                    initASLList();
-                    asl_view.setAdapter(simpleAdapterASL);
-                    j+=1;
+                    mListClickedItems.add(mIndexClickedItem,ParentUid);
+                    mArrayAsssortmentList.clear();
+                    initAssortmentList();
+                    mIndexClickedItem += 1;
                 }
             }
         });//OnItemClickListener
@@ -414,7 +427,7 @@ public class AssortimentActivity extends AppCompatActivity {
                     String text_search =queryEditText.getText().toString().toLowerCase();
                     asl_list.clear();
                     onSearch(text_search);
-                    asl_view.setAdapter(simpleAdapterASL);
+                    mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
                     return true;
                 }
                 return false;
@@ -484,70 +497,11 @@ public class AssortimentActivity extends AppCompatActivity {
             }
         }
     }
-    ArrayList<HashMap<String, Object>> asl_list = new ArrayList<>();
-    final ArrayList kit_lists = new ArrayList();
-    ArrayList<HashMap<String, Object>> kit_list = new ArrayList<>();
-    private void initASLList() {
-        try {
-            JSONObject asl_json = new JSONObject(A_JSon);
-            JSONArray asl_array = asl_json.getJSONArray("AssortimentList");
 
-            for (int l = 0; l < asl_array.length(); l++) {
-                JSONObject object = asl_array.getJSONObject(l);
-                String asl_name = object.getString("Name");
-                String uid_asl = object.getString("Uid");
-                Integer price = object.getInt("Price");
-                String kit_sag =object.getString("KitMembers");
-                Boolean is_folder = object.getBoolean("IsFolder");
-                String parents_uid = object.getString("ParentUid");
-                String price_line_uid = object.getString("PricelineUid");
-                Boolean paranoid = parents_uid.contains(guid);
-                HashMap<String, Object> asl_ = new HashMap<>();
-                String coment = object.getString("Comments");
-                if (paranoid) {
-                    if (!is_folder){
-                        asl_.put("Folder_is",String.valueOf(is_folder));
-                        String Asl_Price = String.valueOf(price)+ " lei";
-                        asl_.put("icon",R.drawable.asl901);
-                        asl_.put("Name", asl_name);
-                        asl_.put("Udale",uid_asl);
-                        asl_.put("Sag",kit_sag);
-                        asl_.put("Comentarii", coment);
-                        asl_.put("Price",Asl_Price);
-                        asl_.put("Price_line_uid",String.valueOf(price_line_uid));
-                        asl_list.add(asl_);
-                    }else {
-                        asl_.put("Folder_is",String.valueOf(is_folder));
-                        asl_.put("Parent_uid",parents_uid);
-                        asl_.put("Name", asl_name);
-                        asl_.put("Udale",uid_asl);
-                        asl_.put("icon",R.mipmap.folder);
-
-                        asl_list.add(asl_);
-                    }
-                }
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                asl_list.sort(new Comparator<HashMap<String, Object>>() {
-                    @Override
-                    public int compare(HashMap<String, Object> o1, HashMap<String, Object> o2) {
-                        return o1.get("Name").toString().compareTo(o2.get("Name").toString());
-                    }
-                });
-            }
-        } catch (JSONException e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        }
-    } //initASLList
+    private void initAssortmentList() {
+        mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromParent("00000000-0000-0000-0000-000000000000");
+        mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
+    }
     public URL generateURLSendBill (String ip,String port){
         Uri send_b;
         send_b = Uri.parse("http://" + ip + ":" + port + "/MobileCash/json/AddOrders")
