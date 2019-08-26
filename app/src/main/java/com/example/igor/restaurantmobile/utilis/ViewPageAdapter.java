@@ -4,8 +4,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.igor.restaurantmobile.TabLicense;
-import com.example.igor.restaurantmobile.TabSetting;
+import com.example.igor.restaurantmobile.TabOther;
+import com.example.igor.restaurantmobile.TabConnect;
 
 public class ViewPageAdapter extends FragmentPagerAdapter {
     public ViewPageAdapter(FragmentManager fm) {
@@ -15,10 +15,10 @@ public class ViewPageAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
        if (position== 0){
-            TabSetting one= new TabSetting();
+            TabConnect one= new TabConnect();
             return one;
        }else{
-         TabLicense two= new TabLicense();
+         TabOther two= new TabOther();
          return  two;
        }
     }

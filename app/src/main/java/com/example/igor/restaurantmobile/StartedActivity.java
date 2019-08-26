@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -151,7 +152,10 @@ public class StartedActivity extends AppCompatActivity {
         if (requestCode==REQUEST_CODE_Settings) {
             if (resultCode == RESULT_OK) {
                 SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-                boolean reg_start = sPref.getBoolean("Start",false);
+                ip_=(sPref.getString(IP_save,""));
+                port=(sPref.getString(Port_save,""));
+                mDeviceID = (sPref.getString(Device_save,""));
+                boolean reg_start = ((GlobalVarialbles)getApplication()).getStartWork();
                 if (reg_start) {
                     Intent start_mainactivity = new Intent(".MainActivityRestaurant");
                     startActivity(start_mainactivity);
@@ -272,34 +276,34 @@ public class StartedActivity extends AppCompatActivity {
             }
             else if (msg.what == MESSAGE_RESULT_CODE) {
                 int errorCode = Integer.valueOf(msg.obj.toString());
-                if (errorCode == 2) {
-                    final AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-                    dialog.setTitle("Dispozitivul "+ mDeviceID+ " nu este inregistrat!");
-                    dialog.setMessage("Doriti sa deschideti setarile?");
-                    dialog.setNegativeButton("Nu", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
-                        }
-                    });
-                    dialog.setPositiveButton("Da", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent setting_activity = new Intent(".SettingsActivity");
-                            startActivityForResult(setting_activity,REQUEST_CODE_Settings);
-                        }
-                    });
-                    dialog.show();
+                switch (errorCode){
+                    case 1 : {
+                        Snackbar.make(start, "UnknownError", Snackbar.LENGTH_LONG)
+                                .show();
+                    }break;
+                    case 2 : {
+                        Snackbar.make(start, "DeviceNotRegistered", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 3 : {
+                        Snackbar.make(start, "ShiftIsNotValid", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 4 : {
+                        Snackbar.make(start, "BillNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 5 : {
+                        Snackbar.make(start, "ClientNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 6 : {
+                        Snackbar.make(start, "SecurityException", Snackbar.LENGTH_LONG).show();
+                    }break;
                 }
 
             }
             else if (msg.what == MESSAGE_NULL_BODY) {
-                Toast.makeText(StartedActivity.this, "body is null", Toast.LENGTH_SHORT).show();
+                Snackbar.make(start, "Response body is null: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
             }
             else if (msg.what == MESSAGE_FAILURE){
-                String masjFailure = msg.obj.toString();
-                Toast.makeText(StartedActivity.this, masjFailure, Toast.LENGTH_SHORT).show();
-
+                Snackbar.make(start, "Failure save bill: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
             }
         }
     };

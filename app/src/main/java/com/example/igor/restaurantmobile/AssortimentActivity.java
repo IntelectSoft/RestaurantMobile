@@ -2,6 +2,7 @@ package com.example.igor.restaurantmobile;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -37,6 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.igor.restaurantmobile.AssortimentList.Comments;
+import com.example.igor.restaurantmobile.Bill.ServiceSaveBill;
+import com.example.igor.restaurantmobile.BillList.BillListResponseService;
 import com.example.igor.restaurantmobile.CreateNewBill.NewBill;
 import com.example.igor.restaurantmobile.CreateNewBill.Order;
 import com.example.igor.restaurantmobile.CreateNewBill.OrderParcelable;
@@ -60,6 +65,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mDeviceID;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mIPConnect;
@@ -69,6 +82,7 @@ import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentI
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentName;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentParenGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentPrice;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillNumber;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillTableGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mPortConnect;
@@ -83,138 +97,21 @@ public class AssortimentActivity extends AppCompatActivity {
 
     ArrayList<HashMap<String, Object>> mArrayAsssortmentList = new ArrayList<>();
 
-    int mIndexClickedItem = 0;
+    int mIndexClickedItem = 0,mLastIndexClickedItem;
+    int MESSAGE_SUCCES = 0,MESSAGE_RESULT_CODE = 1,MESSAGE_NULL_BODY = 2 , MESSAGE_FAILURE = 3;
     List<String> mListClickedItems = new ArrayList<>();
 
 
     JSONObject finalbil;
     JSONArray jsonArray;
     private EditText queryEditText;
+    FloatingActionButton mSaveBill,mFabPreviewBill;
 
     final int REQUEST_CODE_forCount = 3,REQUEST_CODE_PreviewBill=8;
-    int resultIn ,resultOut,x;
 
     ProgressDialog pgH;
     NewBill mCreateEditBill = new NewBill();
-    List<Order> orderListCreateEditBill = new List<Order>() {
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return false;
-        }
-
-        @Override
-        public Iterator<Order> iterator() {
-            return null;
-        }
-
-        @Override
-        public Object[] toArray() {
-            return new Object[0];
-        }
-
-        @Override
-        public <T> T[] toArray(T[] ts) {
-            return null;
-        }
-
-        @Override
-        public boolean add(Order order) {
-            return false;
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            return false;
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> collection) {
-            return false;
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends Order> collection) {
-            return false;
-        }
-
-        @Override
-        public boolean addAll(int i, @NonNull Collection<? extends Order> collection) {
-            return false;
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> collection) {
-            return false;
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> collection) {
-            return false;
-        }
-
-        @Override
-        public void clear() {
-
-        }
-
-        @Override
-        public Order get(int i) {
-            return null;
-        }
-
-        @Override
-        public Order set(int i, Order order) {
-            return null;
-        }
-
-        @Override
-        public void add(int i, Order order) {
-
-        }
-
-        @Override
-        public Order remove(int i) {
-            return null;
-        }
-
-        @Override
-        public int indexOf(Object o) {
-            return 0;
-        }
-
-        @Override
-        public int lastIndexOf(Object o) {
-            return 0;
-        }
-
-        @NonNull
-        @Override
-        public ListIterator<Order> listIterator() {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public ListIterator<Order> listIterator(int i) {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public List<Order> subList(int i, int i1) {
-            return null;
-        }
-    };
+    List<Order> orderListCreateEditBill = new ArrayList<>();
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu1) {
@@ -227,46 +124,17 @@ public class AssortimentActivity extends AppCompatActivity {
         switch (id){
             case android.R.id.home : {
                 if (mListClickedItems.size() == 0) {
-                        resultOut=jsonArray.length();
-                    if (resultIn==resultOut){
-                        Intent intent2 = new Intent();
-                        setResult(RESULT_CANCELED, intent2);
+                    if (orderListCreateEditBill.size() == 0){
                         finish();
                     }else{
-                        AlertDialog.Builder exit = new AlertDialog.Builder(context);
-                        exit.setTitle("Documentul nu este salvat!");
-                        exit.setMessage("Doriti sa slavati comanda? Daca doriti sa ramineti ,apasati in orice punct a ecranului.");
-                        exit.setNegativeButton("Nu", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Intent intent2 = new Intent();
-                                setResult(RESULT_CANCELED, intent2);
-                                finish();
-                            }
-                        });
-                        exit.setPositiveButton("Da", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                try {
-                                    finalbil.put("deviceId",mDeviceNumber);
-                                    finalbil.put("billUid", mGuidBillIntent);
-                                    finalbil.put("tableUid", mTableGuid);
-                                    finalbil.put("orders", jsonArray);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                URL generateURLSendBil = generateURLSendBill(mIPAdress, mPortNumber);
-                                new querrySendbill().execute(generateURLSendBil);
-                            }
-                        });
-                        exit.show();
+                        exitDialog();
                     }
                 }else{
-                    x = mListClickedItems.size() - 1;
+                    mLastIndexClickedItem = mListClickedItems.size() - 1;
                     mIndexClickedItem -= 1;
-                    mGuidBillClicked = mListClickedItems.get(x);
+                    mGuidBillClicked = mListClickedItems.get(mLastIndexClickedItem);
                     initAssortmentList(mGuidBillClicked);
-                    mListClickedItems.remove(x);
+                    mListClickedItems.remove(mLastIndexClickedItem);
                 }
             }break;
             case R.id.action_home : {
@@ -286,71 +154,6 @@ public class AssortimentActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    class querrySendbill extends AsyncTask<URL, String,String> {
-
-        @Override
-        protected String doInBackground(URL... urls) {
-            String response2="null";
-            try {
-                response2 = getResponseFromURLSendB(urls[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return response2;
-        }
-        @Override
-        protected void onPostExecute(String response2) {
-            Intent intent = new Intent();
-                if (!response2.equals("")) {
-                    try {
-                    JSONObject response_to_close = new JSONObject(response2);
-                        int result = response_to_close.getInt("Result");
-                        switch (result){
-                            case 0 : {
-                                pgH.dismiss();
-                                setResult(RESULT_OK, intent);
-                                finish();
-                            }break;
-                            case 2: {
-                                pgH.dismiss();
-                                final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-                                eroare.setTitle("Atentie!");
-                                eroare.setMessage("Dispozitivul nu este inregistrat");
-                                eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                                    }
-                                });
-                                eroare.show();
-                            }break;
-                            case 3:{
-                                pgH.dismiss();
-                                final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-                                eroare.setTitle("Atentie!");
-                                eroare.setMessage("Tura nu este valabila!");
-                                eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                                    }
-                                });
-                                eroare.show();
-                            }break;
-                            default:{
-                                pgH.dismiss();
-                                Toast.makeText(context, "Eroare: " + result, Toast.LENGTH_SHORT).show();
-                            }break;
-                        }
-                    } catch (JSONException e) {
-                       e.printStackTrace();
-                    }
-                }else {
-                    pgH.dismiss();
-                    Toast.makeText(context, "Nu este raspuns de la server.", Toast.LENGTH_SHORT).show();
-                }
-        }
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -368,14 +171,13 @@ public class AssortimentActivity extends AppCompatActivity {
         pgH=new ProgressDialog(context);
         queryEditText = toolbar.findViewById(R.id.search_edit_text);
         mListViewShowAssortment = findViewById(R.id.list_aslsale);
-        FloatingActionButton mSaveBill = (FloatingActionButton) findViewById(R.id.save_bill);
-        FloatingActionButton mFabPreviewBill = (FloatingActionButton) findViewById(R.id.preview_bill);
+        mSaveBill = (FloatingActionButton) findViewById(R.id.save_bill);
+        mFabPreviewBill = (FloatingActionButton) findViewById(R.id.preview_bill);
 
 
         mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
 
         SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
-        SharedPreferences sPrefPre = getSharedPreferences("Bill_previewg", MODE_PRIVATE);
 
         mIPAdress = (sPref.getString(mIPConnect,""));
         mPortNumber = (sPref.getString(mPortConnect,""));
@@ -383,8 +185,6 @@ public class AssortimentActivity extends AppCompatActivity {
 
         mTableGuid = startIntent.getStringExtra(mNewBillTableGuid);
         mGuidBillIntent = startIntent.getStringExtra(mNewBillGuid);
-
-
 
         initAssortmentList("00000000-0000-0000-0000-000000000000");
 
@@ -394,14 +194,7 @@ public class AssortimentActivity extends AppCompatActivity {
         mSaveBill.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCreateEditBill.setDeviceId(mDeviceNumber);
-                mCreateEditBill.setTableUid(mTableGuid);
-                mCreateEditBill.setBillUid(mGuidBillIntent);
-                mCreateEditBill.setOrders(orderListCreateEditBill);
-
-
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
+                saveBill();
             }
         });
         mFabPreviewBill.setOnClickListener(new View.OnClickListener() {
@@ -450,7 +243,7 @@ public class AssortimentActivity extends AppCompatActivity {
             }
 
         });
-    }//onCreate
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -467,23 +260,23 @@ public class AssortimentActivity extends AppCompatActivity {
         }
         if (requestCode==REQUEST_CODE_PreviewBill){
             if (resultCode==RESULT_CANCELED){
-                SharedPreferences previewBill= getSharedPreferences("Bill_preview",MODE_PRIVATE);
-                String bill=previewBill.getString("CreatedBill","");
-                try {
-                    JSONObject orders_editted = new JSONObject(bill);
-                    jsonArray=orders_editted.getJSONArray("orders");
-                } catch (JSONException e) {
-                    final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-                    eroare.setTitle("Atentie!");
-                    eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-                    eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                        }
-                    });
-                    eroare.show();
-                }
+//                SharedPreferences previewBill= getSharedPreferences("Bill_preview",MODE_PRIVATE);
+//                String bill=previewBill.getString("CreatedBill","");
+//                try {
+//                    JSONObject orders_editted = new JSONObject(bill);
+//                    jsonArray=orders_editted.getJSONArray("orders");
+//                } catch (JSONException e) {
+//                    final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
+//                    eroare.setTitle("Atentie!");
+//                    eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
+//                    eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialogInterface, int i) {
+//
+//                        }
+//                    });
+//                    eroare.show();
+//                }
             }else{
                     Intent intent = new Intent();
                     setResult(RESULT_OK,intent);
@@ -497,75 +290,6 @@ public class AssortimentActivity extends AppCompatActivity {
         mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromParent(guidClicked);
         mAdapterShowAssortment = new SimpleAdapter(this, mArrayAsssortmentList,R.layout.tesrt, new String[]{mMapAssortmentName,mMapAssortmentIcon,mMapAssortmentPrice}, new int[]{R.id.text_view_asl,R.id.image_view_asl_xm,R.id.text_test2});
         mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
-    }
-    public URL generateURLSendBill (String ip,String port){
-        Uri send_b;
-        send_b = Uri.parse("http://" + ip + ":" + port + "/MobileCash/json/AddOrders")
-                .buildUpon()
-                .build();
-        URL send_b_url =null;
-        try {
-            send_b_url= new URL (send_b.toString());
-        } catch (MalformedURLException e) {
-            final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-            eroare.setTitle("Atentie!");
-            eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-            eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            eroare.show();
-        }
-        return send_b_url;
-
-    }
-    public String getResponseFromURLSendB(URL send_bills) throws IOException {
-        String data = "";
-        HttpURLConnection send_bill_Connection = null;
-        try {
-            send_bill_Connection = (HttpURLConnection) send_bills.openConnection();
-            send_bill_Connection.setConnectTimeout(6000);
-            send_bill_Connection.setRequestMethod("POST");
-            send_bill_Connection.setRequestProperty("Content-Type", "application/json");
-            send_bill_Connection.setDoOutput(true);
-            DataOutputStream wr = new DataOutputStream(send_bill_Connection.getOutputStream());
-            wr.writeBytes(String.valueOf(finalbil));
-            wr.flush();
-            wr.close();
-
-            InputStream in = send_bill_Connection.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(in);
-            int inputStreamData = inputStreamReader.read();
-
-            while (inputStreamData != -1) {
-                char current = (char) inputStreamData;
-                inputStreamData = inputStreamReader.read();
-                data += current;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            send_bill_Connection.disconnect();
-        }
-        return data;
-    }
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            );
-        }
     }
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -584,46 +308,129 @@ public class AssortimentActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (mListClickedItems.size() == 0) {
-            resultOut=jsonArray.length();
-            if (resultIn==resultOut){
-                Intent intent2 = new Intent();
-                setResult(RESULT_CANCELED, intent2);
+            if (orderListCreateEditBill.size() == 0){
                 finish();
             }else{
-                AlertDialog.Builder exit = new AlertDialog.Builder(context);
-                exit.setTitle("Documentul nu este salvat!");
-                exit.setMessage("Doriti sa slavati comanda? Daca doriti sa ramineti ,apasati in orice punct a ecranului.");
-                exit.setNegativeButton("Nu", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent2 = new Intent();
-                        setResult(RESULT_CANCELED, intent2);
-                        finish();
-                    }
-                });
-                exit.setPositiveButton("Da", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        try {
-                            finalbil.put("deviceId",mDeviceNumber);
-                            finalbil.put("billUid", mGuidBillIntent);
-                            finalbil.put("tableUid", mTableGuid);
-                            finalbil.put("orders", jsonArray);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        URL generateURLSendBil = generateURLSendBill(mIPAdress, mPortNumber);
-                        new querrySendbill().execute(generateURLSendBil);
-                    }
-                });
-                exit.show();
+                exitDialog();
             }
         }else{
-            x = mListClickedItems.size() - 1;
+            mLastIndexClickedItem = mListClickedItems.size() - 1;
             mIndexClickedItem -= 1;
-            mGuidBillClicked = mListClickedItems.get(x);
+            mGuidBillClicked = mListClickedItems.get(mLastIndexClickedItem);
             initAssortmentList(mGuidBillClicked);
-            mListClickedItems.remove(x);
+            mListClickedItems.remove(mLastIndexClickedItem);
         }
     }
+    private void saveBill(){
+        pgH.setMessage("Asteptati..");
+        pgH.setIndeterminate(true);
+        pgH.setCancelable(false);
+        pgH.show();
+        Thread saveBillThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mCreateEditBill.setDeviceId(mDeviceNumber);
+                mCreateEditBill.setTableUid(mTableGuid);
+                mCreateEditBill.setBillUid(mGuidBillIntent);
+                mCreateEditBill.setOrders(orderListCreateEditBill);
+
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .connectTimeout(3, TimeUnit.MINUTES)
+                        .readTimeout(4, TimeUnit.MINUTES)
+                        .writeTimeout(2, TimeUnit.MINUTES)
+                        .build();
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl("http://" + mIPAdress + ":" + mPortNumber)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .client(okHttpClient)
+                        .build();
+                ServiceSaveBill serviceSaveBill = retrofit.create(ServiceSaveBill.class);
+                Call<BillListResponseService> billCallback = serviceSaveBill.saveBill(mCreateEditBill);
+                billCallback.enqueue(new Callback<BillListResponseService>() {
+                    @Override
+                    public void onResponse(Call<BillListResponseService> call, Response<BillListResponseService> response) {
+                        if (response.isSuccessful()) {
+                            BillListResponseService billListResponseService = response.body();
+                            int result = billListResponseService.getResult();
+                            if(result == 0){
+                                mHandlerSaveBills.obtainMessage(MESSAGE_SUCCES).sendToTarget();
+                            }
+                            else{
+                                mHandlerSaveBills.obtainMessage(MESSAGE_RESULT_CODE,result).sendToTarget();
+                            }
+
+                        } else {
+                            mHandlerSaveBills.obtainMessage(MESSAGE_NULL_BODY,response.message()).sendToTarget();
+
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<BillListResponseService> call, Throwable t) {
+                        mHandlerSaveBills.obtainMessage(MESSAGE_FAILURE,t.getMessage()).sendToTarget();
+                    }
+                });
+            }
+        });saveBillThread.start();
+    }
+
+    private void exitDialog(){
+        AlertDialog.Builder exit = new AlertDialog.Builder(context);
+        exit.setTitle("Documentul nu este salvat!");
+        exit.setMessage("Doriti sa slavati comanda? Daca doriti sa ramineti ,apasati in orice punct a ecranului.");
+        exit.setNegativeButton("Nu", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+        exit.setPositiveButton("Da", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                saveBill();
+            }
+        });
+        exit.show();
+    }
+    private final Handler mHandlerSaveBills = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.what == MESSAGE_SUCCES) {
+                pgH.dismiss();
+                setResult(RESULT_OK);
+                finish();
+            }
+            else if (msg.what == MESSAGE_RESULT_CODE) {
+                pgH.dismiss();
+                int errorCode = Integer.valueOf(msg.obj.toString());
+                switch (errorCode){
+                    case 1 : {
+                        Snackbar.make(mSaveBill, "UnknownError", Snackbar.LENGTH_LONG)
+                        .show();
+                    }break;
+                    case 2 : {
+                        Snackbar.make(mSaveBill, "DeviceNotRegistered", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 3 : {
+                        Snackbar.make(mSaveBill, "ShiftIsNotValid", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 4 : {
+                        Snackbar.make(mSaveBill, "BillNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 5 : {
+                        Snackbar.make(mSaveBill, "ClientNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 6 : {
+                        Snackbar.make(mSaveBill, "SecurityException", Snackbar.LENGTH_LONG).show();
+                    }break;
+                }
+            }
+            else if (msg.what == MESSAGE_NULL_BODY) {
+                Snackbar.make(mSaveBill, "Response body is null: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
+            }
+            else if (msg.what == MESSAGE_FAILURE){
+                Snackbar.make(mSaveBill, "Failure save bill: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
+            }
+        }
+    };
 }

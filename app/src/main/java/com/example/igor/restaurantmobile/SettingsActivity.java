@@ -18,7 +18,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.igor.restaurantmobile.utilis.ViewPageAdapter;
 
@@ -27,14 +26,13 @@ public class SettingsActivity extends AppCompatActivity {
     private ViewPageAdapter mSectionsPagerAdapter;
     FloatingActionButton btn_save;
     private ViewPager mViewPager;
+
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
-            case android.R.id.home : {
-                Intent result_main2 = new Intent();
-                setResult(RESULT_CANCELED, result_main2);
-                finish();
-            }break;
+        if (id == android.R.id.home) {
+            Intent result_main2 = new Intent();
+            setResult(RESULT_CANCELED, result_main2);
+            finish();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -44,7 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_tab_set);
+        setContentView(R.layout.activity_settings);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarSetting);
         setSupportActionBar(toolbar);
@@ -77,8 +75,6 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -92,18 +88,5 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         return super.dispatchTouchEvent(event);
-    }
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
     }
 }
