@@ -304,6 +304,7 @@ public class StartedActivity extends AppCompatActivity {
             }
             else if (msg.what == MESSAGE_FAILURE){
                 Snackbar.make(start, "Failure save bill: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
+                Toast.makeText(StartedActivity.this, "Failure save bill: "+ msg.obj.toString(), Toast.LENGTH_SHORT).show();
             }
         }
     };

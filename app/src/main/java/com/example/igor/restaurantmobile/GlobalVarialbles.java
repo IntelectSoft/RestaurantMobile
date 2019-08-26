@@ -3,10 +3,8 @@ package com.example.igor.restaurantmobile;
 import android.app.Application;
 
 import com.example.igor.restaurantmobile.AssortimentList.Assortiment;
-import com.example.igor.restaurantmobile.AssortimentList.AssortmentService;
 import com.example.igor.restaurantmobile.AssortimentList.ClosureType;
 import com.example.igor.restaurantmobile.AssortimentList.Comments;
-import com.example.igor.restaurantmobile.AssortimentList.KitMember;
 import com.example.igor.restaurantmobile.AssortimentList.Table;
 import com.example.igor.restaurantmobile.CreateNewBill.NewBill;
 
@@ -30,8 +28,7 @@ public class GlobalVarialbles extends Application {
     public static final String mMapAssortmentIsFolder = "AssortmentIsFolder";
     public static final String mMapAssortmentParenGuid = "AssortmentParenGuid";
     public static final String mMapAssortmentGuid = "AssortmentGuid";
-    public static final String mMapAssortmentKitMembers = "AssortmentKitMembers";
-    public static final String mMapCommentPriceLineGuid = "AssortmentComments";
+    public static final String mMapAssortmentState= "AssortmentState";
     public static final String mMapCommentName = "CommentName";
     public static final String mMapCommentGuid = "CommentGuid";
     public static final String mMapAssortmentPriceLineGuid = "AssortmentLineGuid";
@@ -42,6 +39,7 @@ public class GlobalVarialbles extends Application {
     public static final String mPortConnect = "Port";
     public static final String mDeviceID = "ID_Device";
     public static final String mSaveOrderIntent = "SavedOrder";
+    public static final String mStateOpenBill = "StateBill";
 
     boolean mStartWork = false;
 
@@ -91,6 +89,18 @@ public class GlobalVarialbles extends Application {
             String assortmentGuid = assortiment.getUid();
             if(assortmentGuid.equals(assortmentId)){
                 assortmentName = assortiment.getName();
+                break;
+            }
+        }
+        return assortmentName;
+    }
+
+    public double getAssortmentPrice (String assortmentId){
+        double assortmentName = 0.0;
+        for (Assortiment assortiment:assortmentList) {
+            String assortmentGuid = assortiment.getUid();
+            if(assortmentGuid.equals(assortmentId)){
+                assortmentName = assortiment.getPrice();
                 break;
             }
         }
