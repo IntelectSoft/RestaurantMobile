@@ -50,7 +50,7 @@ import static com.example.igor.restaurantmobile.GlobalVarialbles.mSaveOrderInten
 
 public class CountActivity extends AppCompatActivity {
     final Context context = this;
-    boolean mAllowNonIntegerSales,mCanSaveOrder;
+    boolean mAllowNonIntegerSales,mCanSaveOrder = true;
     EditText Count_enter;
     ImageButton btn_plus,btn_del;
     TextView mTextViewName,mTextViewPrice,mTextViewComments,btn_save,btn_cancel,add_comment;
@@ -58,125 +58,7 @@ public class CountActivity extends AppCompatActivity {
     ArrayList<String> mArrayCommentsListAdded  = new ArrayList<>();
     ArrayList<HashMap<String, Object>> mArrayCommentsList = new ArrayList<>();
     ArrayList<HashMap<String, Object>> kitAssortmentList = new ArrayList<>();
-    List<KitMember> mKitMebmers = new List<KitMember>() {
-        @Override
-        public int size() {
-            return 0;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return false;
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return false;
-        }
-
-        @Override
-        public Iterator<KitMember> iterator() {
-            return null;
-        }
-
-        @Override
-        public Object[] toArray() {
-            return new Object[0];
-        }
-
-        @Override
-        public <T> T[] toArray(T[] ts) {
-            return null;
-        }
-
-        @Override
-        public boolean add(KitMember kitMember) {
-            return false;
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            return false;
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> collection) {
-            return false;
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends KitMember> collection) {
-            return false;
-        }
-
-        @Override
-        public boolean addAll(int i, @NonNull Collection<? extends KitMember> collection) {
-            return false;
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> collection) {
-            return false;
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> collection) {
-            return false;
-        }
-
-        @Override
-        public void clear() {
-
-        }
-
-        @Override
-        public KitMember get(int i) {
-            return null;
-        }
-
-        @Override
-        public KitMember set(int i, KitMember kitMember) {
-            return null;
-        }
-
-        @Override
-        public void add(int i, KitMember kitMember) {
-
-        }
-
-        @Override
-        public KitMember remove(int i) {
-            return null;
-        }
-
-        @Override
-        public int indexOf(Object o) {
-            return 0;
-        }
-
-        @Override
-        public int lastIndexOf(Object o) {
-            return 0;
-        }
-
-        @NonNull
-        @Override
-        public ListIterator<KitMember> listIterator() {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public ListIterator<KitMember> listIterator(int i) {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public List<KitMember> subList(int i, int i1) {
-            return null;
-        }
-    };
+    List<KitMember> mKitMebmers = new ArrayList<>();
     int indexKitMember = 0,kitSizeMembers;
     String mGuidAssortment,mPriceLineGuid;
 
@@ -373,43 +255,17 @@ public class CountActivity extends AppCompatActivity {
 
         return super.dispatchTouchEvent(event);
     }
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            );
-        }
-    }
 
     private void saveOrder (){
             if (mCanSaveOrder){
                 if(mKitMebmers == null || mKitMebmers.size() == 0 ) {
-                    Order newOrder = new Order();
-                    newOrder.setAssortimentUid(mGuidAssortment);
-                    newOrder.setCount(Count_enter.getText().toString());
-                    newOrder.setPriceLineUid(mPriceLineGuid);
-                    newOrder.setComments(mArrayCommentsListAdded);
-
-                    OrderParcelable saveOrder = new OrderParcelable(newOrder);
-
-                    Intent intent = new Intent();
-                    intent.putExtra(mSaveOrderIntent,saveOrder);
-                    setResult(RESULT_OK, intent);
-                    finish();
+                    saveOrderOnly();
                 }
                 else{
                     showKitMembers();
                 }
             }
-            else Count_enter.setError("Cantitate introdus incorect!");
+            else Count_enter.setError("Cantitate  incorect!");
     }
     private void showKitMembers() {
         kitAssortmentList = new ArrayList<>();
@@ -433,17 +289,7 @@ public class CountActivity extends AppCompatActivity {
                     indexKitMember += 1;
                     showKitMembers();
                 } else {
-                    Order newOrder = new Order();
-                    newOrder.setAssortimentUid(mGuidAssortment);
-                    newOrder.setCount(Count_enter.getText().toString());
-                    newOrder.setPriceLineUid(mPriceLineGuid);
-                    newOrder.setComments(mArrayCommentsListAdded);
-                    OrderParcelable saveOrder = new OrderParcelable(newOrder);
-
-                    Intent intent = new Intent();
-                    intent.putExtra(mSaveOrderIntent,saveOrder);
-                    setResult(RESULT_OK, intent);
-                    finish();
+                    saveOrderOnly();
                 }
             }
             else{
@@ -459,39 +305,19 @@ public class CountActivity extends AppCompatActivity {
                             indexKitMember += 1;
                             showKitMembers();
                         } else {
-                            Order newOrder = new Order();
-                            newOrder.setAssortimentUid(mGuidAssortment);
-                            newOrder.setCount(Count_enter.getText().toString());
-                            newOrder.setPriceLineUid(mPriceLineGuid);
-                            newOrder.setComments(mArrayCommentsListAdded);
-                            OrderParcelable saveOrder = new OrderParcelable(newOrder);
-
-                            Intent intent = new Intent();
-                            intent.putExtra(mSaveOrderIntent,saveOrder);
-                            setResult(RESULT_OK, intent);
-                            finish();
+                            saveOrderOnly();
                         }
                     }
                 });
                 if(!kitMandatory){
-                    dialog.setPositiveButton("Next", new DialogInterface.OnClickListener() {
+                    dialog.setPositiveButton("Пропустить шаг", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             if (indexKitMember < kitSizeMembers) {
                                 indexKitMember += 1;
                                 showKitMembers();
                             } else {
-                                Order newOrder = new Order();
-                                newOrder.setAssortimentUid(mGuidAssortment);
-                                newOrder.setCount(Count_enter.getText().toString());
-                                newOrder.setPriceLineUid(mPriceLineGuid);
-                                newOrder.setComments(mArrayCommentsListAdded);
-                                OrderParcelable saveOrder = new OrderParcelable(newOrder);
-
-                                Intent intent = new Intent();
-                                intent.putExtra(mSaveOrderIntent,saveOrder);
-                                setResult(RESULT_OK, intent);
-                                finish();
+                                saveOrderOnly();
                             }
                         }
                     });
@@ -501,18 +327,21 @@ public class CountActivity extends AppCompatActivity {
 
         }
         else{
-            Order newOrder = new Order();
-            newOrder.setAssortimentUid(mGuidAssortment);
-            newOrder.setCount(Count_enter.getText().toString());
-            newOrder.setPriceLineUid(mPriceLineGuid);
-            newOrder.setComments(mArrayCommentsListAdded);
-            OrderParcelable saveOrder = new OrderParcelable(newOrder);
-
-            Intent intent = new Intent();
-            intent.putExtra(mSaveOrderIntent,saveOrder);
-            setResult(RESULT_OK, intent);
-            finish();
+            saveOrderOnly();
         }
 
+    }
+    private void saveOrderOnly() {
+        Order newOrder = new Order();
+        newOrder.setAssortimentUid(mGuidAssortment);
+        newOrder.setCount(Count_enter.getText().toString());
+        newOrder.setPriceLineUid(mPriceLineGuid);
+        newOrder.setComments(mArrayCommentsListAdded);
+        OrderParcelable saveOrder = new OrderParcelable(newOrder);
+
+        Intent intent = new Intent();
+        intent.putExtra(mSaveOrderIntent,saveOrder);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }

@@ -43,6 +43,7 @@ public class GlobalVarialbles extends Application {
     public static final String mDeviceID = "ID_Device";
     public static final String mSaveOrderIntent = "SavedOrder";
 
+    boolean mStartWork = false;
 
     List<Assortiment> assortmentList ;
     List<Table> tableList;
@@ -52,9 +53,6 @@ public class GlobalVarialbles extends Application {
 
     public void setAssortmentList (List<Assortiment> assortmentService){
         this.assortmentList = assortmentService;
-    }
-    public List<Assortiment> getAssortmentList(){
-        return assortmentList;
     }
 
     public void setTableList (List<Table> tableList){
@@ -67,15 +65,9 @@ public class GlobalVarialbles extends Application {
     public void setClosureTypeLists (List<ClosureType> closureTypeLists ){
         this.closureTypeLists = closureTypeLists;
     }
-    public List<ClosureType> getClosureTypeLists () {
-        return closureTypeLists;
-    }
 
     public void setCommentsLists(List<Comments> commentsLists){
         this.commentsLists = commentsLists;
-    }
-    public List<Comments> getCommentsLists(){
-        return commentsLists;
     }
 
     public String getTableName (String id){
@@ -199,6 +191,12 @@ public class GlobalVarialbles extends Application {
         return mNewBill;
     }
 
+    public void setStartWork (boolean startApplication){
+        this.mStartWork = startApplication;
+    }
+    public boolean getStartWork(){
+        return mStartWork;
+    }
 
     private static void SortAssortmentList(ArrayList<HashMap<String, Object>> asl_list) {
         Collections.sort(asl_list, new Comparator<HashMap<String, Object>>() {

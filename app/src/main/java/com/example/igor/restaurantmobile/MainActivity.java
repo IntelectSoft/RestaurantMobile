@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,12 +17,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -36,10 +40,13 @@ import com.example.igor.restaurantmobile.BillList.ServiceBillList;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -58,6 +65,7 @@ import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillSum;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillSumAfterDiscount;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapTableName;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillGuid;
+import static com.example.igor.restaurantmobile.utilis.NetworkUtils.generateURL;
 
 public class MainActivity extends AppCompatActivity {
     final Context context = this;
@@ -70,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
             MESSAGE_BILL_RESULT_CODE = 8;
     double mBillSumAfterDiscount,mBillSum;
     boolean mShowLine;
+
+    TimerTask timerTaskUpdate;
+    Timer updateBills;
 
     SimpleAdapter mAdapterShowLine, mAdapterBills;
     SharedPreferences sPrefSettings;
@@ -100,19 +111,6 @@ public class MainActivity extends AppCompatActivity {
         final LinearLayout.LayoutParams mMainParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         final LinearLayout.LayoutParams mShowLineParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.INTERNET)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.INTERNET}, 1);
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
-            }
-        }
-
         Display display = getWindowManager().getDefaultDisplay();
         final int mDisplayHeight = display.getHeight();
         int mNewDisplayHeight = mDisplayHeight / 3 ;
@@ -132,6 +130,13 @@ public class MainActivity extends AppCompatActivity {
         mIPConnect=(sPrefSettings.getString(IP_save,""));
         mPortConnect=(sPrefSettings.getString(Port_save,""));
         mDeviceID = (sPrefSettings.getString(Device_save,""));
+
+        int period = sPrefSettings.getInt("TimeUpdate",0);
+        if(period != 0){
+            updateBills=new Timer();
+            startTimetaskSync();
+            updateBills.schedule(timerTaskUpdate,period,period);
+        }
 
         showDialog();
         getBillList(mIPConnect,mPortConnect,mDeviceID,false);
@@ -166,7 +171,8 @@ public class MainActivity extends AppCompatActivity {
                     Intent new_bill_activity = new Intent(".TableActivityRestaurant");
                     new_bill_activity.putExtra(mNewBillGuid,mGuidZero);
                     startActivity(new_bill_activity);
-                }else{
+                }
+                else{
                     Intent new_bill_activity = new Intent(".AssortimentActivityRestaurant");
                     new_bill_activity.putExtra(mNewBillGuid,mGuidZero);
                     startActivityForResult(new_bill_activity, REQUEST_CODE_EditBill);
@@ -205,7 +211,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 AlertDialog.Builder detail_bill = new AlertDialog.Builder(context);
                 detail_bill.setTitle("Detalii cont: " + (Integer)bills_list.get(i).get(mMapBillNumber) );
-                detail_bill.setMessage("\nMasa: "+ (String)bills_list.get(i).get(mMapTableName) + "\nSuma: "+ (String)bills_list.get(i).get(mMapBillSum) + "\nSuma cu reducere: " + (String)bills_list.get(i).get(mMapBillSumAfterDiscount) );
+                detail_bill.setMessage("\nMasa: "+ (String)bills_list.get(i).get(mMapTableName) + "\nSuma: "+ String.valueOf(bills_list.get(i).get(mMapBillSum)) +
+                        "\nSuma cu reducere: " + String.valueOf(bills_list.get(i).get(mMapBillSumAfterDiscount)));
                 detail_bill.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -217,6 +224,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    private void startTimetaskSync(){
+        timerTaskUpdate = new TimerTask() {
+            @Override
+            public void run() {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        bill_lines.clear();
+                        showDialog();
+                        mGuidBillClicked = null;
+                        mListViewShowLine.setAdapter(mAdapterShowLine);
+                        getBillList(mIPConnect,mPortConnect,mDeviceID,false);
+                    }
+                });
+            }
+        };
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -227,15 +251,13 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case R.id.action_settings :{
-                Intent setting_activity = new Intent(".TabSetActivity");
+                Intent setting_activity = new Intent(".SettingsActivity");
                 startActivityForResult(setting_activity,REQUEST_CODE_Settings);
             }break;
             case R.id.action_refresh: {
                 showDialog();
-                bill_lines.clear();
                 mGuidBillClicked = null;
                 mListViewShowLine.setAdapter(mAdapterShowLine);
-                // TODO get billsList Refresh
                 getBillList(mIPConnect,mPortConnect,mDeviceID,false);
             }break;
             case R.id.action_edit : {
@@ -256,35 +278,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode==REQUEST_CODE_NewBill) {
-            if (resultCode == RESULT_OK) {
-                showDialog();
-                bill_lines.clear();
-                mListViewShowLine.setAdapter(mAdapterShowLine);
-                // TODO get billsList return on new Bill
-                getBillList(mIPConnect,mPortConnect,mDeviceID,false);
-
-            }
-        }
         if (requestCode==REQUEST_CODE_Settings) {
             if (resultCode == RESULT_OK) {
                 mIPConnect = (sPrefSettings.getString(IP_save,""));
                 mPortConnect = (sPrefSettings.getString(Port_save,""));
                 mDeviceID = (sPrefSettings.getString(Device_save,""));
-                bills_list.clear();
                 showDialog();
                 // TODO get billsList return on Settings
                 getBillList(mIPConnect,mPortConnect,mDeviceID,false);
-            }
-        }
-        if (requestCode==REQUEST_CODE_EditBill) {
-            if (resultCode == RESULT_OK) {
-                bill_lines.clear();
-                mListViewShowLine.setAdapter(mAdapterShowLine);
-                showDialog();
-                //TODO get biilsList return on EditBill
-                getBillList(mIPConnect,mPortConnect,mDeviceID,false);
+
+                int period = sPrefSettings.getInt("TimeUpdate",0);
+                if(period != 0){
+                    if (updateBills != null)
+                        updateBills.cancel();
+                    if(timerTaskUpdate != null)
+                        timerTaskUpdate.cancel();
+                    updateBills=new Timer();
+                    startTimetaskSync();
+                    updateBills.schedule(timerTaskUpdate,period,period);
+                }
             }
         }
     }
@@ -443,19 +455,17 @@ public class MainActivity extends AppCompatActivity {
         pgH.setCancelable(false);
         pgH.show();
     }
+
     @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            );
-        }
+    protected void onRestart() {
+        super.onRestart();
+        showDialog();
+        bill_lines.clear();
+        mListViewShowLine.setAdapter(mAdapterShowLine);
+        getBillList(mIPConnect,mPortConnect,mDeviceID,false);
+    }
+    public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
+        menu_bill.close(true);
+        return super.dispatchTouchEvent(event);
     }
 }

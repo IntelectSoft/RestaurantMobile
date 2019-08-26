@@ -2,7 +2,6 @@ package com.example.igor.restaurantmobile;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -11,41 +10,42 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.UUID;
 
-import static android.app.Activity.RESULT_CANCELED;
-import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
-public class TabLicense extends Fragment {
+public class TabOther extends Fragment {
     TextView ShowCode;
     EditText EnterCode;
     Button Verific;
     SharedPreferences sPref;
     Boolean lic;
+    Spinner spinner_time_update;
+    String[] mTypeTimeList = {"1 min.", "5 min.", "10 min.","Manual"};
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_license, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_other, container, false);
 
         ShowCode =rootView.findViewById(R.id.code_lic);
         EnterCode=rootView.findViewById(R.id.et_key);
         Verific=rootView.findViewById(R.id.btn_verify);
+        spinner_time_update = rootView.findViewById(R.id.spinner_update_time_bill);
         sPref = getActivity().getSharedPreferences("Save setting", MODE_PRIVATE);
 
         final TelephonyManager tm = (TelephonyManager) getActivity().getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -54,6 +54,21 @@ public class TabLicense extends Fragment {
             if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
             }
         }
+
+        ArrayAdapter<String> adapterType = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, mTypeTimeList);
+        adapterType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinner_time_update.setAdapter(adapterType);
+
+        int period = sPref.getInt("TimeUpdate",0);
+        if(period == 0)
+            spinner_time_update.setSelection(3);
+        else if( period == 60000)
+            spinner_time_update.setSelection(0);
+        else if (period == 300000)
+            spinner_time_update.setSelection(1);
+        else if (period == 600000)
+            spinner_time_update.setSelection(2);
 
         tmDevice = "" + tm.getDeviceId();
         tmSerial = "" + tm.getSimSerialNumber();
@@ -78,12 +93,41 @@ public class TabLicense extends Fragment {
                     ed.putString("KeyText",key);
                     ed.apply();
                     lic=true;
-                }else{
+                }
+                else{
                     EnterCode.setBackgroundResource(R.drawable.round_edittext_false);
                     ed.putBoolean("Key",false);
                     ed.apply();
                     lic=false;
                 }
+            }
+        });
+
+        spinner_time_update.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                SharedPreferences.Editor ed = sPref.edit();
+                if(position == 0){
+                    ed.putInt("TimeUpdate",60000);
+                    ed.apply();
+                }
+                else if(position == 1){
+                    ed.putInt("TimeUpdate",300000);
+                    ed.apply();
+                }
+                else if(position == 2){
+                    ed.putInt("TimeUpdate",600000);
+                    ed.apply();
+                }
+                else if(position == 3){
+                    ed.putInt("TimeUpdate",0);
+                    ed.apply();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
         return rootView;
