@@ -38,10 +38,13 @@
         android:id="@+id/btn_start"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_below="@+id/imageView"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/side_tree_theme_background_main"
         android:text="Start"
-        android:layout_alignParentLeft="true" />
+        android:textColor="@android:color/background_light"
+        android:textSize="24sp" />
 
     <ProgressBar
         android:id="@+id/progressBar"

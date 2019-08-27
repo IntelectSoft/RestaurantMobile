@@ -24,6 +24,7 @@ import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapTableGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapTableName;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillTableGuid;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mStateOpenBill;
 
 public class TableActivity extends AppCompatActivity {
     GridView mGridViewTableList;
@@ -51,6 +52,7 @@ public class TableActivity extends AppCompatActivity {
                 Intent asl_activity = new Intent(".AssortimentActivityRestaurant");
                 asl_activity.putExtra(mNewBillGuid,mGuidZero);
                 asl_activity.putExtra(mNewBillTableGuid,(String) tables_list.get(position).get(mMapTableGuid));
+                asl_activity.putExtra(mStateOpenBill,0);
                 startActivity(asl_activity);
                 finish();
             }
@@ -77,5 +79,20 @@ public class TableActivity extends AppCompatActivity {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            View mDecorView = getWindow().getDecorView();
+            mDecorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            );
+        }
     }
 }

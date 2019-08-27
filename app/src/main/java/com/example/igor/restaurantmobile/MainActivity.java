@@ -63,8 +63,11 @@ import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillNumber;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillSum;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapBillSumAfterDiscount;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapTableGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapTableName;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillGuid;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillTableGuid;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mStateOpenBill;
 import static com.example.igor.restaurantmobile.utilis.NetworkUtils.generateURL;
 
 public class MainActivity extends AppCompatActivity {
@@ -72,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     ProgressDialog pgH;
     FloatingActionMenu menu_bill;
 
-    String mBillID,mTableID,mTableName,mDeviceID, mPortConnect,mIPConnect, mGuidBillClicked = null ,IP_save = "IP",Port_save = "Port",Device_save = "ID_Device";
+    String mBillID,mTableID,mTableName,mDeviceID, mPortConnect,mIPConnect, mGuidBillClicked = null ,IP_save = "IP",Port_save = "Port",Device_save = "ID_Device",mTableGuidClickedItem;
     int mBillNumber ,mDisplayDefaultHeight;
     int MESSAGE_SUCCES = 0,MESSAGE_RESULT_CODE = 1,MESSAGE_NULL_BODY = 2 , MESSAGE_FAILURE = 3 ,REQUEST_CODE_NewBill = 4,REQUEST_CODE_Settings = 5,REQUEST_CODE_EditBill = 6,MESSAGE_BILL_SUCCES = 7,
             MESSAGE_BILL_RESULT_CODE = 8;
@@ -118,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
         final int mShowLinwHeight = mDisplayHeight - mHeightGrid;
         mDisplayDefaultHeight = mDisplayHeight;
         mMainParams.height = mHeightGrid;
-        mShowLineParams.height = mShowLinwHeight + 20;
+        mShowLineParams.height = mShowLinwHeight;
         mMainLayout.setLayoutParams(mMainParams);
         mShowLineLayout.setLayoutParams(mShowLineParams);
 
@@ -147,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
                 if(!mShowLine){
                     mDisplayDefaultHeight = mDisplayHeight;
                     mMainParams.height = mHeightGrid;
-                    mShowLineParams.height = mShowLinwHeight + 20;
+                    mShowLineParams.height = mShowLinwHeight;
                     mMainLayout.setLayoutParams(mMainParams);
                     mShowLineLayout.setLayoutParams(mShowLineParams);
                     mShowLine = true;
@@ -169,12 +172,12 @@ public class MainActivity extends AppCompatActivity {
                 final int mTableListSize = ((GlobalVarialbles)getApplication()).getTableListSize();
                 if (mTableListSize != 0) {
                     Intent new_bill_activity = new Intent(".TableActivityRestaurant");
-                    new_bill_activity.putExtra(mNewBillGuid,mGuidZero);
                     startActivity(new_bill_activity);
                 }
                 else{
                     Intent new_bill_activity = new Intent(".AssortimentActivityRestaurant");
                     new_bill_activity.putExtra(mNewBillGuid,mGuidZero);
+                    new_bill_activity.putExtra(mStateOpenBill,0);
                     startActivityForResult(new_bill_activity, REQUEST_CODE_EditBill);
                 }
                 menu_bill.close(true);
@@ -203,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 mGridViewList_Bills.setItemChecked(position, true);
                 mGridViewList_Bills.setSelected(true);
                 mGuidBillClicked  = (String) bills_list.get(position).get(mMapBillGuid);
+                mTableGuidClickedItem = (String) bills_list.get(position).get(mMapTableGuid);
                 if (mShowLine) getBill(mIPConnect, mPortConnect, mDeviceID, mGuidBillClicked);
             }
         });
@@ -266,7 +270,9 @@ public class MainActivity extends AppCompatActivity {
                 }else {
                     Intent new_bill_activity = new Intent(".AssortimentActivityRestaurant");
                     new_bill_activity.putExtra(mNewBillGuid,mGuidBillClicked);
-                    startActivityForResult(new_bill_activity, REQUEST_CODE_EditBill);
+                    new_bill_activity.putExtra(mNewBillTableGuid,mTableGuidClickedItem);
+                    new_bill_activity.putExtra(mStateOpenBill,1);
+                    startActivity(new_bill_activity);
                 }
             }break;
             case R.id.action_exit :{
@@ -283,9 +289,6 @@ public class MainActivity extends AppCompatActivity {
                 mIPConnect = (sPrefSettings.getString(IP_save,""));
                 mPortConnect = (sPrefSettings.getString(Port_save,""));
                 mDeviceID = (sPrefSettings.getString(Device_save,""));
-                showDialog();
-                // TODO get billsList return on Settings
-                getBillList(mIPConnect,mPortConnect,mDeviceID,false);
 
                 int period = sPrefSettings.getInt("TimeUpdate",0);
                 if(period != 0){
@@ -352,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
         mGetBillsList.start();
     }
     private void getBillList(final String ipAdress, final String portNumber, final String deviceID, final boolean includeLines){
+        bills_list.clear();
         Thread mGetBillsList = new Thread(new Runnable() {
             public void run() {
                 OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -366,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
                         .build();
                 ServiceBillList getBillListServiceApi = retrofit.create(ServiceBillList.class);
                 final Call<BillListResponseService> billListCall = getBillListServiceApi.getBillsList(deviceID, includeLines);
-                bills_list.clear();
+
                 billListCall.enqueue(new Callback<BillListResponseService>() {
                     @Override
                     public void onResponse(Call<BillListResponseService> call, Response<BillListResponseService> response) {
@@ -388,6 +392,7 @@ public class MainActivity extends AppCompatActivity {
                                     bill_.put(mMapBillNumber,mBillNumber);
                                     bill_.put(mMapTableName,mTableName);
                                     bill_.put(mMapBillGuid,mBillID);
+                                    bill_.put(mMapTableGuid,mTableID);
                                     bill_.put(mMapBillSumAfterDiscount,mBillSumAfterDiscount);
                                     bill_.put(mMapBillSum,mBillSum);
                                     bills_list.add(bill_);
@@ -455,7 +460,6 @@ public class MainActivity extends AppCompatActivity {
         pgH.setCancelable(false);
         pgH.show();
     }
-
     @Override
     protected void onRestart() {
         super.onRestart();
@@ -467,5 +471,20 @@ public class MainActivity extends AppCompatActivity {
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         menu_bill.close(true);
         return super.dispatchTouchEvent(event);
+    }
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            View mDecorView = getWindow().getDecorView();
+            mDecorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            );
+        }
     }
 }

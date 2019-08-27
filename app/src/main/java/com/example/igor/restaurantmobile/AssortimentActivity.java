@@ -40,8 +40,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.igor.restaurantmobile.AssortimentList.Comments;
+import com.example.igor.restaurantmobile.Bill.ServiceGetBill;
 import com.example.igor.restaurantmobile.Bill.ServiceSaveBill;
+import com.example.igor.restaurantmobile.BillList.Bill;
 import com.example.igor.restaurantmobile.BillList.BillListResponseService;
+import com.example.igor.restaurantmobile.BillList.BillsLine;
 import com.example.igor.restaurantmobile.CreateNewBill.NewBill;
 import com.example.igor.restaurantmobile.CreateNewBill.Order;
 import com.example.igor.restaurantmobile.CreateNewBill.OrderParcelable;
@@ -76,6 +79,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mDeviceID;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mIPConnect;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentCount;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentIcon;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentIsFolder;
@@ -87,31 +91,25 @@ import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mNewBillTableGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mPortConnect;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mSaveOrderIntent;
+import static com.example.igor.restaurantmobile.GlobalVarialbles.mStateOpenBill;
 
 public class AssortimentActivity extends AppCompatActivity {
     final Context context = this;
+
     ListView mListViewShowAssortment;
     SimpleAdapter mAdapterShowAssortment;
     String mIPAdress,mPortNumber,mDeviceNumber, mTableGuid,mGuidBillClicked,mGuidBillIntent;
     boolean mAssortmentIsFolder;
-
     ArrayList<HashMap<String, Object>> mArrayAsssortmentList = new ArrayList<>();
-
-    int mIndexClickedItem = 0,mLastIndexClickedItem;
-    int MESSAGE_SUCCES = 0,MESSAGE_RESULT_CODE = 1,MESSAGE_NULL_BODY = 2 , MESSAGE_FAILURE = 3;
+    int MESSAGE_SUCCES = 0,MESSAGE_RESULT_CODE = 1,MESSAGE_NULL_BODY = 2 , MESSAGE_FAILURE = 3,
+            mIndexClickedItem = 0,mLastIndexClickedItem,REQUEST_CODE_forCount = 3,REQUEST_CODE_PreviewBill = 8;
+    int MESSAGE_BILL_SUCCES = 7,MESSAGE_BILL_RESULT_CODE = 8;
     List<String> mListClickedItems = new ArrayList<>();
-
-
-    JSONObject finalbil;
-    JSONArray jsonArray;
-    private EditText queryEditText;
     FloatingActionButton mSaveBill,mFabPreviewBill;
-
-    final int REQUEST_CODE_forCount = 3,REQUEST_CODE_PreviewBill=8;
-
     ProgressDialog pgH;
     NewBill mCreateEditBill = new NewBill();
     List<Order> orderListCreateEditBill = new ArrayList<>();
+    private EditText queryEditText;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu1) {
@@ -185,11 +183,14 @@ public class AssortimentActivity extends AppCompatActivity {
 
         mTableGuid = startIntent.getStringExtra(mNewBillTableGuid);
         mGuidBillIntent = startIntent.getStringExtra(mNewBillGuid);
-
-        initAssortmentList("00000000-0000-0000-0000-000000000000");
-
-        finalbil= new JSONObject();
-        jsonArray = new JSONArray();
+        //1 - edit bill ;  0  - new bill
+        int stateBill = startIntent.getIntExtra(mStateOpenBill,0);
+        if(stateBill == 1){
+            getBillPreview(mIPAdress,mPortNumber,mDeviceNumber,mGuidBillIntent);
+        }
+        else{
+            initAssortmentList("00000000-0000-0000-0000-000000000000");
+        }
 
         mSaveBill.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -252,31 +253,23 @@ public class AssortimentActivity extends AppCompatActivity {
                 OrderParcelable parcelableOrder = data.getParcelableExtra(mSaveOrderIntent);
                 Order saveOrder = new Order();
                 saveOrder.setPriceLineUid(parcelableOrder.getPriceLineUid());
-                saveOrder.setCount(parcelableOrder.getCount());
+                double count = 0.0;
+                try{
+                    count = Double.parseDouble(parcelableOrder.getCount());
+                }catch (Exception e){
+                    count = Double.parseDouble(parcelableOrder.getCount().replace(",","."));
+                }
+                saveOrder.setCount(count);
                 saveOrder.setAssortimentUid(parcelableOrder.getAssortimentUid());
                 saveOrder.setComments(parcelableOrder.getComments());
+                saveOrder.setUid(parcelableOrder.getUid());
                 orderListCreateEditBill.add(saveOrder);
             }
         }
         if (requestCode==REQUEST_CODE_PreviewBill){
             if (resultCode==RESULT_CANCELED){
-//                SharedPreferences previewBill= getSharedPreferences("Bill_preview",MODE_PRIVATE);
-//                String bill=previewBill.getString("CreatedBill","");
-//                try {
-//                    JSONObject orders_editted = new JSONObject(bill);
-//                    jsonArray=orders_editted.getJSONArray("orders");
-//                } catch (JSONException e) {
-//                    final AlertDialog.Builder eroare = new AlertDialog.Builder(context);
-//                    eroare.setTitle("Atentie!");
-//                    eroare.setMessage("Eroare! Mesajul erorii:"+ "\n"+ e);
-//                    eroare.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialogInterface, int i) {
-//
-//                        }
-//                    });
-//                    eroare.show();
-//                }
+
+
             }else{
                     Intent intent = new Intent();
                     setResult(RESULT_OK,intent);
@@ -304,7 +297,21 @@ public class AssortimentActivity extends AppCompatActivity {
 
         return super.dispatchTouchEvent(event);
     }
-
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            View mDecorView = getWindow().getDecorView();
+            mDecorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            );
+        }
+    }
     @Override
     public void onBackPressed() {
         if (mListClickedItems.size() == 0) {
@@ -392,6 +399,63 @@ public class AssortimentActivity extends AppCompatActivity {
         });
         exit.show();
     }
+
+    private void getBillPreview (final String ipAdress, final String portNumber, final String deviceID, final String billID){
+        Thread mGetBillsList = new Thread(new Runnable() {
+            public void run() {
+                OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                        .connectTimeout(3, TimeUnit.MINUTES)
+                        .readTimeout(4, TimeUnit.MINUTES)
+                        .writeTimeout(2, TimeUnit.MINUTES)
+                        .build();
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl("http://" + ipAdress + ":" + portNumber)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .client(okHttpClient)
+                        .build();
+                ServiceGetBill serviceGetBill = retrofit.create(ServiceGetBill.class);
+                final Call<BillListResponseService> getBillCall = serviceGetBill.getBill(deviceID, billID);
+                getBillCall.enqueue(new Callback<BillListResponseService>() {
+                    @Override
+                    public void onResponse(Call<BillListResponseService> call, Response<BillListResponseService> response) {
+                        BillListResponseService responseBillsList = response.body();
+                        if(responseBillsList!=null){
+                            int mErrorCode = responseBillsList.getResult();
+                            if(mErrorCode == 0){
+                                List<Bill> billsList = responseBillsList.getBillsList();
+                                List<BillsLine> mBillLines = billsList.get(0).getLines();
+                                for (BillsLine line:mBillLines) {
+                                    Order orderInBill = new Order();
+                                    orderInBill.setAssortimentUid(line.getAssortimentUid());
+                                    orderInBill.setCount(line.getCount());
+                                    orderInBill.setPriceLineUid(line.getPriceLineUid());
+                                    orderInBill.setComments(line.getComments());
+                                    orderInBill.setUid(line.getUid());
+
+                                    orderListCreateEditBill.add(orderInBill);
+
+                                }
+                                mHandlerSaveBills.obtainMessage(MESSAGE_BILL_SUCCES).sendToTarget();
+                            }
+                            else{
+                                mHandlerSaveBills.obtainMessage(MESSAGE_BILL_RESULT_CODE,mErrorCode).sendToTarget();
+                            }
+
+                        }
+                        else{
+                            mHandlerSaveBills.obtainMessage(MESSAGE_NULL_BODY).sendToTarget();
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<BillListResponseService> call, Throwable t) {
+                        mHandlerSaveBills.obtainMessage(MESSAGE_FAILURE,t.getMessage()).sendToTarget();
+                    }
+                });
+            }
+        });
+        mGetBillsList.start();
+    }
+
     private final Handler mHandlerSaveBills = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -405,8 +469,7 @@ public class AssortimentActivity extends AppCompatActivity {
                 int errorCode = Integer.valueOf(msg.obj.toString());
                 switch (errorCode){
                     case 1 : {
-                        Snackbar.make(mSaveBill, "UnknownError", Snackbar.LENGTH_LONG)
-                        .show();
+                        Snackbar.make(mSaveBill, "UnknownError", Snackbar.LENGTH_LONG).show();
                     }break;
                     case 2 : {
                         Snackbar.make(mSaveBill, "DeviceNotRegistered", Snackbar.LENGTH_LONG).show();
@@ -430,6 +493,32 @@ public class AssortimentActivity extends AppCompatActivity {
             }
             else if (msg.what == MESSAGE_FAILURE){
                 Snackbar.make(mSaveBill, "Failure save bill: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
+            }
+            else if( msg.what == MESSAGE_BILL_SUCCES){
+                initAssortmentList("00000000-0000-0000-0000-000000000000");
+            }
+            else if(msg.what == MESSAGE_BILL_RESULT_CODE){
+                int errorCode = Integer.valueOf(msg.obj.toString());
+                switch (errorCode){
+                    case 1 : {
+                        Snackbar.make(mSaveBill, "UnknownError", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 2 : {
+                        Snackbar.make(mSaveBill, "DeviceNotRegistered", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 3 : {
+                        Snackbar.make(mSaveBill, "ShiftIsNotValid", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 4 : {
+                        Snackbar.make(mSaveBill, "BillNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 5 : {
+                        Snackbar.make(mSaveBill, "ClientNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 6 : {
+                        Snackbar.make(mSaveBill, "SecurityException", Snackbar.LENGTH_LONG).show();
+                    }break;
+                }
             }
         }
     };

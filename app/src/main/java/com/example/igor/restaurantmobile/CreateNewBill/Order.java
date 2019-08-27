@@ -15,10 +15,12 @@ public class Order {
     private String priceLineUid;
     @SerializedName("Count")
     @Expose
-    private String count;
+    private Double count;
     @SerializedName("Comments")
     @Expose
     private List<String> comments = null;
+
+    private String uid;
 
     public String getAssortimentUid() {
         return assortimentUid;
@@ -36,11 +38,11 @@ public class Order {
         this.priceLineUid = priceLineUid;
     }
 
-    public String getCount() {
+    public Double getCount() {
         return count;
     }
 
-    public void setCount(String count) {
+    public void setCount(Double count) {
         this.count = count;
     }
 
@@ -52,4 +54,11 @@ public class Order {
         this.comments = comments;
     }
 
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getUid() {
+        return uid;
+    }
 }

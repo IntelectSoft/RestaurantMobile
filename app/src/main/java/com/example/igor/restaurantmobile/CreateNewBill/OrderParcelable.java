@@ -24,18 +24,22 @@ public class OrderParcelable implements Parcelable {
     @Expose
     private List<String> comments = null;
 
+    private String uid;
+
     public OrderParcelable(Parcel in) {
         assortimentUid = in.readString();
         priceLineUid = in.readString();
         count = in.readString();
         comments = in.createStringArrayList();
+        uid = in.readString();
     }
 
     public OrderParcelable(Order order) {
         assortimentUid = order.getAssortimentUid();
         priceLineUid = order.getPriceLineUid();
-        count = order.getCount();
+        count = String.valueOf(order.getCount());
         comments = order.getComments();
+        uid = order.getUid();
     }
 
     public static final Creator<OrderParcelable> CREATOR = new Creator<OrderParcelable>() {
@@ -82,6 +86,14 @@ public class OrderParcelable implements Parcelable {
         this.comments = comments;
     }
 
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -93,5 +105,6 @@ public class OrderParcelable implements Parcelable {
         parcel.writeString(priceLineUid);
         parcel.writeString(count);
         parcel.writeStringList(comments);
+        parcel.writeString(uid);
     }
 }

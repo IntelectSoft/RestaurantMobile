@@ -255,7 +255,21 @@ public class CountActivity extends AppCompatActivity {
 
         return super.dispatchTouchEvent(event);
     }
-
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            View mDecorView = getWindow().getDecorView();
+            mDecorView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            );
+        }
+    }
     private void saveOrder (){
             if (mCanSaveOrder){
                 if(mKitMebmers == null || mKitMebmers.size() == 0 ) {
@@ -334,9 +348,16 @@ public class CountActivity extends AppCompatActivity {
     private void saveOrderOnly() {
         Order newOrder = new Order();
         newOrder.setAssortimentUid(mGuidAssortment);
-        newOrder.setCount(Count_enter.getText().toString());
+        double count = 0.0;
+        try{
+            count = Double.parseDouble(Count_enter.getText().toString());
+        }catch (Exception e){
+            count = Double.parseDouble(Count_enter.getText().toString().replace(",","."));
+        }
+        newOrder.setCount(count);
         newOrder.setPriceLineUid(mPriceLineGuid);
         newOrder.setComments(mArrayCommentsListAdded);
+        newOrder.setUid("00000000-0000-0000-0000-000000000000");
         OrderParcelable saveOrder = new OrderParcelable(newOrder);
 
         Intent intent = new Intent();
