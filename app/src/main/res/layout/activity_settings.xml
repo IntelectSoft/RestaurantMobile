@@ -44,9 +44,10 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:clickable="true"
-        app:backgroundTint="@color/colorPrimaryDark"
+        app:backgroundTint="#237A57"
+        app:fab_colorPressed="#F7971E"
         app:fabSize="normal"
-        app:srcCompat="@android:drawable/ic_menu_save"
+        app:srcCompat="@drawable/save_white_48dp"
         android:layout_marginRight="16dp"
         android:layout_alignParentRight="true" />
     <android.support.v4.view.ViewPager

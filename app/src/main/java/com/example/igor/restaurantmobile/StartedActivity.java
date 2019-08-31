@@ -2,26 +2,20 @@ package com.example.igor.restaurantmobile;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +23,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -47,23 +42,15 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static com.example.igor.restaurantmobile.utilis.NetworkUtils.generateURL;
-import static com.example.igor.restaurantmobile.utilis.NetworkUtils.generateURLASL;
 import static com.example.igor.restaurantmobile.utilis.NetworkUtils.getResponseFromURL;
-import static com.example.igor.restaurantmobile.utilis.NetworkUtils.getResponseFromURLASL;
 
 public class StartedActivity extends AppCompatActivity {
     final int REQUEST_CODE_Settings = 4;
@@ -78,7 +65,7 @@ public class StartedActivity extends AppCompatActivity {
     TimerTask timerTaskSync;
     Timer sync;
     private Menu mMenu;
-
+    TextView txt_version;
     int MESSAGE_SUCCES = 0,MESSAGE_RESULT_CODE = 1,MESSAGE_NULL_BODY = 2 , MESSAGE_FAILURE = 3;
     boolean pingTest = false;
 
@@ -96,7 +83,7 @@ public class StartedActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         start=findViewById(R.id.btn_start);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
+        txt_version=findViewById(R.id.txt_version_mobile);
         final SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
 
         requestMultiplePermissions();
@@ -124,6 +111,15 @@ public class StartedActivity extends AppCompatActivity {
                 }
             }
         });
+
+        String version ="0.0";
+        try {
+            PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            version = "0-";
+        }
+        txt_version.setText("RestaurantMobile for Android v"+ version);
     }//OnCreate
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -195,21 +191,30 @@ public class StartedActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this,
                 new String[] {
                         Manifest.permission.INTERNET,
-                        Manifest.permission.READ_PHONE_STATE
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
 
                 },
                 12);
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 12 && grantResults.length == 2) {
+        if (requestCode == 12 && grantResults.length == 5) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(StartedActivity.this, new String[]{Manifest.permission.INTERNET}, 1);
-            } else if(grantResults[1] != PackageManager.PERMISSION_GRANTED) {
+            } else if (grantResults[1] != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(StartedActivity.this, new String[]{Manifest.permission.READ_PHONE_STATE}, 1);
+            } else if (grantResults[2] != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(StartedActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            } else if (grantResults[3] != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(StartedActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            } else if (grantResults[4] != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(StartedActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
             }
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
 
@@ -282,7 +287,7 @@ public class StartedActivity extends AppCompatActivity {
                                 .show();
                     }break;
                     case 2 : {
-                        Snackbar.make(start, "DeviceNotRegistered", Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(start, "Device "+ mDeviceID+ " Not Registered", Snackbar.LENGTH_LONG).show();
                     }break;
                     case 3 : {
                         Snackbar.make(start, "ShiftIsNotValid", Snackbar.LENGTH_LONG).show();
@@ -300,11 +305,11 @@ public class StartedActivity extends AppCompatActivity {
 
             }
             else if (msg.what == MESSAGE_NULL_BODY) {
-                Snackbar.make(start, "Response body is null: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
+                Snackbar.make(start, "Body is null: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
             }
             else if (msg.what == MESSAGE_FAILURE){
                 Snackbar.make(start, "Failure save bill: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
-                Toast.makeText(StartedActivity.this, "Failure save bill: "+ msg.obj.toString(), Toast.LENGTH_SHORT).show();
+
             }
         }
     };
@@ -325,19 +330,5 @@ public class StartedActivity extends AppCompatActivity {
         };
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            );
-        }
-    }
+
 }

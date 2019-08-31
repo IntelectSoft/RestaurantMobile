@@ -27,16 +27,18 @@
         android:id="@+id/textView4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text=" "
         android:textSize="36sp" />
 
-        <TextView
+    <TextView
         android:id="@+id/name_asl_for_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
+        android:gravity="center"
         android:textColor="@android:color/black"
-        android:textSize="30sp" />
+        android:textSize="36sp" />
 
     <TextView
         android:id="@+id/priceasl_for_count"
@@ -57,7 +59,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                app:srcCompat="@android:drawable/button_onoff_indicator_on" />
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/keyboard_arrow_down_black_48dp" />
 
             <EditText
                 android:id="@+id/edt_cnt"
@@ -77,17 +80,19 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
-                app:srcCompat="@android:drawable/ic_input_add" />
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/keyboard_arrow_up_black_48dp" />
         </LinearLayout>
 
 
-        <TextView
-            android:id="@+id/txtViewCom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:text="Comments: "
-            android:textSize="18sp" />
+    <TextView
+        android:id="@+id/txtViewCom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="monospace"
+        android:text="Comentarii:"
+        android:textColor="@color/black"
+        android:textSize="18sp" />
 
         <ListView
             android:id="@+id/txt_coment"
@@ -106,7 +111,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Renunt" />
+            android:background="@drawable/item_background_selector_button"
+            android:text="Renunt"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/second"
@@ -119,7 +128,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Comentarii" />
+            android:background="@drawable/item_background_selector_button"
+            android:text="Comentarii"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/second2"
@@ -132,8 +145,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/item_background_selector_button"
             android:text="@string/save_setting"
-            android:textSize="14sp" />
+            android:textColor="@color/white"
+            android:textSize="24sp" />
 
     </LinearLayout>
     </LinearLayout>

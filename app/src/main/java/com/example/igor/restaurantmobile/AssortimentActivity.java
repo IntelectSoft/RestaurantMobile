@@ -18,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -39,6 +40,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.igor.restaurantmobile.AssortimentList.Assortiment;
 import com.example.igor.restaurantmobile.AssortimentList.Comments;
 import com.example.igor.restaurantmobile.Bill.ServiceGetBill;
 import com.example.igor.restaurantmobile.Bill.ServiceSaveBill;
@@ -68,6 +70,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -95,7 +99,7 @@ import static com.example.igor.restaurantmobile.GlobalVarialbles.mStateOpenBill;
 
 public class AssortimentActivity extends AppCompatActivity {
     final Context context = this;
-
+    SearchView searchText;
     ListView mListViewShowAssortment;
     SimpleAdapter mAdapterShowAssortment;
     String mIPAdress,mPortNumber,mDeviceNumber, mTableGuid,mGuidBillClicked,mGuidBillIntent;
@@ -109,7 +113,9 @@ public class AssortimentActivity extends AppCompatActivity {
     ProgressDialog pgH;
     NewBill mCreateEditBill = new NewBill();
     List<Order> orderListCreateEditBill = new ArrayList<>();
-    private EditText queryEditText;
+
+    TimerTask timerTaskSearchText;
+    Timer timerSearch;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu1) {
@@ -136,19 +142,17 @@ public class AssortimentActivity extends AppCompatActivity {
                 }
             }break;
             case R.id.action_home : {
-                queryEditText.clearFocus();
-                queryEditText.setText("");
                 mListClickedItems.clear();
                 mIndexClickedItem = 0;
                 mGuidBillClicked = "00000000-0000-0000-0000-000000000000";
                 initAssortmentList(mGuidBillClicked);
             }break;
-            case R.id.action_search : {
-                String text_search =queryEditText.getText().toString();
-                mArrayAsssortmentList.clear();
-                mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromName(text_search);
-                mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
-            }break;
+//            case R.id.action_search : {
+//                String text_search =queryEditText.getText().toString();
+//                mArrayAsssortmentList.clear();
+//                mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromName(text_search);
+//                mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
+//            }break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -167,13 +171,10 @@ public class AssortimentActivity extends AppCompatActivity {
 
         Intent startIntent = getIntent();
         pgH=new ProgressDialog(context);
-        queryEditText = toolbar.findViewById(R.id.search_edit_text);
+        searchText = findViewById(R.id.search_text);
         mListViewShowAssortment = findViewById(R.id.list_aslsale);
         mSaveBill = (FloatingActionButton) findViewById(R.id.save_bill);
         mFabPreviewBill = (FloatingActionButton) findViewById(R.id.preview_bill);
-
-
-        mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
 
         SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
 
@@ -185,10 +186,13 @@ public class AssortimentActivity extends AppCompatActivity {
         mGuidBillIntent = startIntent.getStringExtra(mNewBillGuid);
         //1 - edit bill ;  0  - new bill
         int stateBill = startIntent.getIntExtra(mStateOpenBill,0);
+        int billNumber = startIntent.getIntExtra("BillNumber",0);
         if(stateBill == 1){
+            setTitle("Cont: " + billNumber);
             getBillPreview(mIPAdress,mPortNumber,mDeviceNumber,mGuidBillIntent);
         }
         else{
+            setTitle("Cont nou");
             initAssortmentList("00000000-0000-0000-0000-000000000000");
         }
 
@@ -230,20 +234,65 @@ public class AssortimentActivity extends AppCompatActivity {
                 }
             }
         });
-        queryEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//        queryEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+//                    String text_search =queryEditText.getText().toString().toLowerCase();
+//                    mArrayAsssortmentList.clear();
+//                    mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromName(text_search);
+//                    mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
+//                    return true;
+//                }
+//                return false;
+//            }
+//
+//        });
+
+        searchText.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
             @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    String text_search =queryEditText.getText().toString().toLowerCase();
-                    mArrayAsssortmentList.clear();
-                    mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromName(text_search);
-                    mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
-                    return true;
-                }
-                return false;
+            public boolean onQueryTextSubmit(String query) {
+
+                return true;
             }
 
+            @Override
+            public boolean onQueryTextChange(String searchText) {
+                if(!searchText.equals("")) {
+                    if(timerSearch != null)
+                        timerSearch.cancel();
+                    timerSearch = new Timer();
+                    startTimetaskSearchText(searchText);
+                    timerSearch.schedule(timerTaskSearchText, 1200);
+                }else {
+                    mListClickedItems.clear();
+                    mIndexClickedItem = 0;
+                    mGuidBillClicked = "00000000-0000-0000-0000-000000000000";
+                    initAssortmentList(mGuidBillClicked);
+                }
+                return true;
+            }
         });
+    }
+
+    private void startTimetaskSearchText(final String newText){
+        timerTaskSearchText = new TimerTask() {
+            @Override
+            public void run() {
+                AssortimentActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (newText.length() >= 3) {
+                            mArrayAsssortmentList.clear();
+                            mArrayAsssortmentList = ((GlobalVarialbles)getApplication()).getAssortmentFromName(newText);
+                            mAdapterShowAssortment = new SimpleAdapter(AssortimentActivity.this, mArrayAsssortmentList,R.layout.tesrt, new String[]{mMapAssortmentName,mMapAssortmentIcon,mMapAssortmentPrice}, new int[]{R.id.text_view_asl,R.id.image_view_asl_xm,R.id.text_test2});
+                            mListViewShowAssortment.setAdapter(mAdapterShowAssortment);
+                        }
+                    }
+                });
+            }
+        };
+
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -263,17 +312,18 @@ public class AssortimentActivity extends AppCompatActivity {
                 saveOrder.setAssortimentUid(parcelableOrder.getAssortimentUid());
                 saveOrder.setComments(parcelableOrder.getComments());
                 saveOrder.setUid(parcelableOrder.getUid());
+                saveOrder.setInternUid(parcelableOrder.getInternUid());
                 orderListCreateEditBill.add(saveOrder);
             }
         }
         if (requestCode==REQUEST_CODE_PreviewBill){
             if (resultCode==RESULT_CANCELED){
-
+                orderListCreateEditBill = ((GlobalVarialbles)getApplication()).getOrders();
 
             }else{
-                    Intent intent = new Intent();
-                    setResult(RESULT_OK,intent);
-                    finish();
+                Intent intent = new Intent();
+                setResult(RESULT_OK,intent);
+                finish();
             }
         }
     }
@@ -296,21 +346,6 @@ public class AssortimentActivity extends AppCompatActivity {
         }
 
         return super.dispatchTouchEvent(event);
-    }
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            );
-        }
     }
     @Override
     public void onBackPressed() {
@@ -339,7 +374,22 @@ public class AssortimentActivity extends AppCompatActivity {
                 mCreateEditBill.setDeviceId(mDeviceNumber);
                 mCreateEditBill.setTableUid(mTableGuid);
                 mCreateEditBill.setBillUid(mGuidBillIntent);
-                mCreateEditBill.setOrders(orderListCreateEditBill);
+                List<Order> orderListSend = new ArrayList<>();
+
+                for (Order order:orderListCreateEditBill) {
+                    Order orderSend = new Order();
+
+                    if (order.getInternUid() != null){
+                        orderSend.setCount(order.getCount());
+                        orderSend.setAssortimentUid(order.getAssortimentUid());
+                        orderSend.setPriceLineUid(order.getPriceLineUid());
+                        orderSend.setComments(order.getComments());
+
+                        orderListSend.add(orderSend);
+                    }
+
+                }
+                mCreateEditBill.setOrders(orderListSend);
 
                 OkHttpClient okHttpClient = new OkHttpClient.Builder()
                         .connectTimeout(3, TimeUnit.MINUTES)
@@ -489,15 +539,19 @@ public class AssortimentActivity extends AppCompatActivity {
                 }
             }
             else if (msg.what == MESSAGE_NULL_BODY) {
+                pgH.dismiss();
                 Snackbar.make(mSaveBill, "Response body is null: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
             }
             else if (msg.what == MESSAGE_FAILURE){
+                pgH.dismiss();
                 Snackbar.make(mSaveBill, "Failure save bill: "+ msg.obj.toString(), Snackbar.LENGTH_LONG).show();
             }
             else if( msg.what == MESSAGE_BILL_SUCCES){
+                pgH.dismiss();
                 initAssortmentList("00000000-0000-0000-0000-000000000000");
             }
             else if(msg.what == MESSAGE_BILL_RESULT_CODE){
+                pgH.dismiss();
                 int errorCode = Integer.valueOf(msg.obj.toString());
                 switch (errorCode){
                     case 1 : {

@@ -26,12 +26,15 @@ public class OrderParcelable implements Parcelable {
 
     private String uid;
 
+    private String internUid;
+
     public OrderParcelable(Parcel in) {
         assortimentUid = in.readString();
         priceLineUid = in.readString();
         count = in.readString();
         comments = in.createStringArrayList();
         uid = in.readString();
+        internUid = in.readString();
     }
 
     public OrderParcelable(Order order) {
@@ -40,6 +43,7 @@ public class OrderParcelable implements Parcelable {
         count = String.valueOf(order.getCount());
         comments = order.getComments();
         uid = order.getUid();
+        internUid = order.getInternUid();
     }
 
     public static final Creator<OrderParcelable> CREATOR = new Creator<OrderParcelable>() {
@@ -94,6 +98,14 @@ public class OrderParcelable implements Parcelable {
         return uid;
     }
 
+    public String getInternUid() {
+        return internUid;
+    }
+
+    public void setInternUid(String internUid) {
+        this.internUid = internUid;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -106,5 +118,6 @@ public class OrderParcelable implements Parcelable {
         parcel.writeString(count);
         parcel.writeStringList(comments);
         parcel.writeString(uid);
+        parcel.writeString(internUid);
     }
 }

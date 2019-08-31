@@ -1,6 +1,7 @@
 package com.example.igor.restaurantmobile;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -216,14 +217,18 @@ public class TabConnect extends Fragment {
                                 List<Table> tableLists = assortmentService.getTableList();
                                 List<ClosureType> closureTypeLists = assortmentService.getClosureTypeList();
                                 List<Comments> commentsLists = assortmentService.getCommentsList();
-
-                                ((GlobalVarialbles)getActivity().getApplication()).setAssortmentList(assortimentLists);
-                                ((GlobalVarialbles)getActivity().getApplication()).setTableList(tableLists);
-                                ((GlobalVarialbles)getActivity().getApplication()).setClosureTypeLists(closureTypeLists);
-                                ((GlobalVarialbles)getActivity().getApplication()).setCommentsLists(commentsLists);
-                                mClosureType = closureTypeLists.size();
-                                mAssortmentSize = assortimentLists.size();
-                                mHandlerBills.obtainMessage(MESSAGE_SUCCES).sendToTarget();
+                                Activity activity = getActivity();
+                                if((activity != null ? activity.getApplication() : null) !=null) {
+                                    ((GlobalVarialbles) getActivity().getApplication()).setAssortmentList(assortimentLists);
+                                    ((GlobalVarialbles) getActivity().getApplication()).setTableList(tableLists);
+                                    ((GlobalVarialbles) getActivity().getApplication()).setClosureTypeLists(closureTypeLists);
+                                    ((GlobalVarialbles) getActivity().getApplication()).setCommentsLists(commentsLists);
+                                    mClosureType = closureTypeLists.size();
+                                    mAssortmentSize = assortimentLists.size();
+                                    mHandlerBills.obtainMessage(MESSAGE_SUCCES).sendToTarget();
+                                }else{
+                                    mHandlerBills.obtainMessage(MESSAGE_NULL_BODY).sendToTarget();
+                                }
                             }
                             else{
                                 mHandlerBills.obtainMessage(MESSAGE_RESULT_CODE,mErrorCode).sendToTarget();
@@ -256,8 +261,7 @@ public class TabConnect extends Fragment {
                 int errorCode = Integer.valueOf(msg.obj.toString());
                 switch (errorCode){
                     case 1 : {
-                        Snackbar.make(test, "UnknownError", Snackbar.LENGTH_LONG)
-                                .show();
+                        Snackbar.make(test, "UnknownError", Snackbar.LENGTH_LONG).show();
                     }break;
                     case 2 : {
                         Snackbar.make(test, "DeviceNotRegistered", Snackbar.LENGTH_LONG).show();

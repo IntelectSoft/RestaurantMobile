@@ -7,6 +7,7 @@ import com.example.igor.restaurantmobile.AssortimentList.ClosureType;
 import com.example.igor.restaurantmobile.AssortimentList.Comments;
 import com.example.igor.restaurantmobile.AssortimentList.Table;
 import com.example.igor.restaurantmobile.CreateNewBill.NewBill;
+import com.example.igor.restaurantmobile.CreateNewBill.Order;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +33,7 @@ public class GlobalVarialbles extends Application {
     public static final String mMapCommentName = "CommentName";
     public static final String mMapCommentGuid = "CommentGuid";
     public static final String mMapAssortmentPriceLineGuid = "AssortmentLineGuid";
+    public static final String mMapOrderUid = "OrderID";
     public static final String mNewBillGuid = "NewBill";
     public static final String mGuidZero = "00000000-0000-0000-0000-000000000000";
     public static final String mNewBillTableGuid = "TableGuidNewBill";
@@ -154,7 +156,7 @@ public class GlobalVarialbles extends Application {
         ArrayList<HashMap<String, Object>> assortment_list = new ArrayList<>();
         for (Assortiment assortment:assortmentList) {
             String nameAssortment = assortment.getName().toLowerCase();
-            if (nameAssortment.equals(name.toLowerCase())){
+            if (nameAssortment.contains(name.toLowerCase())){
                 HashMap<String, Object> assortmentMap = new HashMap<>();
                 boolean isFolder = assortment.getIsFolder();
                 if(isFolder){
@@ -199,6 +201,48 @@ public class GlobalVarialbles extends Application {
     }
     public NewBill getNewBill (){
         return mNewBill;
+    }
+
+
+    public Order getOrderFromInternUid (String orderID){
+        Order orderSearch = null;
+        List<Order> orderList = mNewBill.getOrders();
+        for (Order order:orderList) {
+            String idOrder = order.getInternUid();
+            if(idOrder != null)
+                if(idOrder.equals(orderID)){
+                    orderSearch = order;
+                    break;
+                }
+        }
+        return orderSearch;
+    }
+    public void setCountOrderFromInternUid (String orderID,double count){
+        List<Order> orderList = mNewBill.getOrders();
+        for (Order order:orderList) {
+            String idOrder = order.getInternUid();
+            if(idOrder != null)
+                if(idOrder.equals(orderID)){
+                    order.setCount(count);
+                    break;
+                }
+        }
+    }
+
+    public void removeOrderFromInternUid (String orderID){
+        List<Order> orderList = mNewBill.getOrders();
+        for (Order order:orderList) {
+            String idOrder = order.getInternUid();
+            if(idOrder != null)
+                if(idOrder.equals(orderID)){
+                    orderList.remove(order);
+                    break;
+                }
+        }
+    }
+
+    public List<Order> getOrders(){
+        return mNewBill.getOrders();
     }
 
     public void setStartWork (boolean startApplication){
