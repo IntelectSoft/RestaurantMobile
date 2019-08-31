@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.UUID;
 
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapAssortmentGuid;
 import static com.example.igor.restaurantmobile.GlobalVarialbles.mMapCommentGuid;
@@ -249,26 +250,10 @@ public class CountActivity extends AppCompatActivity {
                 v.clearFocus();
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
             }
         }
 
         return super.dispatchTouchEvent(event);
-    }
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            );
-        }
     }
     private void saveOrder (){
             if (mCanSaveOrder){
@@ -357,6 +342,8 @@ public class CountActivity extends AppCompatActivity {
         newOrder.setCount(count);
         newOrder.setPriceLineUid(mPriceLineGuid);
         newOrder.setComments(mArrayCommentsListAdded);
+        String uid = UUID.randomUUID().toString();
+        newOrder.setInternUid(uid);
         newOrder.setUid("00000000-0000-0000-0000-000000000000");
         OrderParcelable saveOrder = new OrderParcelable(newOrder);
 

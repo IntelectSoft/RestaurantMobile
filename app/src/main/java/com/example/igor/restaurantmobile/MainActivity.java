@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionMenu menu_bill;
 
     String mBillID,mTableID,mTableName,mDeviceID, mPortConnect,mIPConnect, mGuidBillClicked = null ,IP_save = "IP",Port_save = "Port",Device_save = "ID_Device",mTableGuidClickedItem;
-    int mBillNumber ,mDisplayDefaultHeight;
+    int mBillNumber ,mDisplayDefaultHeight,mBillNumberClicked;
     int MESSAGE_SUCCES = 0,MESSAGE_RESULT_CODE = 1,MESSAGE_NULL_BODY = 2 , MESSAGE_FAILURE = 3 ,REQUEST_CODE_NewBill = 4,REQUEST_CODE_Settings = 5,REQUEST_CODE_EditBill = 6,MESSAGE_BILL_SUCCES = 7,
             MESSAGE_BILL_RESULT_CODE = 8;
     double mBillSumAfterDiscount,mBillSum;
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         menu_bill = findViewById(R.id.fab1);
         FloatingActionButton fab_add = findViewById(R.id.item_add);
         FloatingActionButton fab_show_line = findViewById(R.id.item_show_line);
-        FloatingActionButton fab_print = findViewById(R.id.item_print);
+        //FloatingActionButton fab_print = findViewById(R.id.item_print);
         final LinearLayout mMainLayout = (LinearLayout)findViewById(R.id.LGridView);
         final LinearLayout mShowLineLayout = (LinearLayout)findViewById(R.id.ShowLine);
         final LinearLayout.LayoutParams mMainParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         final int mDisplayHeight = display.getHeight();
         int mNewDisplayHeight = mDisplayHeight / 3 ;
-        final int mHeightGrid = (mNewDisplayHeight * 2) - 100;
+        final int mHeightGrid = (mNewDisplayHeight * 2) - 110;
         final int mShowLinwHeight = mDisplayHeight - mHeightGrid;
         mDisplayDefaultHeight = mDisplayHeight;
         mMainParams.height = mHeightGrid;
@@ -178,15 +179,16 @@ public class MainActivity extends AppCompatActivity {
                     Intent new_bill_activity = new Intent(".AssortimentActivityRestaurant");
                     new_bill_activity.putExtra(mNewBillGuid,mGuidZero);
                     new_bill_activity.putExtra(mStateOpenBill,0);
+                    new_bill_activity.putExtra("BillNumber",0);
                     startActivityForResult(new_bill_activity, REQUEST_CODE_EditBill);
                 }
                 menu_bill.close(true);
             }
         });
 
-        fab_print.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+//        fab_print.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
 //                uid_bill_to_close =(sPref.getString("bills_uid",""));
 //                String uid="00000000-0000-0000-0000-000000000000";
 //                boolean selector = uid_bill_to_close.contains(uid);
@@ -197,14 +199,15 @@ public class MainActivity extends AppCompatActivity {
 //                    onCloseType();
 //                }
 //                menu_bill.close(true);
-            }
-        });
+//            }
+//        });
 
         mGridViewList_Bills.setOnItemClickListener (new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mGridViewList_Bills.setItemChecked(position, true);
                 mGridViewList_Bills.setSelected(true);
+                mBillNumberClicked = (Integer) bills_list.get(position).get(mMapBillNumber);
                 mGuidBillClicked  = (String) bills_list.get(position).get(mMapBillGuid);
                 mTableGuidClickedItem = (String) bills_list.get(position).get(mMapTableGuid);
                 if (mShowLine) getBill(mIPConnect, mPortConnect, mDeviceID, mGuidBillClicked);
@@ -236,7 +239,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         bill_lines.clear();
-                        showDialog();
                         mGuidBillClicked = null;
                         mListViewShowLine.setAdapter(mAdapterShowLine);
                         getBillList(mIPConnect,mPortConnect,mDeviceID,false);
@@ -272,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
                     new_bill_activity.putExtra(mNewBillGuid,mGuidBillClicked);
                     new_bill_activity.putExtra(mNewBillTableGuid,mTableGuidClickedItem);
                     new_bill_activity.putExtra(mStateOpenBill,1);
+                    new_bill_activity.putExtra("BillNumber",mBillNumberClicked);
                     startActivity(new_bill_activity);
                 }
             }break;
@@ -356,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void getBillList(final String ipAdress, final String portNumber, final String deviceID, final boolean includeLines){
         bills_list.clear();
+        bill_lines.clear();
         Thread mGetBillsList = new Thread(new Runnable() {
             public void run() {
                 OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -434,7 +438,26 @@ public class MainActivity extends AppCompatActivity {
             else if (msg.what == MESSAGE_RESULT_CODE) {
                 pgH.dismiss();
                 int errorCode = Integer.valueOf(msg.obj.toString());
-
+                switch (errorCode){
+                    case 1 : {
+                        Snackbar.make(menu_bill, "UnknownError", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 2 : {
+                        Snackbar.make(menu_bill, "Device "+ mDeviceID+ " Not Registered", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 3 : {
+                        Snackbar.make(menu_bill, "ShiftIsNotValid", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 4 : {
+                        Snackbar.make(menu_bill, "BillNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 5 : {
+                        Snackbar.make(menu_bill, "ClientNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 6 : {
+                        Snackbar.make(menu_bill, "SecurityException", Snackbar.LENGTH_LONG).show();
+                    }break;
+                }
             }
             else if(msg.what == MESSAGE_BILL_SUCCES){
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -449,9 +472,29 @@ public class MainActivity extends AppCompatActivity {
             }
             else if(msg.what == MESSAGE_BILL_RESULT_CODE){
                 int errorCode = Integer.valueOf(msg.obj.toString());
+                switch (errorCode){
+                    case 1 : {
+                        Snackbar.make(menu_bill, "UnknownError", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 2 : {
+                        Snackbar.make(menu_bill, "Device "+ mDeviceID+ " Not Registered", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 3 : {
+                        Snackbar.make(menu_bill, "ShiftIsNotValid", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 4 : {
+                        Snackbar.make(menu_bill, "BillNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 5 : {
+                        Snackbar.make(menu_bill, "ClientNotFound", Snackbar.LENGTH_LONG).show();
+                    }break;
+                    case 6 : {
+                        Snackbar.make(menu_bill, "SecurityException", Snackbar.LENGTH_LONG).show();
+                    }break;
+                }
             }
-            else if (msg.what == MESSAGE_NULL_BODY) { }
-            else if (msg.what == MESSAGE_FAILURE){ }
+            else if (msg.what == MESSAGE_NULL_BODY) { Snackbar.make(menu_bill, "Body is null", Snackbar.LENGTH_LONG).show();}
+            else if (msg.what == MESSAGE_FAILURE){ Snackbar.make(menu_bill, "Failure: " + msg.obj.toString(), Snackbar.LENGTH_LONG).show();}
         }
     };
     private void showDialog(){
@@ -471,20 +514,5 @@ public class MainActivity extends AppCompatActivity {
     public boolean dispatchTouchEvent(@NonNull MotionEvent event) {
         menu_bill.close(true);
         return super.dispatchTouchEvent(event);
-    }
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            View mDecorView = getWindow().getDecorView();
-            mDecorView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            );
-        }
     }
 }

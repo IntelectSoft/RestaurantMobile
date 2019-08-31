@@ -18,24 +18,15 @@
             android:layout_height="?attr/actionBarSize"
             android:layout_weight="1"
             app:popupTheme="@style/AppTheme.PopupOverlay">
-            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
+            <android.support.v7.widget.SearchView
+                android:id="@+id/search_text"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:padding="8dp">
-
-                <EditText
-                    android:id="@+id/search_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:background="@null"
-                    android:hint="Search..."
-                    android:imeOptions="actionSearch"
-                    android:inputType="text"
-                    android:maxLines="1" />
-            </RelativeLayout>
+                android:layout_gravity="right"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:layoutDirection="rtl"
+                android:maxLines="1" />
         </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
@@ -48,7 +39,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="#237A57"
+        app:fab_colorPressed="#F7971E"
         app:srcCompat="@drawable/save_white_48dp" />
 
     <android.support.design.widget.FloatingActionButton
@@ -59,6 +51,7 @@
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="80dp"
         android:layout_marginRight="80dp"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="#237A57"
+        app:fab_colorPressed="#F7971E"
         app:srcCompat="@drawable/view_eye_white_48" />
 </android.support.design.widget.CoordinatorLayout>

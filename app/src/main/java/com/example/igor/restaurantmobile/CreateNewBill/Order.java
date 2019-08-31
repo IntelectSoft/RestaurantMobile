@@ -22,6 +22,8 @@ public class Order {
 
     private String uid;
 
+    private String internUid;
+
     public String getAssortimentUid() {
         return assortimentUid;
     }
@@ -60,5 +62,13 @@ public class Order {
 
     public String getUid() {
         return uid;
+    }
+
+    public String getInternUid() {
+        return internUid;
+    }
+
+    public void setInternUid(String internUid) {
+        this.internUid = internUid;
     }
 }

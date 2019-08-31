@@ -15,7 +15,7 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="?attr/actionBarSize"
             android:layout_weight="1"
             app:popupTheme="@style/AppTheme.PopupOverlay" >
         </android.support.v7.widget.Toolbar>
@@ -37,13 +37,11 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="11dp"
-            android:layout_marginBottom="14dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
             app:menu_backgroundColor="@android:color/transparent"
-            app:menu_colorNormal="@color/colorPrimary"
-            app:menu_colorPressed="#3395FF"
-            app:menu_colorRipple="@color/black"
-
+            app:menu_colorNormal="#237A57"
+            app:menu_colorPressed="#F7971E"
             app:menu_fab_size="normal"
             app:menu_labels_colorNormal="@android:color/white"
             app:menu_labels_textColor="@android:color/black"
@@ -54,31 +52,28 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/add_new"
-                app:fab_colorNormal="@color/colorPrimary"
-                app:fab_colorPressed="#3395FF"
-                app:fab_colorRipple="#99FFFFFF"
+                app:fab_colorNormal="#237A57"
+                app:fab_colorPressed="#F7971E"
                 app:fab_label="Cont nou"
-                app:fab_progress_backgroundColor="#4D000000"
-                app:fab_progress_color="#FF009688"
                 app:fab_size="mini" />
 
-            <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/item_print"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/print_bill"
-                app:fab_colorNormal="@color/colorPrimary"
-                app:fab_colorPressed="#3395FF"
-                app:fab_label="Print cont"
-                app:fab_size="mini" />
+<!--            <com.github.clans.fab.FloatingActionButton-->
+<!--                android:id="@+id/item_print"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:src="@drawable/print_bill"-->
+<!--                app:fab_colorNormal="#237A57"-->
+<!--                app:fab_colorPressed="#F7971E"-->
+<!--                app:fab_label="Print cont"-->
+<!--                app:fab_size="mini" />-->
 
             <com.github.clans.fab.FloatingActionButton
                 android:id="@+id/item_show_line"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/show_line"
-                app:fab_colorNormal="@color/colorPrimary"
-                app:fab_colorPressed="#3395FF"
+                app:fab_colorNormal="#237A57"
+                app:fab_colorPressed="#F7971E"
                 app:fab_label="Detalii cont"
                 app:fab_size="mini" />
 
