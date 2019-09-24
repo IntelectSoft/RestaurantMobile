@@ -25,7 +25,11 @@ public class Order {
     private String internUid;
 
     public String getAssortimentUid() {
-        return assortimentUid;
+        if(assortimentUid != null){
+            return assortimentUid;
+        }
+        else
+            return "null";
     }
 
     public void setAssortimentUid(String assortimentUid) {

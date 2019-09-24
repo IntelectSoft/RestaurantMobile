@@ -330,14 +330,21 @@ public class MainActivity extends AppCompatActivity {
                             int mErrorCode = responseBillsList.getResult();
                             if(mErrorCode == 0){
                                 List<Bill> billsList = responseBillsList.getBillsList();
-                                List<BillsLine> mBillLines = billsList.get(0).getLines();
-                                for (BillsLine line:mBillLines) {
-                                    HashMap<String, Object> bill_line = new HashMap<>();
-                                    bill_line.put(mMapAssortmentName,((GlobalVarialbles)getApplication()).getAssortmentName(line.getAssortimentUid()));
-                                    bill_line.put(mMapAssortmentCount,line.getCount());
-                                    bill_lines.add(bill_line);
+                                List<BillsLine> mBillLines = new ArrayList<>();
+
+                                if(billsList.get(0).getLines().size() > 0){
+                                    mBillLines = billsList.get(0).getLines();
+                                    for (BillsLine line:mBillLines) {
+                                        HashMap<String, Object> bill_line = new HashMap<>();
+                                        bill_line.put(mMapAssortmentName,((GlobalVarialbles)getApplication()).getAssortmentName(line.getAssortimentUid()));
+                                        bill_line.put(mMapAssortmentCount,line.getCount());
+                                        bill_lines.add(bill_line);
+                                    }
+                                    mHandlerBills.obtainMessage(MESSAGE_BILL_SUCCES).sendToTarget();
                                 }
-                                mHandlerBills.obtainMessage(MESSAGE_BILL_SUCCES).sendToTarget();
+                                else{
+                                    mHandlerBills.obtainMessage(MESSAGE_NULL_BODY).sendToTarget();
+                                }
                             }
                             else{
                                 mHandlerBills.obtainMessage(MESSAGE_BILL_RESULT_CODE,mErrorCode).sendToTarget();

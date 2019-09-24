@@ -90,7 +90,7 @@ public class StartedActivity extends AppCompatActivity {
         ip_=(sPref.getString(IP_save,""));
         port=(sPref.getString(Port_save,""));
         mDeviceID = (sPref.getString(Device_save,""));
-        final boolean licenta=sPref.getBoolean("Key",false);
+
 
         sync=new Timer();
         startTimetaskSync();
@@ -100,6 +100,7 @@ public class StartedActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
+                final boolean licenta=sPref.getBoolean("Key",false);
                 if(licenta) {{
                     if (pingTest){
                         getAssortment(ip_,port,mDeviceID);
