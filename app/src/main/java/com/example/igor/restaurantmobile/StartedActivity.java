@@ -7,18 +7,21 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
+import android.view.MenuItem;
+
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -53,6 +56,13 @@ import static com.example.igor.restaurantmobile.utilis.NetworkUtils.generateURL;
 import static com.example.igor.restaurantmobile.utilis.NetworkUtils.getResponseFromURL;
 
 public class StartedActivity extends AppCompatActivity {
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
+
     final int REQUEST_CODE_Settings = 4;
     Button start;
     final Context context = this;
@@ -70,6 +80,13 @@ public class StartedActivity extends AppCompatActivity {
     boolean pingTest = false;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_started, menu);
+        this.mMenu = menu;
+        return true;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
@@ -79,11 +96,13 @@ public class StartedActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_started);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_started);
+        Toolbar toolbar = findViewById(R.id.toolbar_started_trattrra);
         setSupportActionBar(toolbar);
-        start=findViewById(R.id.btn_start);
+
+        start = findViewById(R.id.btn_start);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         txt_version=findViewById(R.id.txt_version_mobile);
+
         final SharedPreferences sPref = getSharedPreferences("Save setting", MODE_PRIVATE);
 
         requestMultiplePermissions();
@@ -100,7 +119,7 @@ public class StartedActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 progressBar.setVisibility(View.VISIBLE);
-                final boolean licenta=sPref.getBoolean("Key",false);
+                final boolean licenta = sPref.getBoolean("Key",false);
                 if(licenta) {{
                     if (pingTest){
                         getAssortment(ip_,port,mDeviceID);
@@ -122,12 +141,6 @@ public class StartedActivity extends AppCompatActivity {
         }
         txt_version.setText("RestaurantMobile for Android v"+ version);
     }//OnCreate
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_started, menu);
-        this.mMenu = menu;
-        return true;
-    }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -180,7 +193,8 @@ public class StartedActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean response) {
             if (response) {
                 pingTest=true;
-                mMenu.getItem(0).setIcon(ContextCompat.getDrawable(StartedActivity.this, R.drawable.signal_wi_fi_48));
+                if(mMenu!=null)
+                    mMenu.getItem(0).setIcon(ContextCompat.getDrawable(StartedActivity.this, R.drawable.signal_wi_fi_48));
             }else {
                 pingTest=false;
                 if(mMenu!=null)

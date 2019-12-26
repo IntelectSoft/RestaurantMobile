@@ -175,7 +175,7 @@ public class CountActivity extends AppCompatActivity {
                     Count_enter.setText(String.valueOf(curr));
                 }
                 else{
-                    Integer curr = Integer.valueOf(Count_enter.getText().toString());
+                    int curr = Integer.valueOf(Count_enter.getText().toString());
                     if (curr - 1 >= 0) curr -= 1;
                     Count_enter.setText(String.valueOf(curr));
                 }

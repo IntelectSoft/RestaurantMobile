@@ -74,14 +74,20 @@ public class EditLineActivity extends AppCompatActivity {
         final String orderID = startIntent.getStringExtra("Order");
 
         Order editOrder = ((GlobalVarialbles)getApplication()).getOrderFromInternUid(orderID);
-        Assortiment assortiment = ((GlobalVarialbles)getApplication()).getAssortmentFromID(editOrder.getAssortimentUid());
-        String assortmentName = assortiment.getName();
-        double assortmentPrice = assortiment.getPrice();
-        IntegerSales = assortiment.getAllowNonIntegerSale();
-
-        name_forasl.setText(assortmentName);
-        price_forasl.setText("Pretul: "+ assortmentPrice);
-        Count_enter.setText(String.valueOf(editOrder.getCount()));
+        Assortiment assortiment = null;
+        if (editOrder != null) {
+            assortiment = ((GlobalVarialbles)getApplication()).getAssortmentFromID(editOrder.getAssortimentUid());
+        }
+        double assortmentPrice = 0;
+        String assortmentName = "null";
+        if (assortiment != null) {
+            assortmentName = assortiment.getName();
+            assortmentPrice = assortiment.getPrice();
+            IntegerSales = assortiment.getAllowNonIntegerSale();
+            name_forasl.setText(assortmentName);
+            price_forasl.setText("Pretul: "+ assortmentPrice);
+            Count_enter.setText(String.valueOf(editOrder.getCount()));
+        }
 
         Count_enter.addTextChangedListener(new TextWatcher() {
             @Override
