@@ -1,21 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.igor.restaurantmobile.StartedActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_signal_check"
         android:icon="@drawable/signal_wi_fi_48"
         android:title="Signal"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_setting_start"
-        android:icon="@android:drawable/ic_menu_manage"
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_exit_start"
-        android:icon="@drawable/exit_to_app_white_48dp"
         android:title="Exit"
         app:showAsAction="never" />
 
