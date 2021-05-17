@@ -23,7 +23,6 @@ android {
         targetSdkVersion 28
         versionCode 33
         versionName "3.3.2612"
-        generatedDensities = []
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
