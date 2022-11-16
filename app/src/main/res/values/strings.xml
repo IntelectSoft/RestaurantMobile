@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">RestaurantMobile</string>
     <string name="list_bil">Continutul contului:</string>
     <string name="action_set">Setting</string>
     <string name="action_show">Hide/Show line</string>

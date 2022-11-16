@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/myBills">
+
+    <fragment
+        android:id="@+id/myBills"
+        android:name="com.example.igor.restaurantmobile.presentation.main.MyBillsFragment"
+        android:label="FragmentBills"
+        tools:layout="@layout/fragment_my_bills">
+
+        <action
+            android:id="@+id/action_myBills_to_tableList"
+            app:destination="@id/tableList" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tableList"
+        android:name="com.example.igor.restaurantmobile.presentation.table.TableFragment"
+        tools:layout="@layout/fragment_table_list">
+
+        <action
+            android:id="@+id/tableToAssortment"
+            app:destination="@id/assortmentList" />
+        <action
+            android:id="@+id/action_tableList_to_myBills"
+            app:destination="@id/myBills" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/assortmentList"
+        android:name="com.example.igor.restaurantmobile.presentation.assortment.AssortmentFragment"
+        tools:layout="@layout/fragment_assortiment">
+        <action
+            android:id="@+id/action_assortmentList_to_preview_cart"
+            app:destination="@id/preview_cart" />
+        <action
+            android:id="@+id/action_assortmentList_to_myBills"
+            app:destination="@id/myBills" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/preview_cart"
+        android:name="com.example.igor.restaurantmobile.presentation.add_order.NewOrderFragment"
+        tools:layout="@layout/fragment_new_order">
+
+        <action
+            android:id="@+id/action_preview_cart_to_myBills"
+            app:destination="@id/myBills" />
+    </fragment>
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/accountDetails"-->
+    <!--        android:name="ro.lensa.presentation.account_details.FragmentAccountDetails"-->
+    <!--        tools:layout="@layout/fragment_account_details">-->
+    <!--        <action-->
+    <!--            android:id="@+id/accountToChangePassword"-->
+    <!--            app:destination="@id/changePassword" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/accountToSelectState"-->
+    <!--            app:destination="@id/select_state" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/accountToChangeEmail"-->
+    <!--            app:destination="@id/change_email" />-->
+    <!--    </fragment>-->
+
+
+    <!--    <action-->
+    <!--        android:id="@+id/toAccountDetails"-->
+    <!--        app:destination="@id/accountDetails" />-->
+
+    <!--    <action-->
+    <!--        android:id="@+id/ToAddress"-->
+    <!--        app:destination="@id/address" />-->
+
+    <!--    <dialog-->
+    <!--        android:id="@+id/changePassword"-->
+    <!--        android:name="ro.lensa.presentation.change_password.FragmentChangePassword"-->
+    <!--        tools:layout="@layout/fragment_change_password" />-->
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/select_state"-->
+    <!--        android:name="ro.lensa.presentation.select_state.FragmentSelectState"-->
+    <!--        tools:layout="@layout/fragment_select_state">-->
+    <!--        <argument-->
+    <!--            android:name="tag"-->
+    <!--            app:argType="string" />-->
+
+    <!--        <argument-->
+    <!--            android:name="regionId"-->
+    <!--            app:argType="integer" />-->
+
+    <!--        <argument-->
+    <!--            android:name="isRegion"-->
+    <!--            android:defaultValue="true"-->
+    <!--            app:argType="boolean" />-->
+    <!--    </fragment>-->
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/address"-->
+    <!--        android:name="ro.lensa.presentation.addresses.FragmentAddress"-->
+    <!--        tools:layout="@layout/fragment_address">-->
+    <!--        <action-->
+    <!--            android:id="@+id/addressToAddAddress"-->
+    <!--            app:destination="@id/add_address" />-->
+    <!--    </fragment>-->
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/add_address"-->
+    <!--        android:name="ro.lensa.presentation.address_add.FragmentAddAddress"-->
+    <!--        tools:layout="@layout/fragment_add_address">-->
+
+    <!--        <argument-->
+    <!--            android:name="isEdit"-->
+    <!--            android:defaultValue="false"-->
+    <!--            app:argType="boolean" />-->
+
+    <!--        <argument-->
+    <!--            android:name="address"-->
+    <!--            app:argType="string"-->
+    <!--            app:nullable="true" />-->
+
+    <!--        <argument-->
+    <!--            android:name="title"-->
+    <!--            app:argType="string" />-->
+    <!--        <action-->
+    <!--            android:id="@+id/addAddressToSelectState"-->
+    <!--            app:destination="@id/select_state" />-->
+    <!--    </fragment>-->
+
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/promotionDetails"-->
+    <!--        android:name="ro.lensa.presentation.promotion_details.FragmentPromotionDetails"-->
+    <!--        tools:layout="@layout/fragment_promotion_details">-->
+
+    <!--        <argument-->
+    <!--            android:name="promotion_id"-->
+    <!--            app:argType="string" />-->
+
+
+    <!--        <argument-->
+    <!--            android:name="all_promotions_holder_key"-->
+    <!--            app:argType="string" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/toMainScreen"-->
+    <!--            app:launchSingleTop="true"-->
+    <!--            app:destination="@id/mainTabBar" />-->
+    <!--    </fragment>-->
+
+    <!--    <action-->
+    <!--        android:id="@+id/toPromotionDetails"-->
+    <!--        app:destination="@id/promotionDetails" />-->
+
+    <!--    <action-->
+    <!--        android:id="@+id/toLogin"-->
+    <!--        app:destination="@id/AuthFragment"-->
+    <!--        app:launchSingleTop="true"-->
+    <!--        app:popUpTo="@+id/nav_graph"-->
+    <!--        app:popUpToInclusive="true" />-->
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/catalogDetails"-->
+    <!--        android:name="ro.lensa.presentation.catalog_details.FragmentCatalogDetails"-->
+    <!--        tools:layout="@layout/fragment_catalog_details">-->
+
+    <!--        <argument-->
+    <!--            android:name="id"-->
+    <!--            app:argType="string" />-->
+
+    <!--        <argument-->
+    <!--            android:name="title"-->
+    <!--            app:argType="string"-->
+    <!--            app:nullable="true" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/toMainScreen"-->
+    <!--            app:launchSingleTop="true"-->
+    <!--            app:destination="@id/mainTabBar">-->
+
+    <!--        </action>-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/catalogDetailsToSortOptions"-->
+    <!--            app:destination="@id/sortOptions" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/catalogDetailsToFilter"-->
+    <!--            app:destination="@id/filter" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/catalogDetailsToProductDetails"-->
+    <!--            app:destination="@id/productDetails" />-->
+    <!--    </fragment>-->
+
+    <!--    <action-->
+    <!--        android:id="@+id/toCatalogDetails"-->
+    <!--        app:destination="@id/catalogDetails" />-->
+    <!--    <action-->
+    <!--        android:id="@+id/openWishListDetails"-->
+    <!--        app:destination="@id/wishlist_details" />-->
+
+
+    <!--    <dialog-->
+    <!--        android:id="@+id/sortOptions"-->
+    <!--        android:name="ro.lensa.presentation.sort_options.FragmentSortOptions"-->
+    <!--        tools:layout="@layout/fragment_sort_options">-->
+    <!--        <argument-->
+    <!--            android:name="isSearchOptions"-->
+    <!--            app:argType="boolean"/>-->
+    <!--        <argument-->
+    <!--            android:name="id"-->
+    <!--            app:argType="string"-->
+    <!--            app:nullable="true" />-->
+    <!--    </dialog>-->
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/filter"-->
+    <!--        android:name="ro.lensa.presentation.filter.FragmentFilter"-->
+    <!--        tools:layout="@layout/fragment_filter">-->
+
+    <!--        <argument-->
+    <!--            android:name="alies"-->
+    <!--            app:argType="string" />-->
+
+    <!--        <argument-->
+    <!--            android:name="filter"-->
+    <!--            app:argType="string"-->
+    <!--            app:nullable="true" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/filterToSelect_Brand"-->
+    <!--            app:destination="@id/select_brand" />-->
+
+
+    <!--        <action-->
+    <!--            android:id="@+id/filterToSeacrh"-->
+    <!--            app:destination="@id/search_view" />-->
+    <!--    </fragment>-->
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/select_brand"-->
+    <!--        android:name="ro.lensa.presentation.select_brand.FragmentSelectBrand"-->
+    <!--        tools:layout="@layout/fragment_select_brand">-->
+
+    <!--        <argument-->
+    <!--            android:name="alies"-->
+    <!--            app:argType="string" />-->
+
+    <!--        <argument-->
+    <!--            android:name="filter"-->
+    <!--            app:argType="string"-->
+    <!--            app:nullable="true" />-->
+    <!--    </fragment>-->
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/productDetails"-->
+    <!--        android:name="ro.lensa.presentation.product_details.FragmentProductDetails"-->
+    <!--        tools:layout="@layout/fragment_product_details">-->
+
+    <!--        <argument-->
+    <!--            android:name="alias"-->
+    <!--            app:argType="string" />-->
+
+    <!--        <argument-->
+    <!--            android:name="alias_category"-->
+    <!--            app:argType="string"-->
+    <!--            app:nullable="true" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/toShowRoomsAvailability"-->
+    <!--            app:destination="@id/productDetailsShowroom" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/toDitto"-->
+    <!--            app:destination="@id/scanFragment" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/toGalleryFullScreen"-->
+    <!--            app:destination="@id/galleryFullScreen" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/toLensesConfigurator"-->
+    <!--            app:destination="@id/lensesConfigurator" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/toMainScreen"-->
+    <!--            app:launchSingleTop="true"-->
+    <!--            app:destination="@id/mainTabBar" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/productDetailsToAddComment"-->
+    <!--            app:destination="@id/add_comment" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/productDetailsToReviews"-->
+    <!--            app:destination="@id/reviews" />-->
+
+    <!--        <action-->
+    <!--            android:id="@+id/productDetailsToSimilar"-->
+    <!--            app:destination="@id/products_similar" />-->
+
+    <!--    </fragment>-->
+
+</navigation>

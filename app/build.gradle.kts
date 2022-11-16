@@ -1,0 +1,163 @@
+plugins {
+    id("com.android.application")
+    id("dagger.hilt.android.plugin")
+    id("androidx.navigation.safeargs")
+    kotlin("android")
+    kotlin("kapt")
+
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+android {
+
+    compileSdk = Config.compileSdk
+
+    defaultConfig {
+        applicationId = Config.packageName
+        minSdk = Config.minSDK
+        targetSdk = Config.targetSDK
+        versionCode = Config.versionCode
+        versionName = Config.versionName
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+
+    }
+
+    buildTypes {
+        debug {
+            isDebuggable =  true
+            buildConfigField("Boolean", "enableCrashlytics", "false")
+            isShrinkResources = false
+            isMinifyEnabled = false
+            //signingConfig signingConfigs.release
+        }
+        release {
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            buildConfigField("Boolean", "enableCrashlytics", "false")
+            isShrinkResources = true
+            isMinifyEnabled = true
+            isDebuggable =  false
+//            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.0.5"
+    }
+
+    fun getValue(key: String): String {
+        return project.properties[key].toString()
+    }
+
+    flavorDimensions("appType")
+    productFlavors {
+        create("dev_app") {
+            applicationId = getValue("package_name_dev")
+            minSdk =  24
+            targetSdk = 33
+            versionCode = getValue("app_version_code_dev").toInt()
+            versionName = getValue("app_version_name_dev")
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            multiDexEnabled = true
+            vectorDrawables {
+                useSupportLibrary = true
+            }
+            resValue("string", "app_name", getValue("app_name_dev"))
+            buildConfigField("String", "auth_api_url", getValue("auth_api_url_dev"))
+        }
+        create("live_app") {
+            applicationId = getValue("package_name_live")
+            minSdk =  24
+            targetSdk = 33
+            versionCode = getValue("app_version_code_live").toInt()
+            versionName = getValue("app_version_name_live")
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            multiDexEnabled = true
+            vectorDrawables {
+                useSupportLibrary = true
+            }
+            resValue("string", "app_name", getValue("app_name_live"))
+            buildConfigField("String", "auth_api_url", getValue("auth_api_url_live"))
+        }
+
+        create("stage_app") {
+            applicationId = getValue("package_name_stage")
+            minSdk =  24
+            targetSdk = 33
+            versionCode = getValue("app_version_code_stage").toInt()
+            versionName = getValue("app_version_name_stage")
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            multiDexEnabled = true
+            vectorDrawables {
+                useSupportLibrary = true
+            }
+            resValue("string", "app_name", getValue("app_name_stage"))
+            buildConfigField("String", "auth_api_url", getValue("auth_api_url_stage"))
+        }
+    }
+
+    packagingOptions {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+dependencies {
+    implementation(Dependencies.Android.coreKtx)
+    implementation(Dependencies.Android.appCompat)
+    implementation(Dependencies.Android.material)
+    implementation(Dependencies.Android.constraint)
+    implementation(Dependencies.Android.datastore)
+    implementation(Dependencies.Android.activityKtx)
+    implementation(Dependencies.Android.fragment)
+
+    implementation(Dependencies.Lifecycle.viewModel)
+    implementation(Dependencies.Lifecycle.runtime)
+
+    // Hilt
+    implementation(Dependencies.Hilt.android)
+    implementation(Dependencies.Hilt.coroutines)
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.2")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.2")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation("com.google.android.material:material:1.6.1")
+    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.databinding:databinding-runtime:7.3.0")
+
+    kapt(Dependencies.Hilt.compiler)
+
+    testImplementation(Dependencies.Test.jUnit)
+    androidTestImplementation(Dependencies.Test.androidJUnit)
+    androidTestImplementation(Dependencies.Test.espresso)
+
+    implementation(Dependencies.Retrofit.retrofit)
+    implementation(Dependencies.Retrofit.okhttp)
+    implementation(Dependencies.Retrofit.httpLogging)
+    implementation(Dependencies.Retrofit.gson)
+
+    implementation(Dependencies.SDP_SSP.sdp)
+    implementation(Dependencies.SDP_SSP.ssp)
+
+    implementation(Dependencies.Paging.runtime)
+
+}

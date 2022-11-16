@@ -1,6 +1,6 @@
 package com.example.igor.restaurantmobile.BrockerServiceUtils;
 
-import com.example.igor.restaurantmobile.BuildConfig;
+import androidx.viewbinding.BuildConfig;
 
 import java.io.IOException;
 import java.security.cert.CertificateException;
@@ -23,25 +23,26 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class BrockerRetrofitClient {
 
-    private static String BaseURL_BrokerService = "https://dev.edi.md/";
-    //private static final String BaseURL_BrokerService = "http://192.168.1.182:5050/";
+    private static String BROKER_SERVICE_URL = "https://dev.edi.md/";
+
     private static Retrofit retrofit = null;
 
-    public static BrockerServiceAPI getApiBrokerService(){
-        if(BuildConfig.BUILD_TYPE.equals("release")){
-            BaseURL_BrokerService = "https://api.edi.md/";
+    public static BrokerAPI getApiBrokerService(){
+        if(BuildConfig.DEBUG){
+            BROKER_SERVICE_URL = "https://dev.edi.md/";
         }
-        else if(BuildConfig.BUILD_TYPE.equals("debug")){
-            BaseURL_BrokerService = "https://dev.edi.md/";
+        else{
+            BROKER_SERVICE_URL = "https://api.edi.md/";
         }
+
         if(retrofit == null)
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BaseURL_BrokerService)
+                    .baseUrl(BROKER_SERVICE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(getUnsafeOkHttpClient())
                     .build();
 
-        return retrofit.create(BrockerServiceAPI.class);
+        return retrofit.create(BrokerAPI.class);
     }
 
     private static OkHttpClient getUnsafeOkHttpClient() {

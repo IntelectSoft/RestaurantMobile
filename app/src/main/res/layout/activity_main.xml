@@ -1,83 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".presentation.main.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/side_tree_theme_background_main"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        app:layout_constrainedWidth="true"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navGraph="@navigation/nav_graph"/>
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_weight="1"
-            app:popupTheme="@style/AppTheme.PopupOverlay" >
-        </android.support.v7.widget.Toolbar>
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_main" />
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.github.clans.fab.FloatingActionMenu
-            android:id="@+id/fab1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            app:menu_backgroundColor="@android:color/transparent"
-            app:menu_colorNormal="#237A57"
-            app:menu_colorPressed="#F7971E"
-            app:menu_fab_size="normal"
-            app:menu_labels_colorNormal="@android:color/white"
-            app:menu_labels_textColor="@android:color/black"
-            app:menu_openDirection="up">
-
-            <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/item_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/add_new"
-                app:fab_colorNormal="#237A57"
-                app:fab_colorPressed="#F7971E"
-                app:fab_label="Cont nou"
-                app:fab_size="mini" />
-
-<!--            <com.github.clans.fab.FloatingActionButton-->
-<!--                android:id="@+id/item_print"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:src="@drawable/print_bill"-->
-<!--                app:fab_colorNormal="#237A57"-->
-<!--                app:fab_colorPressed="#F7971E"-->
-<!--                app:fab_label="Print cont"-->
-<!--                app:fab_size="mini" />-->
-
-            <com.github.clans.fab.FloatingActionButton
-                android:id="@+id/item_show_line"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/show_line"
-                app:fab_colorNormal="#237A57"
-                app:fab_colorPressed="#F7971E"
-                app:fab_label="Detalii cont"
-                app:fab_size="mini" />
-
-        </com.github.clans.fab.FloatingActionMenu>
-
-    </RelativeLayout>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
