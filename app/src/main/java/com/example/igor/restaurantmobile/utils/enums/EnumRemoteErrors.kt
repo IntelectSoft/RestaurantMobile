@@ -1,6 +1,7 @@
 package com.example.igor.restaurantmobile.utils.enums
 
 enum class EnumRemoteErrors(val code: Int) {
+    TimeOut(-1),
     UnknownError(1),
     DeviceNotRegistered(2),
     ShiftIsNotValid (3),

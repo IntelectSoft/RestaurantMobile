@@ -5,13 +5,12 @@ import androidx.annotation.IdRes
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
+import androidx.room.Room
 import com.example.igor.restaurantmobile.R
+import com.example.igor.restaurantmobile.data.database.ApplicationDb
 import com.example.igor.restaurantmobile.utils.ContextManager
+import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 
 @HiltAndroidApp
 class App : Application() {
@@ -19,11 +18,13 @@ class App : Application() {
         lateinit var instance: App
     }
 
-
     override fun onCreate() {
         super.onCreate()
         instance = this
+        FirebaseApp.initializeApp(this)
         ContextManager.injectApplicationContext(this)
+
+        ApplicationDb.getInstance(this)
     }
 
     override fun onLowMemory() {

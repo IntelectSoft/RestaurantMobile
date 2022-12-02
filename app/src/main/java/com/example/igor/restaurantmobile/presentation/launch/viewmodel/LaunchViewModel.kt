@@ -7,6 +7,12 @@ import com.example.igor.restaurantmobile.data.remote.response.assortment.Assortm
 import com.example.igor.restaurantmobile.data.remote.response.terminal.RegisterTerminalResponse
 import com.example.igor.restaurantmobile.data.repo.RepositoryServiceImpl
 import com.example.igor.restaurantmobile.data.datastore.SettingsRepository
+import com.example.igor.restaurantmobile.data.remote.models.RegisterDeviceModel
+import com.example.igor.restaurantmobile.data.remote.models.license.GetUriModel
+import com.example.igor.restaurantmobile.data.remote.models.license.RegisterModel
+import com.example.igor.restaurantmobile.data.remote.models.license.response.RegisterResponse
+import com.example.igor.restaurantmobile.utils.DeviceInfo
+import com.example.igor.restaurantmobile.utils.Urls
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
@@ -21,22 +27,19 @@ class LaunchViewModel @Inject constructor(
 
     val terminalRegister = MutableSharedFlow<RegisterTerminalResponse>()
     val syncAssortment = MutableSharedFlow<AssortmentListResponse>()
+    val registerApplication = MutableSharedFlow<RegisterResponse>()
+    val getUri = MutableSharedFlow<RegisterResponse>()
 
     fun registerTerminal() {
         viewModelScope.launch {
-            val deviceId = settingsRepository.getDeviceId().first()
-
             try {
-                val response = serviceRepo.registerTerminal(deviceId)
-                Log.e("TAG", "response: $response")
+                val response = serviceRepo.registerTerminal(Urls.RegisterDevice, RegisterDeviceModel(DeviceInfo.deviceId, DeviceInfo.firebaseId) )
                 if (response.isSuccessful) {
                     response.body()?.let { terminalRegister.emit(it) }
+                } else {
+                    terminalRegister.emit(RegisterTerminalResponse(ResultMessage =  response.errorBody()?.string()))
                 }
-                else{
-                    response.errorBody()
-                }
-            }
-            catch (ex: Exception){
+            } catch (ex: Exception) {
                 terminalRegister.emit(RegisterTerminalResponse(ResultMessage = ex.message))
             }
         }
@@ -44,12 +47,73 @@ class LaunchViewModel @Inject constructor(
 
     fun syncAssortment() {
         viewModelScope.launch {
-            val deviceId = settingsRepository.getDeviceId().first()
-            val response = serviceRepo.syncAssortment(deviceId, false)
-            if(response.isSuccessful){
-                response.body()?.let { syncAssortment.emit(it) }
+            try {
+                val response = serviceRepo.syncAssortment(Urls.GetAssortimentList, DeviceInfo.deviceId, false)
+                if (response.isSuccessful) {
+                    response.body()?.let { syncAssortment.emit(it) }
+                }
+                else{
+                    syncAssortment.emit(AssortmentListResponse(Result = -9, errorMessage = response.errorBody()?.string() ))
+                }
+            }
+            catch (e: Exception){
+                syncAssortment.emit(AssortmentListResponse(Result = -9, errorMessage = e.message))
             }
         }
     }
 
+    fun registerApplication(code: String) {
+        viewModelScope.launch {
+            val registerModel = RegisterModel(
+                ApplicationVersion = DeviceInfo.appVersion,
+                LicenseActivationCode = code,
+                DeviceID = DeviceInfo.deviceId,
+                DeviceModel = DeviceInfo.deviceModel,
+                DeviceName = DeviceInfo.deviceName,
+                OSType = DeviceInfo.osType,
+                OSVersion = DeviceInfo.osVersion,
+                ProductType = DeviceInfo.productType
+            )
+            try {
+                val response = serviceRepo.registerApplication(Urls.RegisterUrl, registerModel)
+                if (response.isSuccessful) {
+                    response.body()?.let { registerApplication.emit(it) }
+                }
+                else{
+                    registerApplication.emit(RegisterResponse(ErrorMessage = response.errorBody()?.string(), ErrorCode = -9))
+                }
+            } catch (e: Exception) {
+                registerApplication.emit(RegisterResponse(ErrorMessage = e.message, ErrorCode = -9))
+            }
+        }
+    }
+
+    fun getURI() {
+        viewModelScope.launch {
+            val getUriModel = GetUriModel(
+                ApplicationVersion = DeviceInfo.appVersion,
+                DeviceID = DeviceInfo.deviceId,
+                LicenseID = DeviceInfo.licenseId,
+                LicenseActivationCode = DeviceInfo.licenseCode,
+                DeviceName = DeviceInfo.deviceName,
+                DeviceModel = DeviceInfo.deviceModel,
+                OSVersion = DeviceInfo.osVersion,
+                OSType = DeviceInfo.osType,
+                ProductType = DeviceInfo.productType,
+            )
+            try {
+                val response = serviceRepo.getUri(Urls.GetUri, getUriModel)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        getUri.emit(it)
+                    }
+                }
+                else{
+                    getUri.emit(RegisterResponse(ErrorMessage = response.errorBody()?.string(), ErrorCode = -9))
+                }
+            } catch (e: Exception) {
+                getUri.emit(RegisterResponse(ErrorMessage = e.message, ErrorCode = -9))
+            }
+        }
+    }
 }

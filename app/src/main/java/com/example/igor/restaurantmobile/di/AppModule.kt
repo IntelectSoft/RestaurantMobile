@@ -1,10 +1,11 @@
 package com.example.igor.restaurantmobile.di
 
-import com.example.igor.restaurantmobile.data.repo.RemoteApiInterface
+import android.util.Log
 import com.example.igor.restaurantmobile.BuildConfig
 import com.example.igor.restaurantmobile.controllers.App
 import com.example.igor.restaurantmobile.controllers.AssortmentController
 import com.example.igor.restaurantmobile.data.datastore.SettingsRepository
+import com.example.igor.restaurantmobile.data.repo.RemoteApiInterface
 import com.example.igor.restaurantmobile.di.annotations.OkHttpNoAuthInterceptor
 import com.example.igor.restaurantmobile.di.annotations.RetrofitNoAuthInterceptor
 import com.example.igor.restaurantmobile.utils.ContextManager
@@ -14,10 +15,16 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Credentials
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.SocketTimeoutException
+import java.util.Calendar.SECOND
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 
@@ -30,7 +37,7 @@ class AppModule {
     fun provideGson(): Gson = Gson()
 
     @Provides
-    fun providesAssortmentController() : AssortmentController = AssortmentController
+    fun providesAssortmentController(): AssortmentController = AssortmentController
 
     @Provides
     @Singleton
@@ -54,13 +61,27 @@ class AppModule {
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
         builder.addInterceptor(loggingInterceptor)
+        builder.connectTimeout(5, TimeUnit.SECONDS)
+        builder.writeTimeout(30, TimeUnit.SECONDS)
+        builder.readTimeout(10, TimeUnit.SECONDS)
+        builder.addInterceptor(Interceptor { chain ->
+            var originalRequest = chain.request()
+            if(originalRequest.url.toString().contains("ISLicenseService")){
+                val builderReq: Request.Builder = originalRequest.newBuilder().addHeader(
+                    "Authorization",
+                    Credentials.basic("sales", "frj933e9c6epae29")
+                )
+                originalRequest = builderReq.build()
+            }
+            chain.proceed(originalRequest)
+        })
         return builder.build()
     }
 
     @Provides
     @Singleton
     @RetrofitNoAuthInterceptor
-    fun provideRetrofitNoLoginInterceptor(
+    fun  provideRetrofitNoLoginInterceptor(
         @OkHttpNoAuthInterceptor okHttpClient: OkHttpClient
     ): Retrofit {
         return Retrofit.Builder()

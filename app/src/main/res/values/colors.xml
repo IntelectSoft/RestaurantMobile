@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#F7971E</color>
+    <color name="colorPrimary">#43A047</color>
     <color name="colorPrimaryDark">#00695C</color>
     <color name="colorAccent">#F7971E</color>
     <color name="green">#ff669900</color>
@@ -11,6 +11,8 @@
     <color name="gray">#DCDCDC</color>
     <color name="price">#1ea104</color>
     <color name="counts">#0018ca</color>
+    <color name="red">#FF0101</color>
 
     <color name="black_overlay">#66000000</color>
+    <color name="gray_transparent">#0C000000</color>
 </resources>

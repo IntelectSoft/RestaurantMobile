@@ -11,7 +11,7 @@
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:layout_margin="@dimen/_25sdp"
-        android:background="@drawable/white_round_drawable">
+        android:background="@drawable/white_round_background">
 
 
         <TextView

@@ -5,6 +5,7 @@ import androidx.annotation.IntRange
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -19,47 +20,19 @@ class SettingsRepository @Inject constructor(private val context: Context) : Dat
         return context.settings
     }
 
-    fun getBrightness(): Flow<Int> {
+    //device settings
+
+    fun getFirebaseToken(): Flow<String?> {
         return getFlow {
-            val key = intPreferencesKey(BRIGHTNESS)
-            it[key] ?: 100
+            val key = stringPreferencesKey(TKN)
+            it[key]
         }
     }
 
-    suspend fun setBrightness(@IntRange(from = 0, to = 100) value: Int) {
+    suspend fun setFirebaseToken(value: String) {
         edit {
-            val key = intPreferencesKey(BRIGHTNESS)
+            val key = stringPreferencesKey(TKN)
             it[key] = value
-        }
-    }
-
-//    fun getLogs(): Flow<LogsData> {
-//        return getFlow {
-//            val key = stringPreferencesKey(LOGS)
-//            val adapter = getMoshi().adapter(LogsData::class.java)
-//            it[key]?.let { data -> adapter.fromJson(data) } ?: LogsData()
-//        }
-//    }
-//
-//    suspend fun setLogs(data: LogsData) {
-//        edit {
-//            val key = stringPreferencesKey(LOGS)
-//            val adapter = getMoshi().adapter(LogsData::class.java)
-//            it[key] = adapter.toJson(data)
-//        }
-//    }
-
-    suspend fun setGeofenceFreq(value: Int) {
-        edit {
-            val key = intPreferencesKey(GEO_FREQ)
-            it[key] = value
-        }
-    }
-
-    fun getGeofenceFreq(): Flow<Int> {
-        return getFlow {
-            val key = intPreferencesKey(GEO_FREQ)
-            it[key] ?: 0
         }
     }
 
@@ -77,16 +50,88 @@ class SettingsRepository @Inject constructor(private val context: Context) : Dat
         }
     }
 
-    fun getLicense(): Flow<String> {
+
+    //license settings
+    fun getLicenseCode(): Flow<String> {
         return getFlow {
-            val key = stringPreferencesKey(DEV_ID)
+            val key = stringPreferencesKey(LIC_CODE)
             it[key] ?: ""
         }
     }
 
-    suspend fun setLicense(value: String) {
+    suspend fun setLicenseCode(value: String) {
         edit {
-            val key = stringPreferencesKey(DEV_ID)
+            val key = stringPreferencesKey(LIC_CODE)
+            it[key] = value
+        }
+    }
+
+    fun getLicenseId(): Flow<String> {
+        return getFlow {
+            val key = stringPreferencesKey(LIC_ID)
+            it[key] ?: ""
+        }
+    }
+
+    suspend fun setLicenseId(value: String) {
+        edit {
+            val key = stringPreferencesKey(LIC_ID)
+            it[key] = value
+        }
+    }
+
+    fun getURI(): Flow<String> {
+        return getFlow {
+            val key = stringPreferencesKey(URI)
+            it[key] ?: ""
+        }
+    }
+
+    suspend fun setURI(value: String) {
+        edit {
+            val key = stringPreferencesKey(URI)
+            it[key] = value
+        }
+    }
+
+    fun getCompany(): Flow<String> {
+        return getFlow {
+            val key = stringPreferencesKey(COMPANY)
+            it[key] ?: ""
+        }
+    }
+
+    suspend fun setCompany(value: String) {
+        edit {
+            val key = stringPreferencesKey(COMPANY)
+            it[key] = value
+        }
+    }
+
+    fun getSrvDate(): Flow<Long> {
+        return getFlow {
+            val key = longPreferencesKey(SRV_DATE)
+            it[key] ?: 0L
+        }
+    }
+
+    suspend fun setSrvDate(value: Long) {
+        edit {
+            val key = longPreferencesKey(SRV_DATE)
+            it[key] = value
+        }
+    }
+
+    fun getAppDate(): Flow<Long> {
+        return getFlow {
+            val key = longPreferencesKey(APP_DATE)
+            it[key] ?: 0L
+        }
+    }
+
+    suspend fun setAppDate(value: Long) {
+        edit {
+            val key = longPreferencesKey(APP_DATE)
             it[key] = value
         }
     }
@@ -96,12 +141,13 @@ class SettingsRepository @Inject constructor(private val context: Context) : Dat
         //KEYS
         const val BRIGHTNESS = "brightness"
         const val PLAYER = "player"
-        const val LOGS = "logs"
-        const val FILLERS = "fillers"
-        const val GEO_FREQ = "geoFreq"
-        const val FIL_FREQ = "filFreq"
-        const val URLS = "urls"
-        const val PWRD = "password"
+
+        const val APP_DATE = "app_date"
+        const val URI = "uri"
+        const val SRV_DATE = "srv_date"
+        const val COMPANY = "company"
+        const val LIC_ID = "lic_id"
+        const val LIC_CODE = "lic_code"
         const val DEV_ID = "deviceId"
         const val TKN = "token"
     }

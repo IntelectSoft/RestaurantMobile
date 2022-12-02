@@ -39,8 +39,7 @@ class ItemBillBinder(val item: ItemBill) : DelegateAdapterItem(item) {
 }
 
 class ItemBillDelegate(
-    private val onItemClick: (item: BillItem) -> Unit,
-    private val onLongClick: (item: BillItem) -> Unit
+    private val onItemClick: (item: BillItem) -> Unit
 ) :
     DelegateBinder<ItemBillBinder, ItemBillDelegate.ItemBillViewHolder>(
         ItemBillBinder::class.java
@@ -66,7 +65,7 @@ class ItemBillDelegate(
             payloads.forEach {
                 when (it) {
                     is ItemBillBinder.Payloads.OnSumChanged -> {
-                        viewHolder.loadSum(it.number, it.sum)
+                        viewHolder.loadSum(it.sum)
                     }
                     is ItemBillBinder.Payloads.OnTableChanged -> {
                         viewHolder.loadTable(it.tableId)
@@ -74,7 +73,7 @@ class ItemBillDelegate(
                 }
             }
             viewHolder.setClicks(model.item)
-            viewHolder.setOnLongClickListener(model.item)
+//            viewHolder.setOnLongClickListener(model.item)
         }
     }
 
@@ -83,24 +82,29 @@ class ItemBillDelegate(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ItemBill) {
             loadNumber(item.bill.Number)
-            loadSum(item.bill.Number, item.bill.SumAfterDiscount)
+            loadSum(item.bill.SumAfterDiscount)
             loadTable(item.bill.TableUid)
+            loadGuests(item.bill.Guests)
 
             setClicks(item)
-            setOnLongClickListener(item)
+//            setOnLongClickListener(item)
         }
 
         fun loadTable(tableUid: String) {
             val tableName = AssortmentController.getTableNumberById(tableUid)
-            binding.tableName.text = tableName
+            binding.textTable.text = tableName
         }
 
-        fun loadSum(number: Int, sumAfterDiscount: Double) {
-            binding.textBillSum.text = number.toString() + " / Suma: ${sumAfterDiscount}"
+        fun loadSum(sumAfterDiscount: Double) {
+            binding.textBillSum.text = "$sumAfterDiscount MDL"
         }
 
         private fun loadNumber(num: Int) {
-//            binding.te.text = num.toString()
+            binding.textBillNumber.text = num.toString()
+        }
+
+        private fun loadGuests(num: Int) {
+            binding.textCountPerson.text = num.toString()
         }
 
         fun setClicks(item: ItemBill) {
@@ -109,11 +113,11 @@ class ItemBillDelegate(
             }
         }
 
-        fun setOnLongClickListener(item: ItemBill) {
-            binding.root.setOnLongClickListener {
-                onLongClick.invoke(item.bill)
-                return@setOnLongClickListener true
-            }
-        }
+//        fun setOnLongClickListener(item: ItemBill) {
+//            binding.root.setOnLongClickListener {
+//                onLongClick.invoke(item.bill)
+//                return@setOnLongClickListener true
+//            }
+//        }
     }
 }

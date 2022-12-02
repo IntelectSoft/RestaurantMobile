@@ -8,7 +8,6 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
@@ -28,7 +27,7 @@ class DialogFragmentSettings : BaseDialogFragment<DialogFragmentSettings.OnState
 
         val isConnectionFragment = requireArguments().getBoolean("type")
 
-        val dialogView: View = requireActivity().layoutInflater.inflate(R.layout.fragment_license, null)
+        val dialogView: View = requireActivity().layoutInflater.inflate(R.layout.dialog_license, null)
 
         val dialog = Dialog(requireActivity())  //, R.style.FullScreenDialog
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -46,10 +45,10 @@ class DialogFragmentSettings : BaseDialogFragment<DialogFragmentSettings.OnState
             //declare and set listener for fragment when set license
             var licenseVerified = false
 
-            val securityCode = dialogView.findViewById<TextView>(R.id.code_lic2)
-            val activationCode = dialogView.findViewById<EditText>(R.id.et_key2)
+//            val securityCode = dialogView.findViewById<TextView>(R.id.code_lic2)
+            val activationCode = dialogView.findViewById<EditText>(R.id.editTextCode)
             val textError = dialogView.findViewById<TextView>(R.id.textErrorIncorectCode)
-            val buttonCheck = dialogView.findViewById<Button>(R.id.btn_verify2)
+//            val buttonCheck = dialogView.findViewById<Button>(R.id.btn_verify2)
             val buttonCancel = dialogView.findViewById<TextView>(R.id.textCancel)
 
             val androidId = "" + Settings.Secure.getString(
@@ -63,7 +62,7 @@ class DialogFragmentSettings : BaseDialogFragment<DialogFragmentSettings.OnState
             var deviceId = deviceUuid.toString()
             deviceId = deviceId.replace("-", "")
             val code = deviceId.substring(10, 18)
-            securityCode.text = code.uppercase(Locale.getDefault())
+//            securityCode.text = code.uppercase(Locale.getDefault())
 
             val internCode = getMD5Code(code.uppercase(Locale.getDefault()) + "ENCEFALOMIELOPOLIRADICULONEVRITA")
 

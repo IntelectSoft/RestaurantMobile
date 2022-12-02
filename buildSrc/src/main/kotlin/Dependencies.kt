@@ -12,7 +12,7 @@ object Dependencies {
     object Android {
         const val coreKtx = "androidx.core:core-ktx:1.9.0"
         const val appCompat = "androidx.appcompat:appcompat:1.5.1"
-        const val material = "com.google.android.material:material:1.6.1"
+        const val material = "com.google.android.material:material:1.7.0"
         const val constraint = "androidx.constraintlayout:constraintlayout:2.1.4"
         const val datastore = "androidx.datastore:datastore-preferences:1.0.0"
         const val fragment = "androidx.fragment:fragment-ktx:1.5.3"

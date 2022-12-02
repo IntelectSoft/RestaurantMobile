@@ -1,4 +1,4 @@
-package ro.lensa.common.decor
+package com.example.igor.restaurantmobile.common.decor
 
 import android.graphics.Rect
 import android.view.View

@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/assortmentListContainer"
     android:background="@color/white">
-
 
     <com.example.igor.restaurantmobile.presentation.views.ToolbarView
         android:id="@+id/toolbar"
@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/assortmentList"
+        android:id="@+id/assortmentListView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_below="@+id/toolbar"

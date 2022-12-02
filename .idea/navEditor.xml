@@ -8,17 +8,39 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="assortmentDetails">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="672" />
+                            <option name="y" value="74" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="assortmentList">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="229" />
-                            <option name="y" value="14" />
+                            <option name="x" value="288" />
+                            <option name="y" value="-4" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_assortmentList_to_assortmentDetails">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_assortmentList_to_myBills">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_assortmentList_to_preview_cart">
                               <value>
                                 <LayoutPositions />
@@ -29,17 +51,68 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="fragmentNotification">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="471" />
+                            <option name="y" value="-719" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="fragmentSettings">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="469" />
+                            <option name="y" value="-1055" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="fragmentSplit">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="204" />
+                            <option name="y" value="-1078" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="myBills">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="-212" />
-                            <option name="y" value="15" />
+                            <option name="x" value="206" />
+                            <option name="y" value="-723" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_myBills_to_assortmentList">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_myBills_to_fragmentNotification">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_myBills_to_fragmentSettings">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_myBills_to_tableList">
                               <value>
                                 <LayoutPositions />
@@ -55,8 +128,34 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="456" />
-                            <option name="y" value="12" />
+                            <option name="x" value="668" />
+                            <option name="y" value="-306" />
+                          </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_preview_cart_to_myBills">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="action_preview_cart_to_preview_line_edit">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="preview_line_edit">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="964" />
+                            <option name="y" value="-308" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -73,6 +172,11 @@
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_tableList_to_myBills">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="tableToAssortment">
                               <value>
                                 <LayoutPositions />

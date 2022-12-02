@@ -1,4 +1,4 @@
-package ro.lensa.common.decor
+package com.example.igor.restaurantmobile.common.decor
 
 import android.content.res.ColorStateList
 import android.graphics.Color

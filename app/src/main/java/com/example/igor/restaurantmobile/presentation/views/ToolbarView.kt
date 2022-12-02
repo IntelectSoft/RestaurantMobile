@@ -8,7 +8,9 @@ import android.view.View
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.example.igor.restaurantmobile.databinding.ToolbarViewBinding
 
 class ToolbarView @JvmOverloads constructor(
@@ -25,7 +27,6 @@ class ToolbarView @JvmOverloads constructor(
     override fun getViewBinding(): ToolbarViewBinding = viewBinding
 
     init {
-
         viewBinding.back.setOnClickListener {
             leftClickListener?.invoke()
         }
@@ -54,6 +55,21 @@ class ToolbarView @JvmOverloads constructor(
     fun setRightClickListener(onClickListener: () -> Unit) {
         this.rightClickListener = onClickListener
     }
+
+    fun showSearchText(isShow: Boolean){
+        if(isShow){
+            viewBinding.searchText.isVisible = true
+            viewBinding.bodyContainer.isVisible = false
+            viewBinding.searchText.findViewById<View>(androidx.appcompat.R.id.search_button).performClick()
+//            viewBinding.searchText.isIconified = true
+        }
+        else{
+            viewBinding.bodyContainer.isVisible = true
+            viewBinding.searchText.isVisible = false
+        }
+    }
+
+    fun getSearchView() = viewBinding.searchText
 
 
     fun setBackColor(colorResId: Int) {
@@ -172,10 +188,15 @@ class ToolbarView @JvmOverloads constructor(
         viewBinding.next.setCompoundDrawablesWithIntrinsicBounds(0,0,drawableRight,0)
     }
 
-    fun setCartCount(count: Int) {
+    fun setCartCount(count: Double) {
         if (count > 0) {
             viewBinding.notificationsBadge.visibility = View.VISIBLE
-            viewBinding.notificationsBadge.text = count.toString()
+
+            viewBinding.notificationsBadge.text = try {
+                count.toInt().toString()
+            }catch (e: Exception){
+                count.toString()
+            }
         } else {
             viewBinding.notificationsBadge.visibility = View.GONE
             viewBinding.notificationsBadge.text = ""

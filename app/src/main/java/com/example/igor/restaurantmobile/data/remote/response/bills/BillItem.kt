@@ -9,5 +9,6 @@ data class BillItem(
     val Sum: Double,
     val SumAfterDiscount: Double,
     val TableUid: String,
-    val Uid: String
+    val Uid: String,
+    val Guests: Int
 )

@@ -110,12 +110,20 @@ class ItemAssortmentDelegate(private val onItemClick: (item: AssortmentItem) -> 
         }
 
         fun loadPrice(price: Double) {
-            binding.priceAssortment.text = DecimalFormat(".0#").format(price)
+            if(price == 0.0){
+                binding.priceAssortment.text = "0"
+            }
+            else{
+                binding.priceAssortment.text = DecimalFormat(".0#").format(price)
+            }
         }
 
         fun loadImage(item: AssortmentItem){
             if(!item.IsFolder)
-                binding.imageAssortment.setImageResource(R.drawable.ic_plus)
+                binding.imageAssortment.setImageResource(0)
+            else{
+                binding.imageAssortment.setImageResource(R.drawable.icon_folder)
+            }
         }
 
         fun setClicks(item: AssortmentItem) {

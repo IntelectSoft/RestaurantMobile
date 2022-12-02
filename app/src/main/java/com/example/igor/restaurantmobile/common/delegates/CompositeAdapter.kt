@@ -1,4 +1,4 @@
-package ro.lensa.common.recycler_view.delegates
+package com.example.igor.restaurantmobile.common.delegates
 
 import android.util.SparseArray
 import android.view.LayoutInflater
@@ -6,9 +6,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.igor.restaurantmobile.common.delegates.DelegateAdapterItem
-import com.example.igor.restaurantmobile.common.delegates.DelegateAdapterItemDiffCallback
-import com.example.igor.restaurantmobile.common.delegates.DelegateBinder
 
 @Suppress("UNCHECKED_CAST")
 class CompositeAdapter(

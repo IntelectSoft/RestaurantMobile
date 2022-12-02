@@ -2,9 +2,10 @@ plugins {
     id("com.android.application")
     id("dagger.hilt.android.plugin")
     id("androidx.navigation.safeargs")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     kotlin("android")
     kotlin("kapt")
-
 }
 
 repositories {
@@ -32,18 +33,21 @@ android {
 
     buildTypes {
         debug {
-            isDebuggable =  true
+            isDebuggable = true
             buildConfigField("Boolean", "enableCrashlytics", "false")
             isShrinkResources = false
             isMinifyEnabled = false
             //signingConfig signingConfigs.release
         }
         release {
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             buildConfigField("Boolean", "enableCrashlytics", "false")
             isShrinkResources = true
             isMinifyEnabled = true
-            isDebuggable =  false
+            isDebuggable = false
 //            signingConfig signingConfigs.release
         }
     }
@@ -72,7 +76,7 @@ android {
     productFlavors {
         create("dev_app") {
             applicationId = getValue("package_name_dev")
-            minSdk =  24
+            minSdk = 24
             targetSdk = 33
             versionCode = getValue("app_version_code_dev").toInt()
             versionName = getValue("app_version_name_dev")
@@ -86,7 +90,7 @@ android {
         }
         create("live_app") {
             applicationId = getValue("package_name_live")
-            minSdk =  24
+            minSdk = 24
             targetSdk = 33
             versionCode = getValue("app_version_code_live").toInt()
             versionName = getValue("app_version_name_live")
@@ -101,7 +105,7 @@ android {
 
         create("stage_app") {
             applicationId = getValue("package_name_stage")
-            minSdk =  24
+            minSdk = 24
             targetSdk = 33
             versionCode = getValue("app_version_code_stage").toInt()
             versionName = getValue("app_version_name_stage")
@@ -137,12 +141,26 @@ dependencies {
     // Hilt
     implementation(Dependencies.Hilt.android)
     implementation(Dependencies.Hilt.coroutines)
-    implementation("androidx.navigation:navigation-fragment-ktx:2.5.2")
-    implementation("androidx.navigation:navigation-ui-ktx:2.5.2")
+
+    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
+    implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("com.google.android.material:material:1.6.1")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.databinding:databinding-runtime:7.3.0")
+    implementation("androidx.databinding:databinding-runtime:7.3.1")
+
+    implementation("com.google.firebase:firebase-messaging-ktx:23.1.0")
+    implementation("com.google.firebase:firebase-crashlytics-ktx:18.3.2")
+
+
+    //ROOM
+    implementation("androidx.room:room-runtime:2.4.3")
+    implementation ("androidx.room:room-ktx:2.4.3")
+    implementation("androidx.appcompat:appcompat:1.5.1")
+    implementation("com.google.android.material:material:1.4.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    annotationProcessor("androidx.room:room-compiler:2.4.3")
+    kapt("androidx.room:room-compiler:2.4.3")
+
 
     kapt(Dependencies.Hilt.compiler)
 

@@ -12,6 +12,7 @@ import com.example.igor.restaurantmobile.data.remote.response.bills.BillItem
 import com.example.igor.restaurantmobile.data.remote.response.bills.LineItem
 import com.example.igor.restaurantmobile.databinding.ItemBillBinding
 import com.example.igor.restaurantmobile.databinding.ItemBillLineBinding
+import java.text.DecimalFormat
 
 data class ItemBillLine(
     val tag: String,
@@ -23,25 +24,33 @@ class ItemBillLineBinder(val item: ItemBillLine) : DelegateAdapterItem(item) {
 
     override fun payload(other: DelegateAdapterItem): List<Payloadable> {
         val payloads = mutableListOf<Payloadable>()
-        if (other is ItemBillBinder) {
+        if (other is ItemBillLineBinder) {
             payloads.apply {
-                if (item.line.Sum != other.item.bill.Sum)
-                    add(Payloads.OnSumChanged(other.item.bill.Number, other.item.bill.Sum))
-
+                if (item.line.QueueNumber != other.item.line.QueueNumber)
+                    add(Payloads.OnNumberChanged(other.item.line.QueueNumber))
+                if (item.line.AssortimentUid != other.item.line.AssortimentUid)
+                    add(Payloads.OnNameChanged(other.item.line.AssortimentUid))
+                if (item.line.Count != other.item.line.Count)
+                    add(Payloads.OnCountChanged(other.item.line.Count))
+                if (item.line.Sum != other.item.line.Sum)
+                    add(Payloads.OnSumChanged(other.item.line.Sum))
             }
         }
         return payloads
     }
 
     sealed class Payloads : Payloadable {
-        data class OnSumChanged(val number: Int, val sum: Double) : Payloads()
+        data class OnNumberChanged(val number: Int) : Payloads()
+        data class OnNameChanged(val name: String) : Payloads()
+        data class OnCountChanged(val count: Double) : Payloads()
+        data class OnSumChanged(val sum: Double) : Payloads()
     }
 }
 
 class ItemBillLineDelegate(
-    private val onItemClick: (item: BillItem) -> Unit
+    private val onItemClick: (item: LineItem) -> Unit
 ) :
-    DelegateBinder<ItemBillLineBinder, ItemBillLineDelegate.ItemBillViewHolder>(
+    DelegateBinder<ItemBillLineBinder, ItemBillLineDelegate.ItemBillLineViewHolder>(
         ItemBillLineBinder::class.java
     ) {
     override fun createViewHolder(
@@ -51,12 +60,12 @@ class ItemBillLineDelegate(
 
         val view = ItemBillLineBinding.inflate(inflater, parent, false)
 
-        return ItemBillViewHolder(view)
+        return ItemBillLineViewHolder(view)
     }
 
     override fun bindViewHolder(
         model: ItemBillLineBinder,
-        viewHolder: ItemBillViewHolder,
+        viewHolder: ItemBillLineViewHolder,
         payloads: List<DelegateAdapterItem.Payloadable>
     ) {
         if (payloads.isEmpty())
@@ -64,32 +73,71 @@ class ItemBillLineDelegate(
         else {
             payloads.forEach {
                 when (it) {
-//                    is ItemBillBinder.Payloads.OnSumChanged -> {
-//                        viewHolder.loadSum(it.number, it.sum)
-//                    }
-//                    is ItemBillBinder.Payloads.OnTableChanged -> {
-//                        viewHolder.loadTable(it.tableId)
-//                    }
+                    is ItemBillLineBinder.Payloads.OnNumberChanged -> {
+                        viewHolder.loadNumber(it.number)
+                    }
+                    is ItemBillLineBinder.Payloads.OnNameChanged -> {
+                        viewHolder.loadName(it.name)
+                    }
+                    is ItemBillLineBinder.Payloads.OnCountChanged -> {
+                        viewHolder.loadCount(it.count)
+                    }
+                    is ItemBillLineBinder.Payloads.OnSumChanged -> {
+                        viewHolder.loadSum(it.sum)
+                    }
                 }
+                viewHolder.setClicks(model.item.line)
             }
         }
     }
 
-    inner class ItemBillViewHolder(
+    inner class ItemBillLineViewHolder(
         private val binding: ItemBillLineBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ItemBillLine) {
             loadName(item.line.AssortimentUid)
+            loadNumber(item.line.QueueNumber)
+            loadCount(item.line.Count)
+            loadSum(item.line.Sum)
+            loadStatus("Undefined")
+
+            setClicks(item.line)
         }
 
-        private fun loadName(id: String) {
+        fun loadNumber(number: Int) {
+            binding.textLineNumber.text = number.toString()
+        }
+
+        fun loadName(id: String) {
             val tableName = AssortmentController.getAssortmentNameById(id)
-            binding.text.text = tableName
+            binding.textLineName.text = tableName
         }
 
-        fun setClicks(item: ItemBill) {
+        fun loadCount(count: Double) {
+            if(count == 0.0){
+                binding.textLineCount.text = "0"
+            }
+            else{
+                binding.textLineCount.text = DecimalFormat(".0#").format(count)
+            }
+        }
+
+        fun loadSum(sum: Double) {
+            if(sum == 0.0){
+                binding.textLineSum.text = "0 MDL"
+            }
+            else{
+                binding.textLineSum.text = DecimalFormat(".0#").format(sum) + " MDL"
+            }
+        }
+
+        fun loadStatus(status: String) {
+            binding.textLineStatus.text = status
+        }
+
+        fun setClicks(item: LineItem) {
             binding.root.setOnClickListener {
-                onItemClick.invoke(item.bill)
+                onItemClick.invoke(item)
             }
         }
     }
