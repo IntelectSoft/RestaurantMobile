@@ -2,6 +2,7 @@ package com.example.igor.restaurantmobile.data.repo
 
 import com.example.igor.restaurantmobile.data.remote.models.RegisterDeviceModel
 import com.example.igor.restaurantmobile.data.remote.models.bill.AddOrdersModel
+import com.example.igor.restaurantmobile.data.remote.models.bill.CombineBillsModel
 import com.example.igor.restaurantmobile.data.remote.models.bill.SplitBillModel
 import com.example.igor.restaurantmobile.data.remote.models.license.GetUriModel
 import com.example.igor.restaurantmobile.data.remote.models.license.RegisterModel
@@ -49,6 +50,10 @@ class RepositoryServiceImpl @Inject constructor(private val apiInterface: Remote
 
     override suspend fun splitBill(url: String, bill: SplitBillModel): Response<BillListResponse> {
         return apiInterface.splitBill(url, bill)
+    }
+
+    override suspend fun combineBills(url: String, bill: CombineBillsModel): Response<BillListResponse> {
+        return apiInterface.combineBills(url, bill)
     }
 
     //ISLicense service methods

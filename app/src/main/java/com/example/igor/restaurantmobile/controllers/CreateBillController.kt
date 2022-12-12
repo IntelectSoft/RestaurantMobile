@@ -78,10 +78,13 @@ object CreateBillController {
     fun getInternLineById(id: String) = orderModel.Orders.find { it.internUid == id }
 
     fun removeLineByInternId(id: String) {
-        val line = orderModel.Orders.find { it.internUid == id }
-        val orderLines = orderModel.Orders.toMutableList()
-        orderLines.remove(line)
-        orderModel.Orders = orderLines
+        orderModel.Orders.find { it.internUid == id }?.let {
+            val orderLines = orderModel.Orders.toMutableList()
+            orderLines.remove(it)
+            setCartCount(it.count * -1)
+            orderModel.Orders = orderLines
+        }
+
     }
 
     fun setCartCount(count: Double) {

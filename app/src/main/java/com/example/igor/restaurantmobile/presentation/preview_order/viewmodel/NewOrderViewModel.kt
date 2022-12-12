@@ -61,11 +61,11 @@ class NewOrderViewModel @Inject constructor(
         remoteOrder.BillUid = localOrder.BillUid
         remoteOrder.Guests = localOrder.Guests
 
-        remoteOrder.Orders = localOrder.Orders.map {
+        remoteOrder.Orders = localOrder.Orders.filter { it.internUid != "00000000-0000-0000-0000-000000000000" }.map {
             OrderItemModel(
                 AssortimentUid = it.assortimentUid,
                 Count = it.count,
-                QueueNumber = it.numberPrepare,
+                QueueNumber = it.numberPrepare ?: 1,
                 PriceLineUid = it.priceLineUid,
                 Uid = it.uId,
                 KitUid = it.kitUid,

@@ -1,10 +1,12 @@
 package com.example.igor.restaurantmobile.presentation.add_client
 
+import android.Manifest
 import android.app.PendingIntent
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.MifareClassic
@@ -21,19 +23,22 @@ import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.example.igor.restaurantmobile.databinding.ActivityAddClientBinding
 import com.example.igor.restaurantmobile.presentation.dialog.DialogAction
-import com.example.igor.restaurantmobile.presentation.launch.viewmodel.LaunchViewModel
 import com.example.igor.restaurantmobile.presentation.main.viewmodel.MainViewModel
-import com.example.igor.restaurantmobile.utils.ContextManager
 import com.example.igor.restaurantmobile.utils.ErrorHandler
 import com.example.igor.restaurantmobile.utils.enums.EnumRemoteErrors
+import com.google.zxing.integration.android.IntentIntegrator
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanIntentResult
+import com.journeyapps.barcodescanner.ScanOptions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -43,6 +48,7 @@ import okio.IOException
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+
 
 @AndroidEntryPoint
 class AddClientActivity : AppCompatActivity() {
@@ -59,6 +65,8 @@ class AddClientActivity : AppCompatActivity() {
         ActivityAddClientBinding.inflate(LayoutInflater.from(this))
     }
     private val viewModel by viewModels<MainViewModel>()
+
+    val options = ScanOptions()
 
     var cardCode = ""
 
@@ -85,6 +93,7 @@ class AddClientActivity : AppCompatActivity() {
                 }
             }
         }
+
         binding.buttonApply.isEnabled = false
 
         binding.etCardCode.addTextChangedListener(object : TextWatcher {
@@ -117,6 +126,24 @@ class AddClientActivity : AppCompatActivity() {
                 }
             }
         }
+
+        binding.imageButtonOpenCamera.setOnClickListener {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES)
+                options.setPrompt("Scaneaza codul clientului")
+                options.setCameraId(0) // Use a specific camera of the device
+                options.setBeepEnabled(false)
+                options.setBarcodeImageEnabled(true)
+                barcodeLauncher.launch(options)
+            }
+            else {
+                val permission = Manifest.permission.CAMERA
+                ActivityCompat.requestPermissions(
+                    this, arrayOf(permission), 90
+                )
+            }
+        }
+
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.applyCardResult.collectLatest {
                 progressDialog.dismiss()
@@ -159,6 +186,17 @@ class AddClientActivity : AppCompatActivity() {
         initToolbar()
     }
 
+    // Register the launcher and result handler
+    private val barcodeLauncher = registerForActivityResult(
+        ScanContract()
+    ) { result: ScanIntentResult ->
+        if (result.contents == null) {
+            Toast.makeText(this@AddClientActivity, "Cancelled", Toast.LENGTH_LONG).show()
+        } else {
+            binding.etCardCode.setText(result.contents)
+        }
+    }
+
     private fun initToolbar() {
         val toolbar = binding.toolbar
 
@@ -172,9 +210,26 @@ class AddClientActivity : AppCompatActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 90) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES)
+                options.setPrompt("Scan a barcode")
+                options.setCameraId(0) // Use a specific camera of the device
+                options.setOrientationLocked(false)
+                options.setBeepEnabled(false)
+                options.setBarcodeImageEnabled(true)
+                barcodeLauncher.launch(options)
+            }
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-        hideSystemUI()
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
         nfcAdapter?.enableForegroundDispatch(this, pendingIntent, writeTagFilters, null)
@@ -324,4 +379,6 @@ class AddClientActivity : AppCompatActivity() {
         }
         return super.dispatchTouchEvent(ev)
     }
+
+
 }

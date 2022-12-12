@@ -31,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:background="@drawable/background_round_gray"
             android:padding="@dimen/_6sdp"
             android:scaleType="centerInside"
@@ -39,7 +39,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonAddClient"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView27"
+            app:layout_constraintTop_toBottomOf="@+id/textView31"
             app:tint="@color/colorPrimary" />
 
         <ImageButton
@@ -47,7 +47,6 @@
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
             android:background="@drawable/background_round_gray"
             android:padding="@dimen/_6sdp"
             android:scaleType="centerInside"
@@ -55,7 +54,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonSplit"
             app:layout_constraintStart_toEndOf="@+id/buttonEdit"
-            app:layout_constraintTop_toBottomOf="@+id/textView27"
+            app:layout_constraintTop_toTopOf="@+id/buttonEdit"
             app:tint="@color/colorPrimary" />
 
         <ImageButton
@@ -63,7 +62,6 @@
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
             android:background="@drawable/background_round_gray"
             android:padding="@dimen/_6sdp"
             android:scaleType="centerInside"
@@ -71,7 +69,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonPrint"
             app:layout_constraintStart_toEndOf="@+id/buttonAddClient"
-            app:layout_constraintTop_toBottomOf="@+id/textView27"
+            app:layout_constraintTop_toTopOf="@+id/buttonAddClient"
             app:tint="@color/colorPrimary" />
 
         <ImageButton
@@ -79,7 +77,6 @@
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
             android:background="@drawable/background_round_gray"
             android:padding="@dimen/_6sdp"
             android:scaleType="centerInside"
@@ -87,7 +84,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonClose"
             app:layout_constraintStart_toEndOf="@+id/buttonSplit"
-            app:layout_constraintTop_toBottomOf="@+id/textView27"
+            app:layout_constraintTop_toTopOf="@+id/buttonSplit"
             app:tint="@color/colorPrimary" />
 
         <ImageButton
@@ -95,7 +92,6 @@
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/background_round_gray"
             android:padding="@dimen/_6sdp"
@@ -104,7 +100,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/buttonPrint"
-            app:layout_constraintTop_toBottomOf="@+id/textView27"
+            app:layout_constraintTop_toTopOf="@+id/buttonPrint"
             app:tint="@color/colorPrimary" />
 
         <TextView
@@ -121,11 +117,56 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:text="TextView"
+            android:text="-"
             android:textColor="@color/black"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/textView27"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textView27" />
+
+        <TextView
+            android:id="@+id/textView29"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:text="Client:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textBillNumber" />
+
+        <TextView
+            android:id="@+id/textView31"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:text="Suma:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textClient" />
+
+        <TextView
+            android:id="@+id/textClient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="-"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/textView29"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView29" />
+
+        <TextView
+            android:id="@+id/textSum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="-"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/textView31"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView31" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

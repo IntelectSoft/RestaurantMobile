@@ -2,6 +2,7 @@ package com.example.igor.restaurantmobile.data.repo
 
 import com.example.igor.restaurantmobile.data.remote.models.RegisterDeviceModel
 import com.example.igor.restaurantmobile.data.remote.models.bill.AddOrdersModel
+import com.example.igor.restaurantmobile.data.remote.models.bill.CombineBillsModel
 import com.example.igor.restaurantmobile.data.remote.models.bill.SplitBillModel
 import com.example.igor.restaurantmobile.data.remote.models.license.GetUriModel
 import com.example.igor.restaurantmobile.data.remote.models.license.RegisterModel
@@ -22,6 +23,7 @@ interface RepositoryService {
     suspend fun applyCard(url: String,deviceId: String,billUid: String, cardNumber: String): Response<BillListResponse>
     suspend fun closeBill(url: String,deviceId: String,billUid: String, closeTypeUid: String,printerId: String?): Response<BillListResponse>
     suspend fun splitBill(url: String, ordersModel: SplitBillModel): Response<BillListResponse>
+    suspend fun combineBills(url: String, model: CombineBillsModel): Response<BillListResponse>
     suspend fun registerApplication(url: String,bodyRegisterApp: RegisterModel): Response<RegisterResponse>
     suspend fun getUri(url: String,sendGetURI: GetUriModel): Response<RegisterResponse>
 }

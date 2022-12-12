@@ -57,15 +57,9 @@ class AssortmentInsertActivity : AppCompatActivity() {
         binding.textItemPrice.text = "${assortmentItem.Price} MDL"
 
         binding.numberPicker.minValue = 0
-        binding.numberPicker.maxValue = 5
-        binding.numberPicker.value = 2
+        binding.numberPicker.maxValue = CreateBillController.orderModel.Orders.size + 5
+        binding.numberPicker.value = CreateBillController.orderModel.Orders.size
         binding.numberPicker.wrapSelectorWheel = false
-
-
-
-        binding.numberPicker.setOnValueChangedListener { numberPicker, old, new ->
-            Log.e("TAG", "setOnValueChangedListener:  old- $old ; new - $new" )
-        }
 
         binding.textItemAllowNonInteger.text =
             if (!assortmentItem.AllowNonIntegerSale) "Nu" else "Da"
@@ -346,7 +340,7 @@ class AssortmentInsertActivity : AppCompatActivity() {
     }
 
     private fun dialogShow(title: String, description: String, guid: String, name: String) {
-        ContextManager.retrieveContext()?.let {
+        this.let {
             DialogAction(it, title, description, "Adauga", "Renunta", {
                 it.dismiss()
                 listOfSelectedComments.add(guid)

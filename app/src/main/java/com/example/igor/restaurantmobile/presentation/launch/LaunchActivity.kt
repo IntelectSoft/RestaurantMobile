@@ -149,15 +149,11 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                         }
                         -9 -> {
                             progressDialog.dismiss()
-                            dialogShow("Eroare", it.ResultMessage.toString(), false)
+                            dialogShowRegisterDevice("Eroare", it.ResultMessage.toString())
                         }
                         else -> {
                             progressDialog.dismiss()
-                            Snackbar.make(
-                                binding.btnStart,
-                                ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result)),
-                                Snackbar.LENGTH_LONG
-                            ).show()
+                            dialogShowRegisterDevice("Eroare", ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result)))
                         }
                     }
                 }
@@ -228,6 +224,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
     }
 
     override fun onLicenseActivate(dialogs: Dialog, code: String) {
+
         progressDialog.setMessage("Activare aplicatiei...")
         progressDialog.show()
         launchViewModel.registerApplication(code)
@@ -253,7 +250,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                     it.ErrorCode?.let { code ->
                         dialogShowActivateApp(
                             "Eroare",
-                            ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(code))
+                            ErrorHandler().getErrorLicenseMessage(EnumLicenseErrors.getByValue(code))
                         )
                     }
                 }
@@ -353,6 +350,14 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
             it.dismiss()
         }, {
             finish()
+        }).show()
+    }
+
+    private fun dialogShowRegisterDevice(title: String?, description: String?) {
+        DialogAction(this, title, description, "OK", "Renunta", {
+            it.dismiss()
+        }, {
+            it.dismiss()
         }).show()
     }
 

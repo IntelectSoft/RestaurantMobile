@@ -12,7 +12,7 @@ object BillsController {
         val bills = response.BillsList.toMutableList()
 
         bills.sortWith { x, y ->
-            x.Number.compareTo(y.Number)
+            y.Number.compareTo(x.Number)
         }
         billsBody = bills.toList()
     }

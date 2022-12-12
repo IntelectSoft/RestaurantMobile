@@ -10,7 +10,7 @@ object Urls {
     val RegisterDevice = "${baseUrl}json/RegisterDevice"
     val GetAssortimentList = "${baseUrl}json/GetAssortimentList"
     val GetBillsList = "${baseUrl}json/GetBillsList"
-    val GetBill = "${baseUrl}json/GetBill"
+    val CombineBills = "${baseUrl}json/CombineBills"
     val CloseBill = "${baseUrl}json/CloseBill"
     val SaveBill = "${baseUrl}json/SaveBill"
     val SplitBill = "${baseUrl}json/SplitBill"

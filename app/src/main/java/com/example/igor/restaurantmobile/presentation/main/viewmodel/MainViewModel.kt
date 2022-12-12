@@ -1,9 +1,11 @@
 package com.example.igor.restaurantmobile.presentation.main.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.igor.restaurantmobile.common.delegates.DelegateAdapterItem
 import com.example.igor.restaurantmobile.controllers.BillsController
 import com.example.igor.restaurantmobile.data.datastore.SettingsRepository
+import com.example.igor.restaurantmobile.data.remote.models.bill.CombineBillsModel
 import com.example.igor.restaurantmobile.data.remote.response.bills.BillItem
 import com.example.igor.restaurantmobile.data.remote.response.bills.BillListResponse
 import com.example.igor.restaurantmobile.data.repo.RepositoryServiceImpl
@@ -27,7 +29,10 @@ class MainViewModel @Inject constructor(
     val closeBillResult = MutableSharedFlow<BillListResponse>()
     val billPrintResult = MutableSharedFlow<BillListResponse>()
     val applyCardResult = MutableSharedFlow<BillListResponse>()
+    val combineBillsResult = MutableSharedFlow<BillListResponse>()
     val pingFlow = MutableSharedFlow<Boolean>()
+
+    val arrayCombine = arrayListOf<String>()
 
     suspend fun ping(){
         try {
@@ -50,8 +55,7 @@ class MainViewModel @Inject constructor(
             val response = serviceRepo.getMyBills(Urls.GetBillsList, DeviceInfo.deviceId)
             if (response.isSuccessful) {
                 response.body()?.let {
-                    BillsController.setBillResponse(it)
-                    initData(BillsController.billsBody)
+                    getBillListResult.emit(it)
                 }
             } else {
                 getBillListResult.emit(
@@ -122,6 +126,37 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    suspend fun combineBill() {
+        val combineModel = CombineBillsModel(
+            DeviceId = DeviceInfo.deviceId,
+            MainBillUid = arrayCombine[1],
+            AttachedBillUid = arrayCombine[0]
+        )
+        try {
+            val response = serviceRepo.combineBills(
+                Urls.CombineBills, combineModel
+            )
+            if (response.isSuccessful) {
+                response.body()?.let { combineBillsResult.emit(it) }
+            } else {
+                combineBillsResult.emit(
+                    BillListResponse(
+                        Result = -9,
+                        ResultMessage = response.errorBody()?.string(),
+                        BillsList = emptyList()
+                    )
+                )
+
+            }
+        } catch (e: Exception) {
+            combineBillsResult.emit(
+                BillListResponse(
+                    Result = -9, ResultMessage = e.message, BillsList = emptyList()
+                )
+            )
+        }
+    }
+
     suspend fun applyCard(billId: String, cardNumber: String) {
         try {
             val response = serviceRepo.applyCard(
@@ -148,18 +183,34 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private suspend fun initData(billsList: List<BillItem>?) {
+    suspend fun initData(billsList: List<BillItem>?, excludeUid: String? = null) {
         val bills = mutableListOf<DelegateAdapterItem>()
-
-        billsList?.map {
-            bills.add(
-                ItemBillBinder(
-                    ItemBill(
-                        tag = "", bill = it
+        if(excludeUid != null){
+            billsList?.filter { it.Uid != excludeUid }?.map {
+                bills.add(
+                    ItemBillBinder(
+                        ItemBill(
+                            tag = "",
+                            bill = it
+                        )
                     )
                 )
-            )
+            }
         }
+        else{
+            billsList?.map {
+                bills.add(
+                    ItemBillBinder(
+                        ItemBill(
+                            tag = "",
+                            bill = it
+                        )
+                    )
+                )
+            }
+        }
+
+
 
         billListResponse.emit(bills)
     }

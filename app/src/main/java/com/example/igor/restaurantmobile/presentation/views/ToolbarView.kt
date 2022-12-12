@@ -37,12 +37,16 @@ class ToolbarView @JvmOverloads constructor(
         viewBinding.next.setOnClickListener {
             rightClickListener?.invoke()
         }
+        viewBinding.closeIconCobineBill.setOnClickListener {
+            closeCombineMenuClickListener?.invoke()
+        }
 
         viewBinding.next.isSelected = true
     }
 
     private var leftClickListener: (() -> Unit)? = null
     private var rightClickListener: (() -> Unit)? = null
+    private var closeCombineMenuClickListener: (() -> Unit)? = null
 
     fun setSelectedRightIcon(isSelected: Boolean) {
         viewBinding.rightIcon.isSelected = isSelected
@@ -56,12 +60,29 @@ class ToolbarView @JvmOverloads constructor(
         this.rightClickListener = onClickListener
     }
 
+    fun setCloseCombineMenuClickListener(onClickListener: () -> Unit) {
+        this.closeCombineMenuClickListener = onClickListener
+    }
+
+    fun setShowCombineMenu(show: Boolean){
+        if(show){
+            viewBinding.layoutCombineBills.isVisible = true
+        }
+        else{
+            viewBinding.layoutCombineBills.isVisible = false
+            closeCombineMenuClickListener = null
+        }
+    }
+
+    fun setCombineMenuTitle(titleCombineMenu: String){
+        viewBinding.titleCombineBill.text = titleCombineMenu
+    }
+
     fun showSearchText(isShow: Boolean){
         if(isShow){
             viewBinding.searchText.isVisible = true
             viewBinding.bodyContainer.isVisible = false
             viewBinding.searchText.findViewById<View>(androidx.appcompat.R.id.search_button).performClick()
-//            viewBinding.searchText.isIconified = true
         }
         else{
             viewBinding.bodyContainer.isVisible = true

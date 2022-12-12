@@ -15,14 +15,18 @@ class ErrorHandler {
             EnumRemoteErrors.ClientNotFound -> "Clientul nu a fost găsit!"
             EnumRemoteErrors.SecurityException -> "Excepție de securitate!"
             EnumRemoteErrors.ServerNotAvailable -> "Serverul nu este disponibil!"
-            else -> "Efectuare nereusita, incercati mai tirziu."
+            else -> "Efectuare nereusita,apelati provider-ul aplicatiei sau incercati mai tirziu."
         }
     }
 
     fun getErrorLicenseMessage(errorCode: EnumLicenseErrors): String{
         return when (errorCode){
             EnumLicenseErrors.LicenseNotExist -> "Licenta data nu exista!"
-            else -> "Efectuare nereusita, incercati mai tirziu."
+            EnumLicenseErrors.CodeNotExist -> "Asa cod de activare nu exista!"
+            EnumLicenseErrors.CompanyNotFound -> "Compania nu exista!"
+            EnumLicenseErrors.PlatformNotExist -> "Platforma nu exista!"
+            EnumLicenseErrors.InternalError -> "Eroare interna la serviciu!"
+            else -> "Efectuare nereusita,apelati provider-ul aplicatiei sau incercati mai tirziu."
         }
     }
 }

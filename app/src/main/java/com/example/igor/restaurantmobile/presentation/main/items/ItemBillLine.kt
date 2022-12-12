@@ -32,8 +32,8 @@ class ItemBillLineBinder(val item: ItemBillLine) : DelegateAdapterItem(item) {
                     add(Payloads.OnNameChanged(other.item.line.AssortimentUid))
                 if (item.line.Count != other.item.line.Count)
                     add(Payloads.OnCountChanged(other.item.line.Count))
-                if (item.line.Sum != other.item.line.Sum)
-                    add(Payloads.OnSumChanged(other.item.line.Sum))
+                if (item.line.SumAfterDiscount != other.item.line.SumAfterDiscount)
+                    add(Payloads.OnSumChanged(other.item.line.SumAfterDiscount))
             }
         }
         return payloads
@@ -98,7 +98,7 @@ class ItemBillLineDelegate(
             loadName(item.line.AssortimentUid)
             loadNumber(item.line.QueueNumber)
             loadCount(item.line.Count)
-            loadSum(item.line.Sum)
+            loadSum(item.line.SumAfterDiscount)
             loadStatus("Undefined")
 
             setClicks(item.line)

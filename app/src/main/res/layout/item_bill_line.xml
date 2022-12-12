@@ -46,7 +46,7 @@
 
     <TextView
         android:id="@+id/textLineSum"
-        android:layout_width="@dimen/_43sdp"
+        android:layout_width="@dimen/_46sdp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:gravity="right"

@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import com.example.igor.restaurantmobile.common.delegates.CompositeAdapter
 import com.example.igor.restaurantmobile.data.remote.response.assortment.PrinterItem
 import com.example.igor.restaurantmobile.presentation.add_client.AddClientActivity
+import java.text.DecimalFormat
 
 const val ARG_ITEM_ID = "item_bill"
 
@@ -92,7 +93,18 @@ class BillDetailsDialogFragment : BottomSheetDialogFragment() {
             BillsController.getBillById(it)
         }
 
-        binding.textBillNumber.text = bill?.Number.toString()
+
+        bill?.let {
+            binding.textBillNumber.text = it.Number.toString()
+            if(it.ClientName != null)
+                binding.textClient.text = it.ClientName
+            if(it.Sum != it.SumAfterDiscount){
+                binding.textSum.text = DecimalFormat(".0#").format(it.Sum) + "/cu red: " + DecimalFormat(".0#").format(it.SumAfterDiscount) + " MDL"
+            }
+            else{
+                binding.textSum.text = DecimalFormat(".0#").format(it.Sum) + " MDL"
+            }
+        }
 
         val adapter = mutableListOf<DelegateAdapterItem>()
 
@@ -112,12 +124,7 @@ class BillDetailsDialogFragment : BottomSheetDialogFragment() {
         compositeAdapter.submitList(adapter)
 
         binding.buttonClose.setOnClickListener {
-            val printerList = AssortmentController.getPrinters()
-            if (printerList.isEmpty()) {
-                showClosureTypes()
-            } else {
-                showPrinters(printerList, "Alegeti unde sa imprimi bonul final!", true)
-            }
+            showClosureTypes()
         }
 
         binding.buttonPrint.setOnClickListener {
@@ -260,7 +267,12 @@ class BillDetailsDialogFragment : BottomSheetDialogFragment() {
         dialog.setCancelable(false)
         dialog.setAdapter(adapterComments) { dialog, which ->
             closureId = closureItemsMapList[which]["Guid"] as String
-            closeBill()
+            val printerList = AssortmentController.getPrinters()
+            if (printerList.isEmpty()) {
+                closeBill()
+            } else {
+                showPrinters(printerList, "Alegeti unde sa imprimi bonul final!", true)
+            }
         }
         dialog.setNegativeButton("Renunta") { dialogInterface, i ->
             dialogInterface.dismiss()
@@ -311,7 +323,7 @@ class BillDetailsDialogFragment : BottomSheetDialogFragment() {
         dialog.setAdapter(adapterComments) { dialog, which ->
             if (actionCloseBill) {
                 closedPrinterId = itemsMapList[which]["Guid"] as String
-                showClosureTypes()
+                closeBill()
             } else {
                 printerId = itemsMapList[which]["Guid"] as String
                 printBill()
@@ -323,7 +335,7 @@ class BillDetailsDialogFragment : BottomSheetDialogFragment() {
         dialog.setPositiveButton("Imprima implicit") { dialogInterface, i ->
             if (actionCloseBill) {
                 closedPrinterId = null
-                showClosureTypes()
+                closeBill()
             } else {
                 printerId = null
                 printBill()

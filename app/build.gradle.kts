@@ -148,7 +148,7 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.databinding:databinding-runtime:7.3.1")
 
-    implementation("com.google.firebase:firebase-messaging-ktx:23.1.0")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.1.1")
     implementation("com.google.firebase:firebase-crashlytics-ktx:18.3.2")
 
 
@@ -156,11 +156,13 @@ dependencies {
     implementation("androidx.room:room-runtime:2.4.3")
     implementation ("androidx.room:room-ktx:2.4.3")
     implementation("androidx.appcompat:appcompat:1.5.1")
-    implementation("com.google.android.material:material:1.4.0")
+    implementation("com.google.android.material:material:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     annotationProcessor("androidx.room:room-compiler:2.4.3")
     kapt("androidx.room:room-compiler:2.4.3")
 
+    //for scanner qr codes
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
 
     kapt(Dependencies.Hilt.compiler)
 

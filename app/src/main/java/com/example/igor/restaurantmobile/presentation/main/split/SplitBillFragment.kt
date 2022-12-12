@@ -72,9 +72,8 @@ class SplitBillFragment : Fragment() {
 
         val adapter = mutableListOf<DelegateAdapterItem>()
 
-        bill?.Lines?.forEach {
-            Log.e("TAG", "line : $it")
-            val mappedItem =  LineItemModel(
+        bill?.Lines?.filter { it.KitUid == "00000000-0000-0000-0000-000000000000" }?.map {
+            val mappedItem = LineItemModel(
                 Uid = it.Uid,
                 AssortimentUid = it.AssortimentUid,
                 Comments = it.Comments,

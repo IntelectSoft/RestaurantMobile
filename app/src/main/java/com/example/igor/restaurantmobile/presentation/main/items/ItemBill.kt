@@ -3,6 +3,7 @@ package com.example.igor.restaurantmobile.presentation.main.items
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.example.igor.restaurantmobile.common.delegates.DelegateAdapterItem
 import com.example.igor.restaurantmobile.common.delegates.DelegateBinder
@@ -10,6 +11,7 @@ import com.example.igor.restaurantmobile.common.delegates.Item
 import com.example.igor.restaurantmobile.controllers.AssortmentController
 import com.example.igor.restaurantmobile.data.remote.response.bills.BillItem
 import com.example.igor.restaurantmobile.databinding.ItemBillBinding
+import java.text.DecimalFormat
 
 data class ItemBill(
     val tag: String,
@@ -23,10 +25,14 @@ class ItemBillBinder(val item: ItemBill) : DelegateAdapterItem(item) {
         val payloads = mutableListOf<Payloadable>()
         if (other is ItemBillBinder) {
             payloads.apply {
-                if (item.bill.Sum != other.item.bill.Sum)
-                    add(Payloads.OnSumChanged(other.item.bill.Number, other.item.bill.Sum))
+                if (item.bill.SumAfterDiscount != other.item.bill.SumAfterDiscount)
+                    add(Payloads.OnSumChanged(other.item.bill.Number, other.item.bill.SumAfterDiscount))
                 if (item.bill.TableUid != other.item.bill.TableUid)
                     add(Payloads.OnTableChanged(other.item.bill.TableUid))
+                if (item.bill.Number != other.item.bill.Number)
+                    add(Payloads.OnNumberChanged(other.item.bill.Number))
+                if (item.bill.Guests != other.item.bill.Guests)
+                    add(Payloads.OnGuestChanged(other.item.bill.Guests))
             }
         }
         return payloads
@@ -35,11 +41,14 @@ class ItemBillBinder(val item: ItemBill) : DelegateAdapterItem(item) {
     sealed class Payloads : Payloadable {
         data class OnSumChanged(val number: Int, val sum: Double) : Payloads()
         data class OnTableChanged(val tableId: String) : Payloads()
+        data class OnNumberChanged(val number: Int) : Payloads()
+        data class OnGuestChanged(val guests: Int) : Payloads()
     }
 }
 
 class ItemBillDelegate(
-    private val onItemClick: (item: BillItem) -> Unit
+    private val onItemClick: (item: BillItem) -> Unit,
+    private val onLongItemClick: (item: BillItem) -> Unit
 ) :
     DelegateBinder<ItemBillBinder, ItemBillDelegate.ItemBillViewHolder>(
         ItemBillBinder::class.java
@@ -70,10 +79,16 @@ class ItemBillDelegate(
                     is ItemBillBinder.Payloads.OnTableChanged -> {
                         viewHolder.loadTable(it.tableId)
                     }
+                    is ItemBillBinder.Payloads.OnNumberChanged -> {
+                        viewHolder.loadNumber(it.number)
+                    }
+                    is ItemBillBinder.Payloads.OnGuestChanged -> {
+                        viewHolder.loadGuests(it.guests)
+                    }
                 }
             }
             viewHolder.setClicks(model.item)
-//            viewHolder.setOnLongClickListener(model.item)
+            viewHolder.setOnLongClickListener(model.item)
         }
     }
 
@@ -87,23 +102,23 @@ class ItemBillDelegate(
             loadGuests(item.bill.Guests)
 
             setClicks(item)
-//            setOnLongClickListener(item)
+            setOnLongClickListener(item)
         }
 
         fun loadTable(tableUid: String) {
             val tableName = AssortmentController.getTableNumberById(tableUid)
-            binding.textTable.text = tableName
+            binding.textTable.text = "tableName"
         }
 
         fun loadSum(sumAfterDiscount: Double) {
-            binding.textBillSum.text = "$sumAfterDiscount MDL"
+            binding.textBillSum.text = DecimalFormat(".0#").format(sumAfterDiscount) + " MDL"
         }
 
-        private fun loadNumber(num: Int) {
+        fun loadNumber(num: Int) {
             binding.textBillNumber.text = num.toString()
         }
 
-        private fun loadGuests(num: Int) {
+        fun loadGuests(num: Int) {
             binding.textCountPerson.text = num.toString()
         }
 
@@ -113,11 +128,11 @@ class ItemBillDelegate(
             }
         }
 
-//        fun setOnLongClickListener(item: ItemBill) {
-//            binding.root.setOnLongClickListener {
-//                onLongClick.invoke(item.bill)
-//                return@setOnLongClickListener true
-//            }
-//        }
+        fun setOnLongClickListener(item: ItemBill) {
+            binding.root.setOnLongClickListener {
+                onLongItemClick.invoke(item.bill)
+                return@setOnLongClickListener true
+            }
+        }
     }
 }

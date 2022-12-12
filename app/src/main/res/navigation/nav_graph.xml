@@ -52,19 +52,6 @@
         <action
             android:id="@+id/action_assortmentList_to_myBills"
             app:destination="@id/myBills" />
-        <action
-            android:id="@+id/action_assortmentList_to_assortmentDetails"
-            app:destination="@id/assortmentDetails" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/assortmentDetails"
-        android:name="com.example.igor.restaurantmobile.presentation.assortment.AssortmentDetailsFragment"
-        tools:layout="@layout/fragment_assortment_details">
-        <argument
-            android:name="itemId"
-            app:argType="string" />
-
     </fragment>
 
     <fragment

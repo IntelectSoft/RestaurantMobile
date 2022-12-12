@@ -3,6 +3,7 @@ package com.example.igor.restaurantmobile.data.repo
 import com.example.igor.restaurantmobile.data.remote.models.RegisterDeviceModel
 import com.example.igor.restaurantmobile.data.remote.models.bill.AddOrders
 import com.example.igor.restaurantmobile.data.remote.models.bill.AddOrdersModel
+import com.example.igor.restaurantmobile.data.remote.models.bill.CombineBillsModel
 import com.example.igor.restaurantmobile.data.remote.models.bill.SplitBillModel
 import com.example.igor.restaurantmobile.data.remote.models.license.GetUriModel
 import com.example.igor.restaurantmobile.data.remote.models.license.RegisterModel
@@ -63,6 +64,12 @@ interface RemoteApiInterface {
     suspend fun splitBill(
         @Url url: String,
         @Body order: SplitBillModel
+    ): Response<BillListResponse>
+
+    @POST("")
+    suspend fun combineBills(
+        @Url url: String,
+        @Body model: CombineBillsModel
     ): Response<BillListResponse>
 
     @GET("")

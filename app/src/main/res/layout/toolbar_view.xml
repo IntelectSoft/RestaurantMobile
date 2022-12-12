@@ -6,6 +6,7 @@
     android:layout_height="wrap_content">
 
     <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:contentInsetStart="0dp"
@@ -39,7 +40,9 @@
             android:maxLines="1"
             android:visibility="gone"
             app:closeIcon="@drawable/ic_cancel"
-            app:queryHint="Cauta..." />
+            app:queryHint="Cauta..." >
+
+        </androidx.appcompat.widget.SearchView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bodyContainer"
@@ -134,10 +137,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:ellipsize="end"
+                    android:gravity="center"
                     android:includeFontPadding="false"
                     android:singleLine="true"
                     android:textAllCaps="false"
-                    android:gravity="center"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_13ssp" />
 
@@ -145,10 +148,10 @@
                     android:id="@+id/sub_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:includeFontPadding="false"
                     android:textAllCaps="false"
                     android:textColor="#0C7BC9"
-                    android:gravity="center"
                     android:textSize="@dimen/_9ssp"
                     android:visibility="gone" />
             </LinearLayout>
@@ -196,6 +199,53 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutCombineBills"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/titleCombineBill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_13ssp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/closeIconCobineBill"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/closeIconCobineBill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingStart="@dimen/_15sdp"
+                    android:paddingEnd="@dimen/_15sdp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_cancel"
+                    tools:ignore="ContentDescription" />
+
+                <View
+                    android:id="@+id/line_combine"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E5E5E5"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

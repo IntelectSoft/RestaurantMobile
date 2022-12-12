@@ -1,11 +1,13 @@
 package com.example.igor.restaurantmobile.presentation.main
 
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +26,11 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import com.example.igor.restaurantmobile.common.decor.GridSpanDecoration
 import com.example.igor.restaurantmobile.common.delegates.CompositeAdapter
+import com.example.igor.restaurantmobile.presentation.dialog.DialogAction
+import com.example.igor.restaurantmobile.utils.DeviceInfo
+import com.example.igor.restaurantmobile.utils.ErrorHandler
+import com.example.igor.restaurantmobile.utils.enums.EnumRemoteErrors
+import com.google.android.material.snackbar.Snackbar
 
 @AndroidEntryPoint
 class MyBillsFragment : Fragment(), ActionOnBillListener {
@@ -31,18 +38,48 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
     val mainViewModel by viewModels<MainViewModel>()
     private lateinit var layoutManager: GridLayoutManager
     private var spanCount = 2
+    val progressDialog by lazy { ProgressDialog(requireContext()) }
+    private var pairToCombine = false
+    private var firstBillCombineNumber = 0
 
     private val compositeAdapter by lazy {
         CompositeAdapter.Builder()
             .add(
-                ItemBillDelegate { bill ->
-                    val dialog = BillDetailsDialogFragment.newInstance(billId = bill.Uid)
-                    dialog.setListener(this)
-                    dialog.show(
-                        parentFragmentManager,
-                        BillDetailsDialogFragment::class.simpleName
-                    )
-                }
+                ItemBillDelegate({ bill ->
+                    if (pairToCombine) {
+                        mainViewModel.arrayCombine.add(bill.Uid)
+                        if (mainViewModel.arrayCombine.size == 2) {
+                            dialogConfirmCombineBillsShow("Atentie!", "Confirmati ca doriti sa comasati contul $firstBillCombineNumber in contul ${bill.Number} ?")
+                        }
+                    } else {
+                        val dialog = BillDetailsDialogFragment.newInstance(billId = bill.Uid)
+                        dialog.setListener(this)
+                        dialog.show(
+                            parentFragmentManager,
+                            BillDetailsDialogFragment::class.simpleName
+                        )
+                    }
+
+                }, { billLongClick ->
+                    if (!pairToCombine) {
+                        pairToCombine = true
+                        firstBillCombineNumber = billLongClick.Number
+                        mainViewModel.arrayCombine.add(billLongClick.Uid)
+                        binding.toolbar.setShowCombineMenu(true)
+                        binding.toolbar.setCombineMenuTitle("Combina contul ${billLongClick.Number} cu -> ")
+                        binding.toolbar.setCloseCombineMenuClickListener {
+                            pairToCombine = false
+                            binding.toolbar.setShowCombineMenu(false)
+                            mainViewModel.arrayCombine.clear()
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                mainViewModel.initData(BillsController.billsBody, null)
+                            }
+                        }
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            mainViewModel.initData(BillsController.billsBody, billLongClick.Uid)
+                        }
+                    }
+                })
             )
             .build()
     }
@@ -56,10 +93,34 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
         savedInstanceState: Bundle?
     ): View {
 
-        lifecycleScope.launchWhenResumed {
-            mainViewModel.getMyBills()
+        lifecycleScope.launch(Dispatchers.Main) {
             mainViewModel.billListResponse.collectLatest {
                 initList(it)
+            }
+        }
+
+        lifecycleScope.launch(Dispatchers.Main) {
+            mainViewModel.getBillListResult.collectLatest {
+                progressDialog.dismiss()
+                it.let {
+                    when (it.Result) {
+                        0 -> {
+                            BillsController.setBillResponse(it)
+                            mainViewModel.initData(BillsController.billsBody)
+                        }
+                        -9 -> {
+                            dialogGetBillsShow("Eroare la obtinerea conturilor", it.ResultMessage.toString())
+                        }
+                        else -> {
+                            dialogGetBillsShow(
+                                "Eroare la obtinerea conturilor",
+                                ErrorHandler().getErrorMessage(
+                                    EnumRemoteErrors.getByValue(it.Result)
+                                )
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -71,13 +132,12 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
                     val dialog = BillDetailsDialogFragment.newInstance(billId = billFind.Uid)
                     dialog.setListener(this@MyBillsFragment)
                     dialog.show(parentFragmentManager, BillDetailsDialogFragment::class.simpleName)
-                }
-                else{
-                    Toast.makeText(requireContext(), "Contul nu a fost gasit!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Contul nu a fost gasit!", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
         }
-
 
         initToolbar()
 
@@ -122,7 +182,6 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
             delay(250)
             binding.recycler.smoothScrollToPosition(0)
         }
-
     }
 
     private fun initList(items: List<DelegateAdapterItem>) {
@@ -132,7 +191,6 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
         binding.recycler.layoutManager = layoutManager
 
         binding.recycler.smoothScrollToPosition(compositeAdapter.itemCount)
-
 
         val deco = GridSpanDecoration(
             binding.root.context.resources.getDimensionPixelSize(
@@ -175,6 +233,75 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
             mainViewModel.billListResponse.collectLatest {
                 notifyAdapter(it)
             }
+        }
+    }
+
+    private fun dialogCombineBillsShow(title: String?, description: String?) {
+        DialogAction(requireActivity(), title, description, "OK", "Renunta", {
+            it.dismiss()
+        }, {
+            it.dismiss()
+        }).show()
+    }
+
+    private fun dialogConfirmCombineBillsShow(title: String?, description: String?) {
+        DialogAction(requireActivity(), title, description, "Da", "Renunta", {
+            it.dismiss()
+            lifecycleScope.launch(Dispatchers.Main) {
+                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.show()
+                mainViewModel.combineBill()
+            }
+            lifecycleScope.launch(Dispatchers.Main) {
+                mainViewModel.combineBillsResult.collectLatest {
+                    pairToCombine = false
+                    binding.toolbar.setShowCombineMenu(false)
+                    mainViewModel.arrayCombine.clear()
+                    it.let {
+                        when (it.Result) {
+                            0 -> {
+                                mainViewModel.getMyBills()
+                            }
+                            -9 -> {
+                                progressDialog.dismiss()
+                                dialogCombineBillsShow("Eroare la comasarea conturilor", it.ResultMessage.toString())
+                            }
+                            else -> {
+                                progressDialog.dismiss()
+                                dialogCombineBillsShow(
+                                    "Eroare la comasarea conturilor",
+                                    ErrorHandler().getErrorMessage(
+                                        EnumRemoteErrors.getByValue(it.Result)
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }, {
+            it.dismiss()
+            mainViewModel.arrayCombine.remove(mainViewModel.arrayCombine.last())
+        }).show()
+    }
+
+    private fun dialogGetBillsShow(title: String?, description: String?) {
+        DialogAction(requireActivity(), title, description, "Reincearca", "Renunta", {
+            it.dismiss()
+            lifecycleScope.launch(Dispatchers.Main) {
+                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.show()
+                mainViewModel.getMyBills()
+            }
+        }, {
+            requireActivity().finish()
+        }).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch(Dispatchers.Main) {
+            mainViewModel.getMyBills()
         }
     }
 }

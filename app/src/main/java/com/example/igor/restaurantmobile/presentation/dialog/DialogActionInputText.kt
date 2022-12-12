@@ -4,11 +4,15 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.view.Window
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.ColorInt
 import com.example.igor.restaurantmobile.R
 import com.example.igor.restaurantmobile.databinding.DialogInputTextBinding
-import com.example.igor.restaurantmobile.databinding.DialogTerminalRegisterBinding
+import com.example.igor.restaurantmobile.utils.InputFilterMinMax
+
 
 class DialogActionInputText(
     activity: Context,
@@ -37,6 +41,17 @@ class DialogActionInputText(
         setupCancelBtn()
         setOkButton()
         setVerticalLine()
+
+        binding.textInput.filters = arrayOf(InputFilterMinMax(1, 99))
+
+//        binding.textInput.requestFocus()
+//        binding.textInput.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+//            if (hasFocus) {
+//                window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+//            }
+//        }
+//        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//        imm.showSoftInput(binding.textInput, InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun setVerticalLine() {
