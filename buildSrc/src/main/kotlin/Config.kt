@@ -7,5 +7,5 @@ object Config {
     const val versionCode = 1
     const val versionName = "1.0"
 
-    const val packageName = "com.example.igor.restaurantmobile"
+    const val packageName = "md.edi.restaurantmobile"
 }

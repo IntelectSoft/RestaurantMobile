@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.igor.restaurantmobile">
+    package="md.edi.mobilewaiter">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <uses-feature
         android:name="android.hardware.nfc"
@@ -16,8 +17,9 @@
         android:name="android.hardware.camera"
         android:required="false"/>
 
+
     <application
-        android:name=".controllers.App"
+        android:name="md.edi.mobilewaiter.controllers.App"
         android:allowBackup="true"
         android:icon="@drawable/icon_waiter"
         android:label="@string/app_name"
@@ -35,17 +37,18 @@
             tools:replace="screenOrientation" />
 
         <activity
-            android:name=".presentation.assortment.AssortmentInsertActivity"
+            android:name="md.edi.mobilewaiter.presentation.assortment.AssortmentInsertActivity"
             android:exported="true"
             android:configChanges="orientation"
             android:screenOrientation="portrait">
 
         </activity>
         <activity
-            android:name=".presentation.add_client.AddClientActivity"
+            android:name="md.edi.mobilewaiter.presentation.add_client.AddClientActivity"
             android:configChanges="orientation"
             android:exported="true"
             android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
@@ -64,7 +67,7 @@
                 android:resource="@xml/nfc_tech_filter" />
         </activity>
         <activity
-            android:name=".presentation.launch.LaunchActivity"
+            android:name="md.edi.mobilewaiter.presentation.launch.LaunchActivity"
             android:configChanges="orientation"
             android:exported="true"
             android:screenOrientation="portrait">
@@ -75,14 +78,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.main.MainActivity"
+            android:name="md.edi.mobilewaiter.presentation.main.MainActivity"
             android:configChanges="orientation"
             android:exported="true"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".data.service.FirebaseMessagingService"
+            android:name="md.edi.mobilewaiter.data.service.FirebaseMessagingService"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

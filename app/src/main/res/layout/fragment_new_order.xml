@@ -4,10 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context=".presentation.preview_order.NewOrderFragment">
+    android:background="@color/white">
 
-    <com.example.igor.restaurantmobile.presentation.views.ToolbarView
+    <md.edi.mobilewaiter.presentation.views.ToolbarView
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

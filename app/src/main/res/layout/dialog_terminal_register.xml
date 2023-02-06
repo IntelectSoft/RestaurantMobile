@@ -65,7 +65,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/line">
 
-            <com.example.igor.restaurantmobile.presentation.views.BounceAnimatedButton
+            <md.edi.mobilewaiter.presentation.views.BounceAnimatedButton
                 android:id="@+id/cancelBtn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -81,7 +81,7 @@
                     android:text="cancel"
                     android:textColor="#5E7CE2"
                     android:textSize="@dimen/_12ssp" />
-            </com.example.igor.restaurantmobile.presentation.views.BounceAnimatedButton>
+            </md.edi.mobilewaiter.presentation.views.BounceAnimatedButton>
 
             <View
                 android:id="@+id/verticalLine"
@@ -89,7 +89,7 @@
                 android:layout_height="match_parent"
                 android:background="#EEEEEE" />
 
-            <com.example.igor.restaurantmobile.presentation.views.BounceAnimatedButton
+            <md.edi.mobilewaiter.presentation.views.BounceAnimatedButton
                 android:id="@+id/okBtn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -105,7 +105,7 @@
                     android:text="apply"
                     android:textColor="#5E7CE2"
                     android:textSize="@dimen/_12ssp" />
-            </com.example.igor.restaurantmobile.presentation.views.BounceAnimatedButton>
+            </md.edi.mobilewaiter.presentation.views.BounceAnimatedButton>
 
         </LinearLayout>
 

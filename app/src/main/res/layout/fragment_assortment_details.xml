@@ -5,14 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.igor.restaurantmobile.presentation.views.ToolbarView
+    <md.edi.mobilewaiter.presentation.views.ToolbarView
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constrainedHeight="true"
-        app:layout_constrainedWidth="true">
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    </com.example.igor.restaurantmobile.presentation.views.ToolbarView>
+    </md.edi.mobilewaiter.presentation.views.ToolbarView>
 
     <ScrollView
         android:layout_width="match_parent"

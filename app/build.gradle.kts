@@ -31,26 +31,26 @@ android {
 
     }
 
-    buildTypes {
-        debug {
-            isDebuggable = true
-            buildConfigField("Boolean", "enableCrashlytics", "false")
-            isShrinkResources = false
-            isMinifyEnabled = false
-            //signingConfig signingConfigs.release
-        }
-        release {
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            buildConfigField("Boolean", "enableCrashlytics", "false")
-            isShrinkResources = true
-            isMinifyEnabled = true
-            isDebuggable = false
-//            signingConfig signingConfigs.release
-        }
-    }
+//    buildTypes {
+//        debug {
+//            isDebuggable = true
+//            buildConfigField("Boolean", "enableCrashlytics", "false")
+//            isShrinkResources = false
+//            isMinifyEnabled = false
+//            //signingConfig signingConfigs.release
+//        }
+//        release {
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
+//            buildConfigField("Boolean", "enableCrashlytics", "false")
+//            isShrinkResources = true
+//            isMinifyEnabled = true
+//            isDebuggable = false
+////            signingConfig signingConfigs.release
+//        }
+//    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -86,7 +86,8 @@ android {
                 useSupportLibrary = true
             }
             resValue("string", "app_name", getValue("app_name_dev"))
-            buildConfigField("String", "auth_api_url", getValue("auth_api_url_dev"))
+            buildConfigField("String", "license_api_url", getValue("license_api_url_dev"))
+//            buildConfigField("Boolean", "enableCrashlytics", "false")
         }
         create("live_app") {
             applicationId = getValue("package_name_live")
@@ -99,8 +100,13 @@ android {
             vectorDrawables {
                 useSupportLibrary = true
             }
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
             resValue("string", "app_name", getValue("app_name_live"))
-            buildConfigField("String", "auth_api_url", getValue("auth_api_url_live"))
+            buildConfigField("String", "license_api_url", getValue("license_api_url_live"))
+//            buildConfigField("Boolean", "enableCrashlytics", "true")
         }
 
         create("stage_app") {
@@ -115,7 +121,8 @@ android {
                 useSupportLibrary = true
             }
             resValue("string", "app_name", getValue("app_name_stage"))
-            buildConfigField("String", "auth_api_url", getValue("auth_api_url_stage"))
+            buildConfigField("String", "license_api_url", getValue("license_api_url_stage"))
+//            buildConfigField("Boolean", "enableCrashlytics", "true")
         }
     }
 

@@ -7,7 +7,7 @@
     android:id="@+id/assortmentListContainer"
     android:background="@color/white">
 
-    <com.example.igor.restaurantmobile.presentation.views.ToolbarView
+    <md.edi.mobilewaiter.presentation.views.ToolbarView
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

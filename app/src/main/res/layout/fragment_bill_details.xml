@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout6"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bottom_menu_listing_background"
+    android:orientation="vertical">
+
+
+    <md.edi.mobilewaiter.presentation.views.ToolbarView
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </md.edi.mobilewaiter.presentation.views.ToolbarView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/actionLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:elevation="3dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent">
+
+
+        <ImageButton
+            android:id="@+id/buttonEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/background_round_gray"
+            android:padding="@dimen/_6sdp"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_edit"
+
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonAddClient"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorPrimary" />
+
+        <ImageButton
+            android:id="@+id/buttonAddClient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_round_gray"
+            android:padding="@dimen/_6sdp"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_client"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonEdit"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSplit"
+            app:layout_constraintStart_toEndOf="@+id/buttonEdit"
+            app:layout_constraintTop_toTopOf="@+id/buttonEdit"
+            app:tint="@color/colorPrimary" />
+
+        <ImageButton
+            android:id="@+id/buttonSplit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/background_round_gray"
+            android:padding="@dimen/_6sdp"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_split"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonEdit"
+            app:layout_constraintEnd_toStartOf="@+id/buttonPrint"
+            app:layout_constraintStart_toEndOf="@+id/buttonAddClient"
+            app:layout_constraintTop_toTopOf="@+id/buttonAddClient"
+            app:tint="@color/colorPrimary" />
+
+        <ImageButton
+            android:id="@+id/buttonPrint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/background_round_gray"
+            android:padding="@dimen/_6sdp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_print"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonEdit"
+            app:layout_constraintEnd_toStartOf="@+id/buttonClose"
+            app:layout_constraintStart_toEndOf="@+id/buttonSplit"
+            app:layout_constraintTop_toTopOf="@+id/buttonSplit"
+            app:tint="@color/colorPrimary" />
+
+        <ImageButton
+            android:id="@+id/buttonClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/background_round_gray"
+            android:padding="@dimen/_6sdp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_file_done"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonEdit"
+            app:layout_constraintEnd_toStartOf="@+id/buttonChangeTable"
+            app:layout_constraintStart_toEndOf="@+id/buttonPrint"
+            app:layout_constraintTop_toTopOf="@+id/buttonPrint"
+            app:tint="@color/colorPrimary" />
+
+        <ImageButton
+            android:id="@+id/buttonChangeTable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/background_round_gray"
+            android:padding="@dimen/_6sdp"
+            android:scaleType="centerInside"
+            android:src="@drawable/icon_change_table"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonEdit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buttonClose"
+            app:layout_constraintTop_toTopOf="@+id/buttonPrint"
+            app:tint="@color/colorPrimary" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/actionLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textSum"
+        tools:listitem="@layout/item_bill_line" />
+
+    <TextView
+        android:id="@+id/textView27"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Masa:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <TextView
+        android:id="@+id/textBillNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <TextView
+        android:id="@+id/textView29"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Client:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textBillNumber" />
+
+    <TextView
+        android:id="@+id/textClient"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:gravity="right"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView29"
+        app:layout_constraintTop_toBottomOf="@+id/textBillNumber" />
+
+    <TextView
+        android:id="@+id/textView31"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Suma:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textClient" />
+
+    <TextView
+        android:id="@+id/textSum"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="-"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textClient" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+

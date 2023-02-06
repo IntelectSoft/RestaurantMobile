@@ -11,13 +11,13 @@
         android:id="@+id/textNameAssortment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="2dp"
         android:gravity="center_vertical"
         android:text="name"
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        android:textSize="22sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/editTextCountSelected"
+        app:layout_constraintEnd_toStartOf="@+id/textCurrentCount"
         app:layout_constraintStart_toEndOf="@+id/checkBoxSelected"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,7 +31,7 @@
 
     <EditText
         android:id="@+id/editTextCountSelected"
-        android:layout_width="@dimen/_55sdp"
+        android:layout_width="@dimen/_35sdp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:ems="10"
@@ -40,6 +40,18 @@
         android:text=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textCurrentCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:text="0"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/editTextCountSelected"
         app:layout_constraintTop_toTopOf="parent" />
 
 

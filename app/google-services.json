@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:108555747418:android:7657aa5c65afd08d7bd863",
+        "mobilesdk_app_id": "1:108555747418:android:b54177eafb99095d7bd863",
         "android_client_info": {
-          "package_name": "com.example.igor.restaurantmobile"
+          "package_name": "md.edi.mobilewaiter"
         }
       },
       "oauth_client": [
         {
-          "client_id": "108555747418-7lf291o9ja8826dh2rq1epvqpkhd52e0.apps.googleusercontent.com",
+          "client_id": "108555747418-ivoqoq2n7s5tfoskoqpvsldvmov473n1.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.igor.restaurantmobile",
+            "package_name": "md.edi.mobilewaiter",
             "certificate_hash": "827c7527dc7d3335dc5a9ae30d6121c53a5f6174"
           }
         },

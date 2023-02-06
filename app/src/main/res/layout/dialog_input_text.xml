@@ -27,7 +27,7 @@
             android:includeFontPadding="false"
             android:paddingTop="@dimen/_12sdp"
             android:paddingBottom="@dimen/_12sdp"
-            android:text="Invitation sent"
+            android:text="Invitation guest"
             android:textColor="#333433"
             android:textSize="@dimen/_13ssp"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -52,17 +52,17 @@
             tools:ignore="HardcodedText"
             tools:text="We successfully sent your invitation to Vasilie Diaconu" />
 
-        <EditText
+        <TextView
             android:id="@+id/textInput"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
-            android:ems="10"
-            android:inputType="number"
-            android:text="1"
+            android:maxLength="4"
             android:gravity="center"
-            android:selectAllOnFocus="true"
+            android:text="1"
+            android:textSize="@dimen/_16ssp"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/description" />
@@ -77,15 +77,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInput" />
 
+        <View
+            android:id="@+id/line2"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#EEEEEE"
+            app:layout_constraintBottom_toTopOf="@+id/button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <LinearLayout
             android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_37sdp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/line">
+            app:layout_constraintStart_toStartOf="parent">
 
-            <com.example.igor.restaurantmobile.presentation.views.BounceAnimatedButton
+            <md.edi.mobilewaiter.presentation.views.BounceAnimatedButton
                 android:id="@+id/cancelBtn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -101,7 +110,7 @@
                     android:text="cancel"
                     android:textColor="#5E7CE2"
                     android:textSize="@dimen/_12ssp" />
-            </com.example.igor.restaurantmobile.presentation.views.BounceAnimatedButton>
+            </md.edi.mobilewaiter.presentation.views.BounceAnimatedButton>
 
             <View
                 android:id="@+id/verticalLine"
@@ -109,7 +118,7 @@
                 android:layout_height="match_parent"
                 android:background="#EEEEEE" />
 
-            <com.example.igor.restaurantmobile.presentation.views.BounceAnimatedButton
+            <md.edi.mobilewaiter.presentation.views.BounceAnimatedButton
                 android:id="@+id/okBtn"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -125,9 +134,214 @@
                     android:text="apply"
                     android:textColor="#5E7CE2"
                     android:textSize="@dimen/_12ssp" />
-            </com.example.igor.restaurantmobile.presentation.views.BounceAnimatedButton>
+            </md.edi.mobilewaiter.presentation.views.BounceAnimatedButton>
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/button0"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginBottom="16dp"
+            android:text="0"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button"
+            app:layout_constraintEnd_toStartOf="@+id/buttonClear"
+            app:layout_constraintStart_toEndOf="@+id/buttonBack"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/buttonBack"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="-"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button"
+            app:layout_constraintEnd_toStartOf="@+id/button0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/buttonClear"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="C"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button0"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button2"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginBottom="8dp"
+            android:text="2"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button0"
+            app:layout_constraintEnd_toStartOf="@+id/button3"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toEndOf="@+id/button1"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button3"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="3"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button2"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button4"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="4"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button2"
+            app:layout_constraintEnd_toStartOf="@+id/button5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button5"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginBottom="8dp"
+            android:text="5"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button2"
+            app:layout_constraintEnd_toStartOf="@+id/button6"
+            app:layout_constraintHorizontal_bias="0.405"
+            app:layout_constraintStart_toEndOf="@+id/button4"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button1"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="1"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button0"
+            app:layout_constraintEnd_toStartOf="@+id/button2"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button6"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="6"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button5"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button7"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="7"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button5"
+            app:layout_constraintEnd_toStartOf="@+id/button8"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button8"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="8"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button5"
+            app:layout_constraintEnd_toStartOf="@+id/button9"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toEndOf="@+id/button7"
+            app:layout_constraintTop_toBottomOf="@+id/line"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/button9"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="@dimen/_42sdp"
+            android:layout_height="@dimen/_42sdp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="9"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/button5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button8"
+            app:strokeColor="#00C853"
+            app:strokeWidth="1dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </RelativeLayout>

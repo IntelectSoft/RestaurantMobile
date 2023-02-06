@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/myBills"
-        android:name="com.example.igor.restaurantmobile.presentation.main.MyBillsFragment"
+        android:name="md.edi.mobilewaiter.presentation.main.MyBillsFragment"
         android:label="FragmentBills"
         tools:layout="@layout/fragment_my_bills">
 
@@ -24,14 +24,18 @@
             android:id="@+id/action_myBills_to_fragmentSettings"
             app:destination="@id/fragmentSettings" />
         <action
-            android:id="@+id/action_myBills_to_fragmentSplit"
-            app:destination="@id/fragmentSplit" />
+            android:id="@+id/action_myBills_to_billsDetails"
+            app:destination="@id/billsDetails" />
     </fragment>
 
     <fragment
         android:id="@+id/tableList"
-        android:name="com.example.igor.restaurantmobile.presentation.table.TableFragment"
+        android:name="md.edi.mobilewaiter.presentation.table.TableFragment"
         tools:layout="@layout/fragment_table_list">
+
+        <argument
+            android:name="billId"
+            app:argType="string" />
 
         <action
             android:id="@+id/tableToAssortment"
@@ -44,7 +48,7 @@
 
     <fragment
         android:id="@+id/assortmentList"
-        android:name="com.example.igor.restaurantmobile.presentation.assortment.AssortmentFragment"
+        android:name="md.edi.mobilewaiter.presentation.assortment.AssortmentFragment"
         tools:layout="@layout/fragment_assortiment">
         <action
             android:id="@+id/action_assortmentList_to_preview_cart"
@@ -56,12 +60,14 @@
 
     <fragment
         android:id="@+id/preview_cart"
-        android:name="com.example.igor.restaurantmobile.presentation.preview_order.NewOrderFragment"
+        android:name="md.edi.mobilewaiter.presentation.preview_order.NewOrderFragment"
         tools:layout="@layout/fragment_new_order">
 
         <action
             android:id="@+id/action_preview_cart_to_myBills"
-            app:destination="@id/myBills" />
+            app:destination="@id/myBills"
+            app:popUpToInclusive="true"
+            app:popUpTo="@id/myBills"/>
         <action
             android:id="@+id/action_preview_cart_to_preview_line_edit"
             app:destination="@id/preview_line_edit" />
@@ -70,38 +76,63 @@
 
     <fragment
         android:id="@+id/preview_line_edit"
-        android:name="com.example.igor.restaurantmobile.presentation.preview_order.LineEditFragment"
+        android:name="md.edi.mobilewaiter.presentation.preview_order.LineEditFragment"
         tools:layout="@layout/fragment_line_edit">
 
         <argument
             android:name="lineId"
             app:argType="string" />
+        <action
+            android:id="@+id/action_preview_line_edit_to_preview_cart"
+            app:destination="@id/preview_cart"
+            app:popUpToInclusive="true"
+            app:popUpTo="@id/preview_cart"/>
 
     </fragment>
 
     <fragment
         android:id="@+id/fragmentNotification"
-        android:name="com.example.igor.restaurantmobile.presentation.notifications.NotificationFragment"
+        android:name="md.edi.mobilewaiter.presentation.notifications.NotificationFragment"
         tools:layout="@layout/fragment_notifications">
 
     </fragment>
 
     <fragment
         android:id="@+id/fragmentSettings"
-        android:name="com.example.igor.restaurantmobile.presentation.settings.SettingsFragment"
+        android:name="md.edi.mobilewaiter.presentation.settings.SettingsFragment"
         tools:layout="@layout/fragment_settings">
 
     </fragment>
 
     <fragment
         android:id="@+id/fragmentSplit"
-        android:name="com.example.igor.restaurantmobile.presentation.main.split.SplitBillFragment"
+        android:name="md.edi.mobilewaiter.presentation.main.split.SplitBillFragment"
         tools:layout="@layout/fragment_split_bill">
 
         <argument
             android:name="billId"
             app:argType="string" />
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/billsDetails"
+        android:name="md.edi.mobilewaiter.presentation.bill_details.BillDetailsFragment"
+        android:label="FragmentBillDetails"
+        tools:layout="@layout/fragment_bill_details">
+
+        <argument
+            android:name="billId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_billsDetails_to_assortmentList"
+            app:destination="@id/assortmentList" />
+        <action
+            android:id="@+id/action_billsDetails_to_fragmentSplit"
+            app:destination="@id/fragmentSplit" />
+        <action
+            android:id="@+id/action_billsDetails_to_tableList"
+            app:destination="@id/tableList" />
     </fragment>
 
 </navigation>

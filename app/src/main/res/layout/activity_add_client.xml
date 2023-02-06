@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".presentation.add_client.AddClientActivity">
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"
@@ -52,7 +51,7 @@
             app:srcCompat="@drawable/icon_scan" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.example.igor.restaurantmobile.presentation.views.ToolbarView
+    <md.edi.mobilewaiter.presentation.views.ToolbarView
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
