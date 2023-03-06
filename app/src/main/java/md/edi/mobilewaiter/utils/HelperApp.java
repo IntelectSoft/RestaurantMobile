@@ -28,4 +28,5 @@ public class HelperApp {
         ActivityManager.getMyMemoryState(myProcess);
         return myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && myProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND;
     }
+
 }

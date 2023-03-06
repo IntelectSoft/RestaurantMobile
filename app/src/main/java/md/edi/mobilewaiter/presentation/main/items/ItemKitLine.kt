@@ -11,6 +11,7 @@ import md.edi.mobilewaiter.controllers.AssortmentController
 import md.edi.mobilewaiter.data.remote.response.bills.LineItem
 import md.edi.mobilewaiter.databinding.ItemBillLineBinding
 import md.edi.mobilewaiter.databinding.ItemKitLineBinding
+import md.edi.mobilewaiter.utils.HelperFormatter
 import java.text.DecimalFormat
 
 data class ItemKitLine(
@@ -102,12 +103,7 @@ class ItemKitLineDelegate(
         }
 
         fun loadSum(sum: Double) {
-            if(sum == 0.0){
-                binding.textLineSum.text = "0"
-            }
-            else{
-                binding.textLineSum.text = DecimalFormat(".0#").format(sum)
-            }
+            binding.textLineSum.text = HelperFormatter.formatDouble(sum, false)
         }
 
         fun loadName(id: String) {
@@ -116,11 +112,7 @@ class ItemKitLineDelegate(
         }
 
         fun loadCount(count: Double) {
-            if (count == 0.0) {
-                binding.textCount.text = "0"
-            } else {
-                binding.textCount.text = DecimalFormat(".0#").format(count)
-            }
+            binding.textCount.text = HelperFormatter.formatDouble(count, false)
         }
 
         fun setClicks(item: LineItem) {

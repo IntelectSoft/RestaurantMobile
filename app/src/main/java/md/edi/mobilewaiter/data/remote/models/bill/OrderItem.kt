@@ -7,7 +7,7 @@ data class OrderItem(
     var priceLineUid: String,
     var kitUid : String? = "00000000-0000-0000-0000-000000000000",
     var comments: List<String> = emptyList(),
-    var numberPrepare: Int? = null,
+    var numberPrepare: Int = 0,
     var count: Double,
     var price: Double,
     var sumAfterDiscount: Double,

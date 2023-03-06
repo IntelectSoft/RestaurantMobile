@@ -7,12 +7,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ExpandableListAdapter
-import android.widget.ExpandableListView
 import android.widget.SimpleAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -21,8 +18,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import md.edi.mobilewaiter.R
@@ -36,12 +31,10 @@ import md.edi.mobilewaiter.data.listeners.ActionOnBillListener
 import md.edi.mobilewaiter.data.remote.response.assortment.PrinterItem
 import md.edi.mobilewaiter.databinding.FragmentBillDetailsBinding
 import md.edi.mobilewaiter.presentation.add_client.AddClientActivity
-import md.edi.mobilewaiter.presentation.assortment.AssortmentFragmentDirections
 import md.edi.mobilewaiter.presentation.dialog.DialogAction
-import md.edi.mobilewaiter.presentation.main.MyBillsFragmentDirections
+import md.edi.mobilewaiter.presentation.dialog.DialogActionInputText
 import md.edi.mobilewaiter.presentation.main.items.*
 import md.edi.mobilewaiter.presentation.main.viewmodel.MainViewModel
-import md.edi.mobilewaiter.presentation.preview_order.NewOrderFragmentDirections
 import md.edi.mobilewaiter.utils.ContextManager
 import md.edi.mobilewaiter.utils.ErrorHandler
 import md.edi.mobilewaiter.utils.enums.EnumRemoteErrors
@@ -109,7 +102,7 @@ class BillDetailsFragment : Fragment() {
             findNavController().popBackStack()
         }
         else{
-            initToolbar("Contul: ${bill.Number}" )
+            initToolbar("Contul: ${bill.Number}", "Oaspeti: ${bill.Guests}")
         }
 
         bill?.let {
@@ -121,9 +114,7 @@ class BillDetailsFragment : Fragment() {
                 binding.textClient.text = it.ClientName
             if (it.Sum != it.SumAfterDiscount) {
                 binding.textSum.text =
-                    DecimalFormat(".0#").format(it.Sum) + "/cu red: " + DecimalFormat(".0#").format(
-                        it.SumAfterDiscount
-                    ) + " MDL"
+                    DecimalFormat(".0#").format(it.Sum) + "/cu red: " + DecimalFormat(".0#").format(it.SumAfterDiscount) + " MDL"
             } else {
                 if(it.Sum == 0.0){
                     binding.textSum.text = "0 MDL"
@@ -133,49 +124,17 @@ class BillDetailsFragment : Fragment() {
             }
 
             binding.buttonChangeTable.setOnClickListener {
-
-                App.instance.navigateToAnimated(
-                    findNavController(),
-                    BillDetailsFragmentDirections.actionBillsDetailsToTableList(bill.Uid)
-                )
-            }
-        }
-
-        val adapter = mutableListOf<DelegateAdapterItem>()
-        val listLines = bill?.Lines
-        val filteredList =
-            bill?.Lines?.filter { it.KitUid == "00000000-0000-0000-0000-000000000000" }
-
-        filteredList?.forEach { line ->
-            val kitLines = listLines?.filter { it.KitUid == line.Uid }
-            adapter.add(
-                ItemBillLineBinder(
-                    ItemBillLine(
-                        tag = "line",
-                        line = line,
-                        kitLines = kitLines
-                    )
-                )
-            )
-
-            kitLines?.let {
-                it.forEachIndexed { index, kitLine ->
-                    adapter.add(
-                        ItemKitLineBinder(
-                            ItemKitLine(
-                                tag = "kitLine",
-                                line = kitLine,
-                                isLast = (index + 1) == it.size
-                            )
-                        )
+                if(AssortmentController.getTablesDelegate().isEmpty()){
+                    Toast.makeText(context, "Mesele nu sunt setate!", Toast.LENGTH_SHORT).show()
+                }else{
+                    App.instance.navigateToAnimated(
+                        findNavController(),
+                        BillDetailsFragmentDirections.actionBillsDetailsToTableList(bill.Uid)
                     )
                 }
+
             }
-
         }
-
-        binding.list.adapter = compositeAdapter
-        compositeAdapter.submitList(adapter)
 
         binding.buttonClose.setOnClickListener {
             showClosureTypes()
@@ -265,7 +224,6 @@ class BillDetailsFragment : Fragment() {
                 }
             }
         }
-
         setFragmentResultListener("tableResult") { requestKey, bundle ->
             // We use a String here, but any type that can be put in a Bundle is supported
             val result = bundle.getString("tableId")
@@ -276,12 +234,11 @@ class BillDetailsFragment : Fragment() {
                     progressDialog.setMessage("Va rugam asteptati...")
                     progressDialog.show()
                     lifecycleScope.launch(Dispatchers.IO){
-                        viewModel.changeTableOrder(result)
+                        viewModel.changeOrder()
                     }
                 }
             }
         }
-
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.changeTableResult.collectLatest {
                 progressDialog.dismiss()
@@ -290,17 +247,18 @@ class BillDetailsFragment : Fragment() {
                         CreateBillController.clearAllData()
                         Toast.makeText(
                             requireContext(),
-                            "Masa contului a fost modificata!",
+                            "Contul a fost modificat!",
                             Toast.LENGTH_SHORT
                         ).show()
                         BillsController.changeTableForBill(it.BillsList[0].Uid, it.BillsList[0].TableUid)
+                        initToolbar("Contul: ${it.BillsList[0].Number}", "Oaspeti: ${it.BillsList[0].Guests}")
                     }
                     -9 -> {
-                        dialogShow("Eroare salvare contului", it.ResultMessage)
+                        dialogShow("Eroare modificare cont!", it.ResultMessage)
                     }
                     else -> {
                         dialogShow(
-                            "Eroare salvare contului",
+                            "Eroare modificare cont!",
                             ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result))
                         )
                     }
@@ -312,25 +270,65 @@ class BillDetailsFragment : Fragment() {
         return binding.root
     }
 
-    private fun initToolbar(title: String) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val bill = billId?.let {
+            BillsController.getBillById(it)
+        }
+
+        val adapter = mutableListOf<DelegateAdapterItem>()
+        val listLines = bill?.Lines
+        val filteredList =
+            bill?.Lines?.filter { it.KitUid == "00000000-0000-0000-0000-000000000000" }
+
+        filteredList?.forEach { line ->
+            val kitLines = listLines?.filter { it.KitUid == line.Uid }
+            adapter.add(
+                ItemBillLineBinder(
+                    ItemBillLine(
+                        tag = "line",
+                        line = line,
+                        kitLines = kitLines
+                    )
+                )
+            )
+
+            kitLines?.let {
+                it.forEachIndexed { index, kitLine ->
+                    adapter.add(
+                        ItemKitLineBinder(
+                            ItemKitLine(
+                                tag = "kitLine",
+                                line = kitLine,
+                                isLast = (index + 1) == it.size
+                            )
+                        )
+                    )
+                }
+            }
+
+        }
+
+        binding.list.adapter = compositeAdapter
+        compositeAdapter.submitList(adapter)
+    }
+
+    private fun initToolbar(title: String, description: String) {
         val toolbar = binding.toolbar
 
         toolbar.setTitle(title)
+        toolbar.setSubTitle(description)
         toolbar.showBottomLine(true)
         toolbar.showLeftBtn(true)
 
-//        toolbar.setRightIcon(R.drawable.icon_viewed) {
-//            App.instance.navigateToAnimated(
-//                findNavController(),
-//                AssortmentFragmentDirections.actionAssortmentListToPreviewCart()
-//            )
-//        }
+        toolbar.setRightIcon(R.drawable.ic_change_guest_number) {
+            dialogShowChangeGuest("Introduceti noul numar de oaspeti!")
+        }
 
         toolbar.setLeftClickListener {
             CreateBillController.clearAllData()
             findNavController().popBackStack()
         }
-
     }
 
     private fun printBill() {
@@ -483,6 +481,28 @@ class BillDetailsFragment : Fragment() {
 
     fun setListener(listeners: ActionOnBillListener) {
         onDismissListener = listeners
+    }
+
+    private fun dialogShowChangeGuest(title: String, description: String? = null) {
+        requireContext().let {
+            DialogActionInputText(it, title, description, "Salveaza", "Renunta", { dialog, text ->
+                dialog.dismiss()
+                val bill = billId?.let {
+                    BillsController.getBillById(it)
+                }
+                bill?.let{
+                    CreateBillController.changeTableBill(it, "", text.toInt())
+                    progressDialog.setMessage("Va rugam asteptati...")
+                    progressDialog.show()
+                    lifecycleScope.launch(Dispatchers.IO){
+                        viewModel.changeOrder()
+                    }
+                }
+
+            }, {
+                it.dismiss()
+            }).show()
+        }
     }
 
 }

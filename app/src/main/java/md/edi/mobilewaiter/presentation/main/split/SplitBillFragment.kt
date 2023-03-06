@@ -43,9 +43,13 @@ class SplitBillFragment : Fragment() {
     private val compositeAdapter by lazy {
         CompositeAdapter.Builder()
             .add(ItemLinesSplitDelegate { item ->
+                listOfMappedItems.find { item.line.Uid == it.Uid }?.let {
+                    it.isChecked = item.isChecked
+                }
+
+                Log.e("TAG", "Filtered selected: ${listOfMappedItems.filter { !it.isChecked }.size}")
 
             })
-
             .build()
     }
 
@@ -97,7 +101,8 @@ class SplitBillFragment : Fragment() {
                         line = mappedItem,
                         name = AssortmentController.getAssortmentNameById(it.AssortimentUid),
                         allowNonInteger = AssortmentController.getAssortmentById(it.AssortimentUid)?.AllowNonIntegerSale ?: false,
-                        price = AssortmentController.getAssortmentById(it.AssortimentUid)?.Price ?: 0.0
+                        price = AssortmentController.getAssortmentById(it.AssortimentUid)?.Price ?: 0.0,
+                        isChecked = false
                     )
                 )
             )
@@ -128,6 +133,7 @@ class SplitBillFragment : Fragment() {
                 progressDialog.dismiss()
                 when (it.Result) {
                     0 -> {
+                        BillsController.splitBill(it.BillsList[0])
                         Toast.makeText(requireContext(),"Contul a fost salvat!",Toast.LENGTH_SHORT).show()
                         findNavController().popBackStack()
                     }
@@ -177,6 +183,11 @@ class SplitBillFragment : Fragment() {
 
             }).show()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        listOfMappedItems.clear()
     }
 
 }

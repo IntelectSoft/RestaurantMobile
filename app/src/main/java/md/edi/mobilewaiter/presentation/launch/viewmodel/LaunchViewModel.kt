@@ -35,7 +35,13 @@ class LaunchViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     response.body()?.let { terminalRegister.emit(it) }
                 } else {
-                    terminalRegister.emit(RegisterTerminalResponse(ResultMessage =  response.errorBody()?.string()))
+                    if(response.code() == 404){
+                        terminalRegister.emit(RegisterTerminalResponse(ResultMessage = "HTTP Error 404. The requested resource is not found"))
+                    }
+                    else{
+                        terminalRegister.emit(RegisterTerminalResponse(ResultMessage =  response.errorBody()?.string()))
+                    }
+
                 }
             } catch (ex: Exception) {
                 terminalRegister.emit(RegisterTerminalResponse(ResultMessage = ex.message))

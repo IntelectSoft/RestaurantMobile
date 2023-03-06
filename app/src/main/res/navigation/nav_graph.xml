@@ -55,6 +55,7 @@
             app:destination="@id/preview_cart" />
         <action
             android:id="@+id/action_assortmentList_to_myBills"
+            app:popUpToInclusive="true"
             app:destination="@id/myBills" />
     </fragment>
 

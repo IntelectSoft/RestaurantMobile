@@ -22,6 +22,7 @@ class DialogActionInputText(
     @ColorInt private val titleColor: Int? = null
 ) : Dialog(activity) {
 
+    var isFirstSelectable = true
     lateinit var binding: DialogInputTextBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,8 +39,6 @@ class DialogActionInputText(
         setupCancelBtn()
         setOkButton()
         setVerticalLine()
-
-//        binding.textInput.filters = arrayOf(InputFilterMinMax(1, 99))
 
         binding.button0.setOnClickListener { setNumber("0") }
         binding.button1.setOnClickListener { setNumber("1") }
@@ -75,6 +74,10 @@ class DialogActionInputText(
     }
 
     private fun setNumber(number: String) {
+        if(isFirstSelectable){
+            binding.textInput.text = ""
+            isFirstSelectable = false
+        }
         if (binding.textInput.text.toString().isEmpty()) {
             if (number != "0") {
                 binding.textInput.text = number

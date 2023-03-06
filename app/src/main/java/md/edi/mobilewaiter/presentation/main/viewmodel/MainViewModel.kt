@@ -217,11 +217,11 @@ class MainViewModel @Inject constructor(
         billListResponse.emit(bills)
     }
 
-    suspend fun changeTableOrder(tableId: String) {
+    suspend fun changeOrder() {
         val localOrder = CreateBillController.orderModel
         val remoteOrder = AddOrdersModel()
         remoteOrder.DeviceId = DeviceInfo.deviceId
-        remoteOrder.TableUid = tableId
+        remoteOrder.TableUid = localOrder.TableUid
         remoteOrder.BillUid = localOrder.BillUid
         remoteOrder.Guests = localOrder.Guests
 

@@ -10,6 +10,7 @@ import java.util.*
 object CreateBillController {
     var orderModel = AddOrders()
     private var countCart = 0.0
+    var numberCook = 0
     val countCartFlow = MutableStateFlow(0.0)
 
     fun clearAllData() {
@@ -22,6 +23,7 @@ object CreateBillController {
         orderModel.TableUid = id
     }
     fun setTableGuests(number: Int) {
+        numberCook = 0
         orderModel.Guests = number
     }
 
@@ -33,7 +35,7 @@ object CreateBillController {
 
         val listLines = mutableListOf<OrderItem>()
         var countProducts = 0.0
-        bill.Lines.forEach {
+        bill?.Lines?.forEach {
             countProducts += it.Count
             listLines.add(
                 OrderItem(
@@ -43,6 +45,7 @@ object CreateBillController {
                     priceLineUid = it.PriceLineUid,
                     uId = it.Uid,
                     kitUid = it.KitUid,
+                    numberPrepare = it.QueueNumber,
                     comments = it.Comments ?: emptyList(),
                     sum = it.Sum,
                     sumAfterDiscount = it.SumAfterDiscount
@@ -51,13 +54,27 @@ object CreateBillController {
         }
         setCartCount(countProducts)
         orderModel.Orders = listLines
+        orderModel.Orders.toMutableList().forEach{ item ->
+            if(item.numberPrepare > numberCook)
+                numberCook = item.numberPrepare
+        }
+        numberCook++
     }
 
-    fun changeTableBill(bill: BillItem, tableId: String) {
+    fun changeTableBill(bill: BillItem, tableId: String, numberGuest: Int? = null) {
         orderModel = AddOrders()
         orderModel.BillUid = bill.Uid
-        orderModel.TableUid = bill.TableUid
-        orderModel.Guests = bill.Guests
+        if(tableId.isBlank())
+            orderModel.TableUid = bill.TableUid
+        else
+            orderModel.TableUid = tableId
+
+        if(numberGuest != null){
+            orderModel.Guests = numberGuest
+        }
+        else{
+            orderModel.Guests = bill.Guests
+        }
 
         val listLines = mutableListOf<OrderItem>()
         var countProducts = 0.0
@@ -80,7 +97,10 @@ object CreateBillController {
         orderModel.Orders = listLines
     }
 
-    fun addAssortment(priceLineId: String, assortmentId: String, comments: List<String>, numberCook: Int, count: Double, price: Double) {
+    fun addAssortment(priceLineId: String, assortmentId: String, comments: List<String>, number: Int, count: Double, price: Double) {
+        if(number > numberCook){
+            numberCook = number
+        }
         val orderItem = OrderItem(
             assortimentUid = assortmentId,
             count = count,
@@ -106,7 +126,6 @@ object CreateBillController {
             setCartCount(it.count * -1)
             orderModel.Orders = orderLines
         }
-
     }
 
     fun setCartCount(count: Double) {

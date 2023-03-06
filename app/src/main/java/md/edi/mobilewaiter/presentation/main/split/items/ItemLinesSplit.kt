@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import md.edi.mobilewaiter.common.delegates.DelegateAdapterItem
 import md.edi.mobilewaiter.common.delegates.DelegateBinder
 import md.edi.mobilewaiter.common.delegates.Item
+import md.edi.mobilewaiter.controllers.AssortmentController
 import md.edi.mobilewaiter.databinding.ItemLineSplitBinding
 import md.edi.mobilewaiter.presentation.main.split.SplitBillFragment
 import md.edi.mobilewaiter.utils.ContextManager
@@ -21,7 +22,8 @@ data class ItemLinesSplit(
     var line: LineItemModel,
     val name: String,
     val allowNonInteger: Boolean,
-    val price: Double
+    val price: Double,
+    var isChecked: Boolean
 ) : Item
 
 class ItemLinesSplitBinder (val item: ItemLinesSplit) : DelegateAdapterItem(item) {
@@ -33,6 +35,8 @@ class ItemLinesSplitBinder (val item: ItemLinesSplit) : DelegateAdapterItem(item
             payloads.apply {
                 if (item.line.Count != other.item.line.Count)
                     add(Payloads.OnCountChanged(other.item, other.item.line.Count))
+                if (item.isChecked != other.item.isChecked)
+                    add(Payloads.OnCheckedChanged(other.item, other.item.isChecked))
             }
         }
         return payloads
@@ -40,10 +44,11 @@ class ItemLinesSplitBinder (val item: ItemLinesSplit) : DelegateAdapterItem(item
 
     sealed class Payloads : Payloadable {
         data class OnCountChanged(val item: ItemLinesSplit, val count: Double?) : Payloads()
+        data class OnCheckedChanged(val item: ItemLinesSplit, val checkedChanged: Boolean) : Payloads()
     }
 }
 
-class ItemLinesSplitDelegate(private val onItemClick: (item: LineItemModel) -> Unit) :
+class ItemLinesSplitDelegate(private val onItemChecked: (item: ItemLinesSplit) -> Unit) :
     DelegateBinder<ItemLinesSplitBinder, ItemLinesSplitDelegate.ItemLinesSplitViewHolder>(
         ItemLinesSplitBinder::class.java
     ) {
@@ -70,9 +75,11 @@ class ItemLinesSplitDelegate(private val onItemClick: (item: LineItemModel) -> U
                     is ItemLinesSplitBinder.Payloads.OnCountChanged -> {
                         viewHolder.loadCount(it.item, it.item.line.Count)
                     }
+                    is ItemLinesSplitBinder.Payloads.OnCheckedChanged -> {
+                        viewHolder.setCheckedItem(it.item)
+                    }
                 }
             }
-            viewHolder.setClicks(model.item.line)
         }
     }
 
@@ -82,7 +89,8 @@ class ItemLinesSplitDelegate(private val onItemClick: (item: LineItemModel) -> U
         fun bind(item: ItemLinesSplit) {
             loadName(item.name)
             loadCount(item, item.line.Count)
-            setClicks(item.line)
+            setCheckedListener(item)
+            setCheckedItem(item)
         }
 
         fun loadCount(item: ItemLinesSplit, count: Double) {
@@ -109,7 +117,7 @@ class ItemLinesSplitDelegate(private val onItemClick: (item: LineItemModel) -> U
                 override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {
                     if (charSequence.isNotBlank()) {
                         val selectedValue = charSequence.toString().toDouble()
-                        Log.e("TAG", "on count split Changed: $selectedValue")
+                        Log.e("TAG", "on count split Changed: $selectedValue and assortment ${AssortmentController.getAssortmentById(item.line.AssortimentUid)?.Name}")
                         if(selectedValue > item.line.Count){
                             binding.editTextCountSelected.error = "Introduceti cantitate mai mica!"
                         }
@@ -117,7 +125,7 @@ class ItemLinesSplitDelegate(private val onItemClick: (item: LineItemModel) -> U
                             item.line.Count = selectedValue
                             item.line.Sum = item.price * selectedValue
                             item.line.SumAfterDiscount = item.price * selectedValue
-                            onItemClick.invoke(item.line)
+//                            onItemClick.invoke(item)
                         }
                     }
                 }
@@ -131,18 +139,19 @@ class ItemLinesSplitDelegate(private val onItemClick: (item: LineItemModel) -> U
             binding.textNameAssortment.text = name
         }
 
-        fun setClicks(item: LineItemModel) {
+        fun setCheckedItem(item: ItemLinesSplit) {
+            binding.checkBoxSelected.isChecked = item.isChecked
+        }
+        private fun setCheckedListener(item: ItemLinesSplit) {
             binding.checkBoxSelected.setOnCheckedChangeListener { compoundButton, b ->
                 item.isChecked = b
-                onItemClick.invoke(item)
-
+                onItemChecked(item)
                 if(!SplitBillFragment.canCheckedIt()){
                     binding.checkBoxSelected.isChecked = false
                     item.isChecked = false
-
+                    onItemChecked(item)
                     Toast.makeText(ContextManager.retrieveContext(), "Nu puteti selecta toate pozitiile!", Toast.LENGTH_SHORT).show()
                 }
-
             }
         }
 

@@ -93,11 +93,11 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
         askNotificationPermission()
 
         lifecycleScope.launchWhenCreated {
-//            val deviceId = Settings.Secure.getString(
-//                this@LaunchActivity.contentResolver,
-//                Settings.Secure.ANDROID_ID
-//            )
-            val deviceId = "18e0e45ad460007d"
+            val deviceId = Settings.Secure.getString(
+                this@LaunchActivity.contentResolver,
+                Settings.Secure.ANDROID_ID
+            )
+//            val deviceId = "18e0e45ad460007d"
             settingsRepository.setDeviceId(
                 deviceId
             )
@@ -192,7 +192,25 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                 it.let {
                     when (it.ErrorCode) {
                         0 -> {
-                            launchViewModel.registerTerminal()
+                            it.AppData?.let{ appInfo ->
+                                if(!appInfo.URI.isNullOrEmpty()){
+                                    var uri = appInfo.URI!!
+                                    if (uri.last().toString() != "/") {
+                                        uri += "/"
+                                    }
+                                    settingsRepository.setURI(uri)
+                                    Urls.baseUrl = uri
+                                    Urls.init()
+                                    Log.e("TAG", "saveLicenseInfo: ${Urls.baseUrl} + uri: $uri")
+                                    launchViewModel.registerTerminal()
+                                }
+                                else{
+                                    dialogShowActivateApp(
+                                        "Eroare",
+                                        "Nu este setat adresa de conectare a aplicatiei!"
+                                    )
+                                }
+                            }
                         }
                         -9 -> {
                             dialogShow(
@@ -228,26 +246,48 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
         lifecycleScope.launch(Dispatchers.Main) {
             launchViewModel.registerApplication.collectLatest {
                 progressDialog.dismiss()
-                if (it.ErrorCode == 0) {
-                    dialogs.dismiss()
-                    it.AppData?.let { applicationInfo ->
-                        saveLicenseInfo(applicationInfo)
-                    }
-                    progressDialog.setMessage("Verificare starea terminalului...")
-                    progressDialog.show()
-                    launchViewModel.registerTerminal()
+                when (it.ErrorCode) {
+                    0 -> {
+                        dialogs.dismiss()
+                        it.AppData?.let { applicationInfo ->
+                            saveLicenseInfo(applicationInfo)
 
-                } else if (it.ErrorCode == -9) {
-                    dialogShowActivateApp(
-                        "Eroare",
-                        it.ErrorMessage
-                    )
-                } else {
-                    it.ErrorCode?.let { code ->
-                        dialogShowActivateApp(
-                            "Eroare",
-                            ErrorHandler().getErrorLicenseMessage(EnumLicenseErrors.getByValue(code))
-                        )
+                            if(!applicationInfo.URI.isNullOrEmpty()){
+                                progressDialog.setMessage("Verificare starea terminalului...")
+                                progressDialog.show()
+                                launchViewModel.registerTerminal()
+                            }
+                            else{
+                                dialogShowActivateApp(
+                                    "Eroare la activarea aplicatiei!",
+                                    "Nu este setat adresa de conectare a aplicatiei!"
+                                )
+                            }
+                        }
+                    }
+                    -9 -> {
+                        it.ErrorMessage?.let {msg ->
+                            if(msg.length > 1000){
+                                dialogShowActivateApp(
+                                    "Eroare la activarea aplicatiei!",
+                                    "Incercati mai tirziu sau luati legatura cu provider-ul aplicatiei!"
+                                )
+                            }
+                            else{
+                                dialogShowActivateApp(
+                                    "Eroare",
+                                    msg
+                                )
+                            }
+                        }
+                    }
+                    else -> {
+                        it.ErrorCode?.let { code ->
+                            dialogShowActivateApp(
+                                "Eroare",
+                                ErrorHandler().getErrorLicenseMessage(EnumLicenseErrors.getByValue(code))
+                            )
+                        }
                     }
                 }
             }
@@ -313,6 +353,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
             }
             settingsRepository.setURI(it)
             Urls.baseUrl = uri
+            Urls.init()
         }
         applicationInfo.ServerDateTime?.let {
             val srvDate = it.replace("/Date(", "").replace("+0200)/", "").toLong()

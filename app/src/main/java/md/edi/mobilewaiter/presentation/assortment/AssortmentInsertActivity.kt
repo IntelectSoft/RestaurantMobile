@@ -52,12 +52,12 @@ class AssortmentInsertActivity : AppCompatActivity() {
             0,
             22
         ) + "..." else assortmentItem.Name
-        binding.buttonAddCounts.text = "Adauga ${binding.etCountOfItem.text} $buttonItemName"
+        binding.buttonAddCounts.text = "Adauga: ${binding.etCountOfItem.text} - $buttonItemName"
         binding.textItemPrice.text = "${assortmentItem.Price} MDL"
 
         binding.numberPicker.minValue = 0
-        binding.numberPicker.maxValue = CreateBillController.orderModel.Orders.size + 5
-        binding.numberPicker.value = CreateBillController.orderModel.Orders.size
+        binding.numberPicker.maxValue = CreateBillController.numberCook + 10
+        binding.numberPicker.value = CreateBillController.numberCook
         binding.numberPicker.wrapSelectorWheel = false
 
         binding.textItemAllowNonInteger.text =
@@ -109,7 +109,7 @@ class AssortmentInsertActivity : AppCompatActivity() {
                         binding.buttonAddCounts.isEnabled = false
                     } else {
                         binding.buttonAddCounts.text =
-                            "Adauga ${binding.etCountOfItem.text} $buttonItemName"
+                            "Adauga: ${binding.etCountOfItem.text} - $buttonItemName"
                         binding.buttonAddCounts.isEnabled = true
                     }
                 }
@@ -329,7 +329,7 @@ class AssortmentInsertActivity : AppCompatActivity() {
         CreateBillController.addAssortment(
             priceLineId = assortmentItem.PricelineUid,
             assortmentId = assortmentItem.Uid,
-            numberCook = binding.numberPicker.value,
+            number = binding.numberPicker.value,
             count = selectedValue,
             comments = listOfComments,
             price = assortmentItem.Price

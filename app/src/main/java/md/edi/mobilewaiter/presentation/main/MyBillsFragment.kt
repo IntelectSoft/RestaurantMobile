@@ -301,6 +301,13 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
 
     override fun onResume() {
         super.onResume()
+        activity?.let{
+            val cout =  childFragmentManager.backStackEntryCount
+            if(cout > 1){
+                childFragmentManager.popBackStackImmediate()
+            }
+        }
+
         lifecycleScope.launch(Dispatchers.Main) {
             mainViewModel.getMyBills()
         }

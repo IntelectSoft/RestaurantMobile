@@ -60,7 +60,7 @@ class AppModule {
         builder.addInterceptor(loggingInterceptor)
         builder.connectTimeout(5, TimeUnit.SECONDS)
         builder.writeTimeout(30, TimeUnit.SECONDS)
-        builder.readTimeout(10, TimeUnit.SECONDS)
+        builder.readTimeout(30, TimeUnit.SECONDS)
         builder.addInterceptor(Interceptor { chain ->
             var originalRequest = chain.request()
             if(originalRequest.url.toString().contains("ISLicenseService")){

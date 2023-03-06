@@ -159,21 +159,11 @@ class LineEditFragment : Fragment() {
                     line.sumAfterDiscount = selectedValue * line.price
                 }
 
-                App.instance.navigateToAnimatedPopBackStack(
-                    findNavController(),
-                    LineEditFragmentDirections.actionPreviewLineEditToPreviewCart(),
-                    R.id.action_preview_line_edit_to_preview_cart,
-                    false
-                )
+                findNavController().popBackStack()
             }
 
             binding.textBack2.setOnClickListener {
-                App.instance.navigateToAnimatedPopBackStack(
-                    findNavController(),
-                    LineEditFragmentDirections.actionPreviewLineEditToPreviewCart(),
-                    R.id.action_preview_line_edit_to_preview_cart,
-                    false
-                )
+                findNavController().popBackStack()
             }
 
             initToolbar(assortmentItem.Name)
@@ -188,22 +178,7 @@ class LineEditFragment : Fragment() {
 
         toolbar.showLeftBtn(true)
         toolbar.setLeftClickListener {
-            App.instance.navigateToAnimatedPopBackStack(
-                findNavController(),
-                LineEditFragmentDirections.actionPreviewLineEditToPreviewCart(),
-                R.id.action_preview_line_edit_to_preview_cart,
-                false
-            )
-        }
-    }
-
-    private fun dialogShow(title: String, description: String, guid: String, name: String) {
-        ContextManager.retrieveContext()?.let {
-            DialogAction(it, title, description, "Adauga", "Renunta", {
-                it.dismiss()
-            }, {
-                it.dismiss()
-            }).show()
+            findNavController().popBackStack()
         }
     }
 

@@ -9,6 +9,7 @@ import md.edi.mobilewaiter.common.delegates.DelegateAdapterItem
 import md.edi.mobilewaiter.common.delegates.DelegateBinder
 import md.edi.mobilewaiter.common.delegates.Item
 import md.edi.mobilewaiter.databinding.ItemTableBinding
+import md.edi.mobilewaiter.utils.HelperFormatter
 import java.text.DecimalFormat
 
 data class ItemTable(
@@ -92,11 +93,7 @@ class ItemTableDelegate(private val onItemClick: (id: String, name: String, gues
         }
 
         fun loadSum(sum: Double) {
-            if (sum == 0.0) {
-                binding.textTableSum.text = "0 MDL"
-            } else {
-                binding.textTableSum.text = DecimalFormat(".0#").format(sum) + " MDL"
-            }
+            binding.textTableSum.text = HelperFormatter.formatDouble(sum, true)
         }
 
         fun loadSetImageState(item: ItemTable) {

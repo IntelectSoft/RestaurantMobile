@@ -3,7 +3,6 @@ package md.edi.mobilewaiter.controllers
 import md.edi.mobilewaiter.data.remote.response.bills.BillItem
 import md.edi.mobilewaiter.data.remote.response.bills.BillListResponse
 import md.edi.mobilewaiter.data.remote.response.bills.LineItem
-import okhttp3.internal.toImmutableList
 
 
 object BillsController {
@@ -25,6 +24,12 @@ object BillsController {
            it.TableUid = tableId
        }
 
+    }
+
+    fun splitBill(bilId: BillItem) {
+        billsBody?.find {it.Uid == bilId.Uid }?.let {
+            it.Lines = bilId.Lines
+        }
     }
 
     fun getBillById(id: String): BillItem? {

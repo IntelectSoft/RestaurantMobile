@@ -10,6 +10,7 @@ import md.edi.mobilewaiter.common.delegates.DelegateBinder
 import md.edi.mobilewaiter.common.delegates.Item
 import md.edi.mobilewaiter.data.remote.response.assortment.AssortmentItem
 import md.edi.mobilewaiter.databinding.ItemAssortmentBinding
+import md.edi.mobilewaiter.utils.HelperFormatter
 import java.text.DecimalFormat
 
 data class ItemAssortment(
@@ -109,12 +110,7 @@ class ItemAssortmentDelegate(private val onItemClick: (item: AssortmentItem) -> 
         }
 
         fun loadPrice(price: Double) {
-            if(price == 0.0){
-                binding.priceAssortment.text = "0"
-            }
-            else{
-                binding.priceAssortment.text = DecimalFormat(".0#").format(price)
-            }
+            binding.priceAssortment.text = HelperFormatter.formatDouble(price, false)
         }
 
         fun loadImage(item: AssortmentItem){

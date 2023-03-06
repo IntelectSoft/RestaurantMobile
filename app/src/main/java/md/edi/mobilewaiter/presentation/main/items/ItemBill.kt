@@ -9,6 +9,8 @@ import md.edi.mobilewaiter.common.delegates.Item
 import md.edi.mobilewaiter.controllers.AssortmentController
 import md.edi.mobilewaiter.data.remote.response.bills.BillItem
 import md.edi.mobilewaiter.databinding.ItemBillBinding
+import md.edi.mobilewaiter.utils.HelperFormatter
+import md.edi.mobilewaiter.utils.Urls
 import java.text.DecimalFormat
 
 data class ItemBill(
@@ -109,12 +111,7 @@ class ItemBillDelegate(
         }
 
         fun loadSum(sumAfterDiscount: Double) {
-            if(sumAfterDiscount == 0.0){
-                binding.textBillSum.text = "0 MDL"
-            }
-            else{
-                binding.textBillSum.text = DecimalFormat(".0#").format(sumAfterDiscount) + " MDL"
-            }
+            binding.textBillSum.text = HelperFormatter.formatDouble(sumAfterDiscount, true)
         }
 
         fun loadNumber(num: Int) {

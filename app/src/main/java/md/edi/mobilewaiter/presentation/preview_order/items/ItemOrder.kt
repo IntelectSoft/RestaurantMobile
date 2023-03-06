@@ -8,6 +8,7 @@ import md.edi.mobilewaiter.common.delegates.DelegateBinder
 import md.edi.mobilewaiter.common.delegates.Item
 import md.edi.mobilewaiter.data.remote.models.bill.OrderItem
 import md.edi.mobilewaiter.databinding.ItemNewOrderLineBinding
+import md.edi.mobilewaiter.utils.HelperFormatter
 import java.text.DecimalFormat
 
 data class ItemOrder(
@@ -26,13 +27,19 @@ class ItemOrderBinder (val item: ItemOrder) : DelegateAdapterItem(item) {
             payloads.apply {
                 if (item.line.count != other.item.line.count)
                     add(Payloads.OnCountChanged(other.item.line.count))
+                if (item.line.price != other.item.line.price)
+                    add(Payloads.OnPriceChanged(other.item.line.price))
+                if (item.name != other.item.name)
+                    add(Payloads.OnNameChanged(other.item.name))
             }
         }
         return payloads
     }
 
     sealed class Payloads : Payloadable {
-        data class OnCountChanged(val count: Double?) : Payloads()
+        data class OnCountChanged(val count: Double) : Payloads()
+        data class OnNameChanged(val name: String) : Payloads()
+        data class OnPriceChanged(val price: Double) : Payloads()
     }
 }
 
@@ -63,6 +70,12 @@ class ItemOrderDelegate(private val onItemClick: (item: OrderItem) -> Unit) :
                     is ItemOrderBinder.Payloads.OnCountChanged -> {
                         viewHolder.loadCount(it.count)
                     }
+                    is ItemOrderBinder.Payloads.OnNameChanged -> {
+                        viewHolder.loadName(it.name)
+                    }
+                    is ItemOrderBinder.Payloads.OnPriceChanged -> {
+                        viewHolder.loadPrice(it.price)
+                    }
                 }
             }
             viewHolder.setClicks(model.item)
@@ -78,18 +91,11 @@ class ItemOrderDelegate(private val onItemClick: (item: OrderItem) -> Unit) :
             loadPrice(item.line.sumAfterDiscount)
             setClicks(item)
 
-            if(item.line.internUid == "00000000-0000-0000-0000-000000000000"){
-                itemView.isEnabled = false
-            }
+            itemView.isEnabled = item.line.internUid != "00000000-0000-0000-0000-000000000000"
         }
 
-        fun loadCount(count: Double?) {
-            if(count == 0.0){
-                binding.textCount.text = "0"
-            }
-            else{
-                binding.textCount.text = DecimalFormat(".0#").format(count)
-            }
+        fun loadCount(count: Double) {
+            binding.textCount.text = HelperFormatter.formatDouble(count, false)
         }
 
         fun loadName(name: String) {
@@ -98,16 +104,11 @@ class ItemOrderDelegate(private val onItemClick: (item: OrderItem) -> Unit) :
 
         fun setClicks(item: ItemOrder) {
             binding.root.setOnClickListener {
-                onItemClick.invoke(item.line)
+                onItemClick(item.line)
             }
         }
         fun loadPrice(sumAfterDiscount: Double) {
-            if(sumAfterDiscount == 0.0){
-                binding.textPrice.text = "0.00"
-            }
-            else{
-                binding.textPrice.text = DecimalFormat(".0#").format(sumAfterDiscount)
-            }
+            binding.textPrice.text = HelperFormatter.formatDouble(sumAfterDiscount, false)
         }
     }
 
