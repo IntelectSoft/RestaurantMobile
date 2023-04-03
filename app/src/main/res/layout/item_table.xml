@@ -6,41 +6,33 @@
     android:layout_height="wrap_content"
     android:background="@drawable/line_gray_transparent_background">
 
-    <ImageView
-        android:id="@+id/imageStateTable"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/icon_table"
-        app:tint="@color/red" />
-
     <TextView
         android:id="@+id/table_list"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="@dimen/_40sdp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/icon_table"
+        android:backgroundTint="@color/red"
         android:gravity="center"
         android:text="3"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="@dimen/_14ssp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageStateTable"
-        app:layout_constraintEnd_toEndOf="@+id/imageStateTable"
-        app:layout_constraintStart_toStartOf="@+id/imageStateTable"
-        app:layout_constraintTop_toTopOf="@+id/imageStateTable" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        android:layout_marginTop="3dp"
         android:layout_marginEnd="8dp"
         android:padding="2dp"
         app:layout_constraintEnd_toStartOf="@+id/textTableGuests"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageStateTable"
+        app:layout_constraintTop_toBottomOf="@+id/table_list"
         app:srcCompat="@drawable/icon_person" />
 
     <TextView

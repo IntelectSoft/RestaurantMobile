@@ -98,18 +98,14 @@ class ItemTableDelegate(private val onItemClick: (id: String, name: String, gues
 
         fun loadSetImageState(item: ItemTable) {
             if (!item.isOccupied) {
-                binding.imageStateTable.setColorFilter(
-                    ContextCompat.getColor(
-                        binding.imageStateTable.context,
-                        R.color.colorPrimary
-                    )
+                binding.tableList.backgroundTintList = ContextCompat.getColorStateList(
+                    binding.tableList.context,
+                    R.color.colorPrimary
                 )
             } else {
-                binding.imageStateTable.setColorFilter(
-                    ContextCompat.getColor(
-                        binding.imageStateTable.context,
-                        R.color.red
-                    )
+                binding.tableList.backgroundTintList = ContextCompat.getColorStateList(
+                    binding.tableList.context,
+                    R.color.red
                 )
             }
         }

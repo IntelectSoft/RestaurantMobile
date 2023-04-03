@@ -356,7 +356,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
             Urls.init()
         }
         applicationInfo.ServerDateTime?.let {
-            val srvDate = it.replace("/Date(", "").replace("+0200)/", "").toLong()
+            val srvDate = it.replace("/Date(", "").replace("+0200)/", "").replace("+0300)/", "").toLong()
             settingsRepository.setSrvDate(srvDate)
             settingsRepository.setAppDate(Date().time)
         }

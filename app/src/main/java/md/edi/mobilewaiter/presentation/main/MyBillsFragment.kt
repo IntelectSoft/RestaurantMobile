@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -43,6 +44,9 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
     val progressDialog by lazy { ProgressDialog(requireContext()) }
     private var pairToCombine = false
     private var firstBillCombineNumber = 0
+
+    private val TIME_INTERVAL = 2000
+    private var mBackPressed: Long = 0
 
     private val compositeAdapter by lazy {
         CompositeAdapter.Builder()
@@ -141,6 +145,20 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
         }
 
         initToolbar()
+
+        val callback: OnBackPressedCallback =
+            object : OnBackPressedCallback(true /* enabled by default */) {
+                override fun handleOnBackPressed() {
+                    if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
+                        requireActivity().finish()
+                    }
+                    else {
+                        Toast.makeText(requireContext(), "Mai tastati odata pentru a iesi din aplicatie!", Toast.LENGTH_SHORT).show()
+                    }
+                    mBackPressed = System.currentTimeMillis();
+                }
+            }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
 
         return binding.root
     }

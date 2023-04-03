@@ -11,22 +11,24 @@
         android:label="FragmentBills"
         tools:layout="@layout/fragment_my_bills">
 
-        <action
-            android:id="@+id/action_myBills_to_tableList"
-            app:destination="@id/tableList" />
-        <action
-            android:id="@+id/action_myBills_to_assortmentList"
-            app:destination="@id/assortmentList" />
-        <action
-            android:id="@+id/action_myBills_to_fragmentNotification"
-            app:destination="@id/fragmentNotification" />
-        <action
-            android:id="@+id/action_myBills_to_fragmentSettings"
-            app:destination="@id/fragmentSettings" />
-        <action
-            android:id="@+id/action_myBills_to_billsDetails"
-            app:destination="@id/billsDetails" />
+
     </fragment>
+
+    <action
+        android:id="@+id/action_myBills_to_tableList"
+        app:destination="@id/tableList" />
+    <action
+        android:id="@+id/action_myBills_to_assortmentList"
+        app:destination="@id/assortmentList" />
+    <action
+        android:id="@+id/action_myBills_to_fragmentNotification"
+        app:destination="@id/fragmentNotification" />
+    <action
+        android:id="@+id/action_myBills_to_fragmentSettings"
+        app:destination="@id/fragmentSettings" />
+    <action
+        android:id="@+id/action_myBills_to_billsDetails"
+        app:destination="@id/billsDetails" />
 
     <fragment
         android:id="@+id/tableList"

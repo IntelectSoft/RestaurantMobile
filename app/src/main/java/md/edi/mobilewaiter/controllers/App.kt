@@ -1,15 +1,17 @@
 package md.edi.mobilewaiter.controllers
 
+import android.app.Activity
 import android.app.Application
 import androidx.annotation.IdRes
 import androidx.navigation.NavController
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
+import com.google.firebase.FirebaseApp
+import dagger.hilt.android.HiltAndroidApp
 import md.edi.mobilewaiter.R
 import md.edi.mobilewaiter.data.database.ApplicationDb
 import md.edi.mobilewaiter.utils.ContextManager
-import com.google.firebase.FirebaseApp
-import dagger.hilt.android.HiltAndroidApp
+import java.lang.ref.WeakReference
 
 @HiltAndroidApp
 class App : Application() {
@@ -49,7 +51,7 @@ class App : Application() {
         popInclusive: Boolean = false
     ) {
         val builder = getNavBuilder()
-        builder.setPopUpTo(destinationIdRes, popInclusive)
+        builder.setPopUpTo(destinationIdRes, popInclusive, false)
         navController.navigate(
             navDirections,
             getNavOptionsRightToLeft(builder)

@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import md.edi.mobilewaiter.R
+import md.edi.mobilewaiter.controllers.App
 import md.edi.mobilewaiter.data.database.repository.RepositoryNotification
 import md.edi.mobilewaiter.data.datastore.SettingsRepository
 import md.edi.mobilewaiter.databinding.ActivityMainBinding
