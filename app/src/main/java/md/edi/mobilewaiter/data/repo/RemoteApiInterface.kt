@@ -42,7 +42,7 @@ interface RemoteApiInterface {
         @Url url: String,
         @Query("deviceId") deviceId: String,
         @Query("billUid") billUid: String
-    ): BillListResponse
+    ): Response<BillListResponse>
 
     @GET("")
     suspend fun closeBill(

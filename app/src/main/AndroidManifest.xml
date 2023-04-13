@@ -21,10 +21,10 @@
     <application
         android:name="md.edi.mobilewaiter.controllers.App"
         android:allowBackup="false"
-        android:icon="@drawable/icon_waiter"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@drawable/icon_waiter"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"

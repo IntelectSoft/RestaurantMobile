@@ -30,23 +30,57 @@ class NewOrderViewModel @Inject constructor(
     val addBillResult = MutableSharedFlow<BillListResponse>()
 
     fun getOrderLinesAssortment(): MutableList<DelegateAdapterItem> {
-        val lines = mutableListOf<DelegateAdapterItem>()
-        CreateBillController.orderModel.Orders.toMutableList()
-            .forEach {
-                lines.add(
-                    ItemOrderBinder(
-                        ItemOrder(
-                            tag = "order_line",
-                            id = it.assortimentUid ?: "",
-                            name = AssortmentController.getAssortmentNameById(
-                                it.assortimentUid ?: ""
-                            ),
-                            line = it
-                        )
+        val adapter = mutableListOf<DelegateAdapterItem>()
+        val lines = CreateBillController.orderModel.Orders.toMutableList()
+
+        lines.map {
+            adapter.add(
+                ItemOrderBinder(
+                    ItemOrder(
+                        tag = "order_line",
+                        id = it.assortimentUid ?: "",
+                        name = AssortmentController.getAssortmentNameById(
+                            it.assortimentUid ?: ""
+                        ),
+                        line = it
                     )
                 )
-            }
-        return lines
+            )
+        }
+
+//        val filteredList = lines.filter { it.kitUid == "00000000-0000-0000-0000-000000000000" }
+//
+//        filteredList.forEach { line ->
+//            val kitLines = lines?.filter { it.kitUid == line.Uid }
+//            adapter.add(
+//                ItemOrderBinder(
+//                    ItemOrder(
+//                        tag = "order_line",
+//                        id = it.assortimentUid ?: "",
+//                        name = AssortmentController.getAssortmentNameById(
+//                            it.assortimentUid ?: ""
+//                        ),
+//                        line = it
+//                    )
+//                )
+//            )
+//
+//            kitLines?.let {
+//                it.forEachIndexed { index, kitLine ->
+//                    adapter.add(
+//                        ItemKitLineBinder(
+//                            ItemKitLine(
+//                                tag = "kitLine",
+//                                line = kitLine,
+//                                isLast = (index + 1) == it.size
+//                            )
+//                        )
+//                    )
+//                }
+//            }
+//        }
+
+        return adapter
     }
 
     suspend fun saveNewOrder() {
@@ -57,19 +91,21 @@ class NewOrderViewModel @Inject constructor(
         remoteOrder.BillUid = localOrder.BillUid
         remoteOrder.Guests = localOrder.Guests
 
-        remoteOrder.Orders = localOrder.Orders.filter { it.internUid != "00000000-0000-0000-0000-000000000000" }.map {
-            OrderItemModel(
-                AssortimentUid = it.assortimentUid,
-                Count = it.count,
-                QueueNumber = it.numberPrepare ?: 1,
-                PriceLineUid = it.priceLineUid,
-                Uid = it.uId,
-                KitUid = it.kitUid,
-                Comments = it.comments,
-                Sum = it.sum,
-                SumAfterDiscount = it.sumAfterDiscount,
-            )
-        }
+        remoteOrder.Orders =
+            localOrder.Orders.filter { it.internUid != "00000000-0000-0000-0000-000000000000" }
+                .map {
+                    OrderItemModel(
+                        AssortimentUid = it.assortimentUid,
+                        Count = it.count,
+                        QueueNumber = it.numberPrepare ?: 1,
+                        PriceLineUid = it.priceLineUid,
+                        Uid = it.uId,
+                        KitUid = it.kitUid,
+                        Comments = it.comments,
+                        Sum = it.sum,
+                        SumAfterDiscount = it.sumAfterDiscount,
+                    )
+                }
 
         try {
             val response = serviceRepo.addNewBill(Urls.SaveBill, remoteOrder)

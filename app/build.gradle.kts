@@ -162,11 +162,11 @@ dependencies {
     //ROOM
     implementation("androidx.room:room-runtime:2.4.3")
     implementation ("androidx.room:room-ktx:2.4.3")
+    annotationProcessor("androidx.room:room-compiler:2.4.3")
+    kapt("androidx.room:room-compiler:2.4.3")
     implementation("androidx.appcompat:appcompat:1.5.1")
     implementation("com.google.android.material:material:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    annotationProcessor("androidx.room:room-compiler:2.4.3")
-    kapt("androidx.room:room-compiler:2.4.3")
 
     //for scanner qr codes
     implementation ("com.journeyapps:zxing-android-embedded:4.3.0")

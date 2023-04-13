@@ -29,6 +29,7 @@ import md.edi.mobilewaiter.controllers.BillsController
 import md.edi.mobilewaiter.controllers.CreateBillController
 import md.edi.mobilewaiter.data.listeners.ActionOnBillListener
 import md.edi.mobilewaiter.data.remote.response.assortment.PrinterItem
+import md.edi.mobilewaiter.data.remote.response.bills.BillItem
 import md.edi.mobilewaiter.databinding.FragmentBillDetailsBinding
 import md.edi.mobilewaiter.presentation.add_client.AddClientActivity
 import md.edi.mobilewaiter.presentation.dialog.DialogAction
@@ -37,8 +38,8 @@ import md.edi.mobilewaiter.presentation.main.items.*
 import md.edi.mobilewaiter.presentation.main.viewmodel.MainViewModel
 import md.edi.mobilewaiter.utils.ContextManager
 import md.edi.mobilewaiter.utils.ErrorHandler
+import md.edi.mobilewaiter.utils.HelperFormatter
 import md.edi.mobilewaiter.utils.enums.EnumRemoteErrors
-import java.text.DecimalFormat
 
 const val ARG_ITEM_ID = "item_bill"
 
@@ -54,6 +55,7 @@ class BillDetailsFragment : Fragment() {
     val progressDialog by lazy { ProgressDialog(context) }
     var onDismissListener: ActionOnBillListener? = null
     private var billId: String? = null
+    private var bill: BillItem? = null
     private var printerId: String? = null
     private var closedPrinterId: String? = null
     private var closureId: String = ""
@@ -94,45 +96,31 @@ class BillDetailsFragment : Fragment() {
 
         billId = arguments?.getString("billId")
 
-        val bill = billId?.let {
-            BillsController.getBillById(it)
-        }
-
-        if(bill == null){
-            findNavController().popBackStack()
-        }
-        else{
-            initToolbar("Contul: ${bill.Number}", "Oaspeti: ${bill.Guests}")
-        }
-
-        bill?.let {
-            it.TableUid?.let {
-                binding.textBillNumber.text = AssortmentController.getTableNumberById(it)
-            }
-
-            if (it.ClientName != null)
-                binding.textClient.text = it.ClientName
-            if (it.Sum != it.SumAfterDiscount) {
-                binding.textSum.text =
-                    DecimalFormat(".0#").format(it.Sum) + "/cu red: " + DecimalFormat(".0#").format(it.SumAfterDiscount) + " MDL"
-            } else {
-                if(it.Sum == 0.0){
-                    binding.textSum.text = "0 MDL"
-                }else{
-                    binding.textSum.text = DecimalFormat(".0#").format(it.Sum) + " MDL"
+        lifecycleScope.launch(Dispatchers.Main) {
+            viewModel.getBillDetailResult.collectLatest {
+                progressDialog.dismiss()
+                it.let {
+                    when (it.Result) {
+                        0 -> {
+                            bill = it.BillsList.first()
+                            displayBillDetail(bill)
+                        }
+                        -9 -> {
+                            dialogGetBillsShow(
+                                "Eroare la obtinerea contului",
+                                it.ResultMessage.toString()
+                            )
+                        }
+                        else -> {
+                            dialogGetBillsShow(
+                                "Eroare la obtinerea contului",
+                                ErrorHandler().getErrorMessage(
+                                    EnumRemoteErrors.getByValue(it.Result)
+                                )
+                            )
+                        }
+                    }
                 }
-            }
-
-            binding.buttonChangeTable.setOnClickListener {
-                if(AssortmentController.getTablesDelegate().isEmpty()){
-                    Toast.makeText(context, "Mesele nu sunt setate!", Toast.LENGTH_SHORT).show()
-                }else{
-                    App.instance.navigateToAnimated(
-                        findNavController(),
-                        BillDetailsFragmentDirections.actionBillsDetailsToTableList(bill.Uid)
-                    )
-                }
-
             }
         }
 
@@ -151,7 +139,7 @@ class BillDetailsFragment : Fragment() {
 
         binding.buttonEdit.setOnClickListener {
             bill?.let {
-                CreateBillController.editBill(bill)
+                CreateBillController.editBill(it)
                 App.instance.navigateToAnimated(
                     findNavController(),
                     BillDetailsFragmentDirections.actionBillsDetailsToAssortmentList()
@@ -177,64 +165,62 @@ class BillDetailsFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.billPrintResult.collectLatest {
                 progressDialog.dismiss()
-                if (it.Result == 0) {
-                    Toast.makeText(context, "Contul a fost imprimat!", Toast.LENGTH_SHORT).show()
-                } else if (it.Result == -9) {
-                    dialogShow(
-                        "Contul nu a fost printat!",
-                        it.ResultMessage
-                    )
-                } else {
-                    dialogShow(
-                        "Contul nu a fost printat!",
-                        ErrorHandler().getErrorMessage(
-                            EnumRemoteErrors.getByValue(it.Result)
+                when (it.Result) {
+                    0 -> {
+                        Toast.makeText(context, "Contul a fost imprimat!", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    -9 -> {
+                        dialogShow(
+                            "Contul nu a fost printat!",
+                            it.ResultMessage
                         )
-                    )
+                    }
+                    else -> {
+                        dialogShow(
+                            "Contul nu a fost printat!",
+                            ErrorHandler().getErrorMessage(
+                                EnumRemoteErrors.getByValue(it.Result)
+                            )
+                        )
+                    }
                 }
             }
         }
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.closeBillResult.collectLatest {
                 progressDialog.dismiss()
-                if (it.Result == 0) {
-                    onDismissListener?.onCloseBill(this@BillDetailsFragment)
-                    findNavController().popBackStack()
-                    Toast.makeText(context, "Contul a fost inchis cu succes!", Toast.LENGTH_SHORT)
-                        .show()
-                } else if (it.Result == -9) {
-                    dialogShowCloseBill(
-                        "Contul nu a fost inchis!",
-                        it.ResultMessage
-                    )
-                } else {
-                    dialogShowCloseBill(
-                        "Contul nu a fost inchis!",
-                        if (it.Result == 6) {
-                            ErrorHandler().getErrorMessage(
-                                EnumRemoteErrors.getByValue(it.Result)
-                            ) + "\n" + it.ResultMessage
-                        } else {
-                            ErrorHandler().getErrorMessage(
-                                EnumRemoteErrors.getByValue(it.Result)
-                            )
-                        }
+                when (it.Result) {
+                    0 -> {
+                        onDismissListener?.onCloseBill(this@BillDetailsFragment)
+                        findNavController().popBackStack()
+                        Toast.makeText(
+                            context,
+                            "Contul a fost inchis cu succes!",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                    -9 -> {
+                        dialogShowCloseBill(
+                            "Contul nu a fost inchis!",
+                            it.ResultMessage
+                        )
+                    }
+                    else -> {
+                        dialogShowCloseBill(
+                            "Contul nu a fost inchis!",
+                            if (it.Result == 6) {
+                                ErrorHandler().getErrorMessage(
+                                    EnumRemoteErrors.getByValue(it.Result)
+                                ) + "\n" + it.ResultMessage
+                            } else {
+                                ErrorHandler().getErrorMessage(
+                                    EnumRemoteErrors.getByValue(it.Result)
+                                )
+                            }
 
-                    )
-                }
-            }
-        }
-        setFragmentResultListener("tableResult") { requestKey, bundle ->
-            // We use a String here, but any type that can be put in a Bundle is supported
-            val result = bundle.getString("tableId")
-            if(result != null && result != ""){
-                bill?.let{
-                    CreateBillController.changeTableBill(it, result)
-                    binding.textBillNumber.text = AssortmentController.getTableNumberById(result)
-                    progressDialog.setMessage("Va rugam asteptati...")
-                    progressDialog.show()
-                    lifecycleScope.launch(Dispatchers.IO){
-                        viewModel.changeOrder()
+                        )
                     }
                 }
             }
@@ -250,8 +236,14 @@ class BillDetailsFragment : Fragment() {
                             "Contul a fost modificat!",
                             Toast.LENGTH_SHORT
                         ).show()
-                        BillsController.changeTableForBill(it.BillsList[0].Uid, it.BillsList[0].TableUid)
-                        initToolbar("Contul: ${it.BillsList[0].Number}", "Oaspeti: ${it.BillsList[0].Guests}")
+                        BillsController.changeTableForBill(
+                            it.BillsList[0].Uid,
+                            it.BillsList[0].TableUid
+                        )
+                        initToolbar(
+                            "Contul: ${it.BillsList[0].Number}",
+                            "Oaspeti: ${it.BillsList[0].Guests}"
+                        )
                     }
                     -9 -> {
                         dialogShow("Eroare modificare cont!", it.ResultMessage)
@@ -266,51 +258,119 @@ class BillDetailsFragment : Fragment() {
             }
         }
 
+        setFragmentResultListener("tableResult") { requestKey, bundle ->
+            val result = bundle.getString("tableId")
+            if (result != null && result != "") {
+                bill?.let {
+                    CreateBillController.changeTableBill(it, result)
+                    binding.textBillNumber.text = AssortmentController.getTableNumberById(result)
+                    progressDialog.setMessage("Va rugam asteptati...")
+                    progressDialog.show()
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        viewModel.changeOrder()
+                    }
+                }
+            }
+        }
 
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val bill = billId?.let {
-            BillsController.getBillById(it)
-        }
+    override fun onResume() {
+        super.onResume()
+        billId?.let {
+            progressDialog.setMessage("Va rugam asteptati...")
+            progressDialog.show()
+            viewModel.getBillDetail(it)
+        } ?: dialogGetBillsShow(
+            "Imposibil de obtinut detalii contului",
+            "Nu s-a transmis identificatorul unic al contului!",
+            true
+        )
+    }
 
-        val adapter = mutableListOf<DelegateAdapterItem>()
-        val listLines = bill?.Lines
-        val filteredList =
-            bill?.Lines?.filter { it.KitUid == "00000000-0000-0000-0000-000000000000" }
+    private fun displayBillDetail(bill: BillItem?) {
+        bill?.let {
 
-        filteredList?.forEach { line ->
-            val kitLines = listLines?.filter { it.KitUid == line.Uid }
-            adapter.add(
-                ItemBillLineBinder(
-                    ItemBillLine(
-                        tag = "line",
-                        line = line,
-                        kitLines = kitLines
-                    )
-                )
+            initToolbar(
+                "Contul: ${it.Number}",
+                "Oaspeti: ${it.Guests}"
             )
 
-            kitLines?.let {
-                it.forEachIndexed { index, kitLine ->
-                    adapter.add(
-                        ItemKitLineBinder(
-                            ItemKitLine(
-                                tag = "kitLine",
-                                line = kitLine,
-                                isLast = (index + 1) == it.size
-                            )
-                        )
+            it.TableUid.let {
+                binding.textBillNumber.text = AssortmentController.getTableNumberById(it)
+            }
+
+            if (it.ClientName != null)
+                binding.textClient.text = it.ClientName
+            if (it.Sum != it.SumAfterDiscount) {
+                val sumText = "${
+                    HelperFormatter.formatDouble(
+                        it.Sum,
+                        false
                     )
+                } /cu red: ${HelperFormatter.formatDouble(it.SumAfterDiscount, true)}"
+                binding.textSum.text = sumText
+            } else {
+                if (it.Sum == 0.0) {
+                    binding.textSum.text = HelperFormatter.formatDouble(0.0, false)
+                } else {
+                    binding.textSum.text = HelperFormatter.formatDouble(it.SumAfterDiscount, true)
                 }
             }
 
-        }
+            binding.buttonChangeTable.setOnClickListener { view_ ->
+                if (AssortmentController.getTablesDelegate().isEmpty()) {
+                    Toast.makeText(context, "Mesele nu sunt setate!", Toast.LENGTH_SHORT).show()
+                } else {
+                    App.instance.navigateToAnimated(
+                        findNavController(),
+                        BillDetailsFragmentDirections.actionBillsDetailsToTableList(it.Uid)
+                    )
+                }
 
-        binding.list.adapter = compositeAdapter
-        compositeAdapter.submitList(adapter)
+            }
+
+            val adapter = mutableListOf<DelegateAdapterItem>()
+            val listLines = it.Lines
+            val filteredList =
+                it.Lines.filter { it.KitUid == "00000000-0000-0000-0000-000000000000" }
+
+            filteredList.forEach { line ->
+                val kitLines = listLines.filter { it.KitUid == line.Uid }
+                adapter.add(
+                    ItemBillLineBinder(
+                        ItemBillLine(
+                            tag = "line",
+                            line = line,
+                            kitLines = kitLines
+                        )
+                    )
+                )
+
+                kitLines.let {
+                    it.forEachIndexed { index, kitLine ->
+                        adapter.add(
+                            ItemKitLineBinder(
+                                ItemKitLine(
+                                    tag = "kitLine",
+                                    line = kitLine,
+                                    isLast = (index + 1) == it.size
+                                )
+                            )
+                        )
+                    }
+                }
+
+            }
+
+            binding.list.adapter = compositeAdapter
+            compositeAdapter.submitList(adapter)
+        } ?: dialogGetBillsShow(
+            "Imposibil de obtinut detalii contului",
+            "Lista de conturi goala!",
+            true
+        )
     }
 
     private fun initToolbar(title: String, description: String) {
@@ -377,7 +437,7 @@ class BillDetailsFragment : Fragment() {
         val dialog: AlertDialog.Builder = AlertDialog.Builder(requireContext())
         dialog.setTitle("Alegeti tipul de plata")
         dialog.setCancelable(false)
-        dialog.setAdapter(adapterComments) { dialog, which ->
+        dialog.setAdapter(adapterComments) { _, which ->
             closureId = closureItemsMapList[which]["Guid"] as String
             val printerList = AssortmentController.getPrinters()
             if (printerList.isEmpty()) {
@@ -479,30 +539,50 @@ class BillDetailsFragment : Fragment() {
         }
     }
 
-    fun setListener(listeners: ActionOnBillListener) {
-        onDismissListener = listeners
-    }
-
     private fun dialogShowChangeGuest(title: String, description: String? = null) {
         requireContext().let {
             DialogActionInputText(it, title, description, "Salveaza", "Renunta", { dialog, text ->
                 dialog.dismiss()
-                val bill = billId?.let {
-                    BillsController.getBillById(it)
-                }
-                bill?.let{
+                bill?.let {
                     CreateBillController.changeTableBill(it, "", text.toInt())
                     progressDialog.setMessage("Va rugam asteptati...")
                     progressDialog.show()
-                    lifecycleScope.launch(Dispatchers.IO){
+                    lifecycleScope.launch(Dispatchers.IO) {
                         viewModel.changeOrder()
                     }
                 }
-
             }, {
                 it.dismiss()
             }).show()
         }
+    }
+
+    private fun dialogGetBillsShow(
+        title: String?,
+        description: String?,
+        isTerminated: Boolean = false
+    ) {
+        DialogAction(
+            requireActivity(),
+            title,
+            description,
+            if (isTerminated) "OK" else "Reincearca",
+            "Renunta",
+            {
+                it.dismiss()
+                if (isTerminated) {
+                    findNavController().popBackStack()
+                } else {
+                    progressDialog.setMessage("Va rugam asteptati...")
+                    progressDialog.show()
+                    billId?.let {
+                        viewModel.getBillDetail(it)
+                    }
+                }
+            },
+            {
+                findNavController().popBackStack()
+            }).show()
     }
 
 }

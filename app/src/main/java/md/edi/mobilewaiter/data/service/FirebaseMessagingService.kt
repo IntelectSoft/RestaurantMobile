@@ -31,7 +31,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         createNotificationChannel()
         val notifyRepository = RepositoryNotification(this)
 
-
         val data: Map<String, String> = message.data
 
         val messageBody = data["body"]

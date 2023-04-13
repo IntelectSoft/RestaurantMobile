@@ -155,7 +155,7 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
                     else {
                         Toast.makeText(requireContext(), "Mai tastati odata pentru a iesi din aplicatie!", Toast.LENGTH_SHORT).show()
                     }
-                    mBackPressed = System.currentTimeMillis();
+                    mBackPressed = System.currentTimeMillis()
                 }
             }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callback)
@@ -225,25 +225,6 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
         binding.recycler.addItemDecoration(deco)
 
         compositeAdapter.submitList(items)
-    }
-
-    private fun selectSpanCount(spanCount: Int, init: Boolean) {
-        if (spanCount != this.spanCount || init) {
-            layoutManager.spanCount = spanCount
-            layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return if (position == compositeAdapter.itemCount) {
-                        spanCount
-                    } else {
-                        1
-                    }
-                }
-            }
-            binding.recycler.adapter?.let {
-                it.notifyItemRangeChanged(0, it.itemCount)
-            }
-            this.spanCount = spanCount
-        }
     }
 
     override fun onCloseBill(dialogs: BillDetailsFragment) {

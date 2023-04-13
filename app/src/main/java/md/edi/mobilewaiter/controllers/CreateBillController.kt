@@ -6,7 +6,6 @@ import md.edi.mobilewaiter.data.remote.response.bills.BillItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.*
 
-
 object CreateBillController {
     var orderModel = AddOrders()
     private var countCart = 0.0
@@ -32,10 +31,11 @@ object CreateBillController {
         orderModel.BillUid = bill.Uid
         orderModel.TableUid = bill.TableUid
         orderModel.Guests = bill.Guests
+        orderModel.ClientUid = bill.ClientUid
 
         val listLines = mutableListOf<OrderItem>()
         var countProducts = 0.0
-        bill?.Lines?.forEach {
+        bill.Lines.forEach {
             countProducts += it.Count
             listLines.add(
                 OrderItem(
@@ -64,6 +64,8 @@ object CreateBillController {
     fun changeTableBill(bill: BillItem, tableId: String, numberGuest: Int? = null) {
         orderModel = AddOrders()
         orderModel.BillUid = bill.Uid
+        orderModel.ClientUid = bill.ClientUid
+
         if(tableId.isBlank())
             orderModel.TableUid = bill.TableUid
         else

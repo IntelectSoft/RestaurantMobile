@@ -18,6 +18,7 @@ interface RepositoryService {
     suspend fun registerTerminal(url: String, device: RegisterDeviceModel): Response<RegisterTerminalResponse>
     suspend fun syncAssortment(url: String, deviceId: String, withImage: Boolean): Response<AssortmentListResponse>
     suspend fun getMyBills(url: String, deviceId: String) : Response<BillListResponse>
+    suspend fun getBill(url: String, deviceId: String, billId: String) : Response<BillListResponse>
     suspend fun addNewBill(url: String, billModel : AddOrdersModel): Response<BillListResponse>
     suspend fun printBill(url: String, deviceId: String, billUid: String, printerId: String?): Response<BillListResponse>
     suspend fun applyCard(url: String,deviceId: String,billUid: String, cardNumber: String): Response<BillListResponse>

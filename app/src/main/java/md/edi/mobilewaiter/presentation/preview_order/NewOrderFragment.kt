@@ -30,6 +30,10 @@ import md.edi.mobilewaiter.utils.ContextManager
 import md.edi.mobilewaiter.utils.ErrorHandler
 import md.edi.mobilewaiter.utils.enums.EnumRemoteErrors
 import kotlinx.coroutines.flow.collectLatest
+import md.edi.mobilewaiter.presentation.main.items.ItemBillLine
+import md.edi.mobilewaiter.presentation.main.items.ItemBillLineBinder
+import md.edi.mobilewaiter.presentation.main.items.ItemKitLine
+import md.edi.mobilewaiter.presentation.main.items.ItemKitLineBinder
 
 
 @AndroidEntryPoint
@@ -118,6 +122,7 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
 
         lifecycleScope.launchWhenResumed {
             val lines = viewModel.getOrderLinesAssortment()
+
             initList(lines)
         }
 

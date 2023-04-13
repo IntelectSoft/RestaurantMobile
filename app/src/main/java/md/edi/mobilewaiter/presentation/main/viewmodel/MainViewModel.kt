@@ -1,6 +1,7 @@
 package md.edi.mobilewaiter.presentation.main.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import md.edi.mobilewaiter.common.delegates.DelegateAdapterItem
 import md.edi.mobilewaiter.data.datastore.SettingsRepository
 import md.edi.mobilewaiter.data.remote.models.bill.CombineBillsModel
@@ -12,8 +13,10 @@ import md.edi.mobilewaiter.presentation.main.items.ItemBillBinder
 import md.edi.mobilewaiter.utils.DeviceInfo
 import md.edi.mobilewaiter.utils.Urls
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import md.edi.mobilewaiter.controllers.CreateBillController
 import md.edi.mobilewaiter.data.remote.models.bill.AddOrdersModel
 import md.edi.mobilewaiter.data.remote.models.bill.OrderItemModel
@@ -27,6 +30,7 @@ class MainViewModel @Inject constructor(
 
     val billListResponse = MutableStateFlow<List<DelegateAdapterItem>>(emptyList())
     val getBillListResult = MutableSharedFlow<BillListResponse>()
+    val getBillDetailResult = MutableSharedFlow<BillListResponse>()
     val closeBillResult = MutableSharedFlow<BillListResponse>()
     val billPrintResult = MutableSharedFlow<BillListResponse>()
     val applyCardResult = MutableSharedFlow<BillListResponse>()
@@ -76,6 +80,33 @@ class MainViewModel @Inject constructor(
             )
         }
 
+    }
+
+    fun getBillDetail(id: String) {
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                val response = serviceRepo.getBill(Urls.GetBill, DeviceInfo.deviceId, id)
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        getBillDetailResult.emit(it)
+                    }
+                } else {
+                    getBillDetailResult.emit(
+                        BillListResponse(
+                            Result = -9,
+                            ResultMessage = response.errorBody()?.string(),
+                            BillsList = emptyList()
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                getBillDetailResult.emit(
+                    BillListResponse(
+                        Result = -9, ResultMessage = e.message, BillsList = emptyList()
+                    )
+                )
+            }
+        }
     }
 
     suspend fun printBill(billId: String, printerId: String?) {
