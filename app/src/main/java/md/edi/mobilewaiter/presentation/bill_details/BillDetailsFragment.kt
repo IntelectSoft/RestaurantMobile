@@ -105,12 +105,14 @@ class BillDetailsFragment : Fragment() {
                             bill = it.BillsList.first()
                             displayBillDetail(bill)
                         }
+
                         -9 -> {
                             dialogGetBillsShow(
                                 "Eroare la obtinerea contului",
                                 it.ResultMessage.toString()
                             )
                         }
+
                         else -> {
                             dialogGetBillsShow(
                                 "Eroare la obtinerea contului",
@@ -170,12 +172,14 @@ class BillDetailsFragment : Fragment() {
                         Toast.makeText(context, "Contul a fost imprimat!", Toast.LENGTH_SHORT)
                             .show()
                     }
+
                     -9 -> {
                         dialogShow(
                             "Contul nu a fost printat!",
                             it.ResultMessage
                         )
                     }
+
                     else -> {
                         dialogShow(
                             "Contul nu a fost printat!",
@@ -201,12 +205,14 @@ class BillDetailsFragment : Fragment() {
                         )
                             .show()
                     }
+
                     -9 -> {
                         dialogShowCloseBill(
                             "Contul nu a fost inchis!",
                             it.ResultMessage
                         )
                     }
+
                     else -> {
                         dialogShowCloseBill(
                             "Contul nu a fost inchis!",
@@ -245,9 +251,11 @@ class BillDetailsFragment : Fragment() {
                             "Oaspeti: ${it.BillsList[0].Guests}"
                         )
                     }
+
                     -9 -> {
                         dialogShow("Eroare modificare cont!", it.ResultMessage)
                     }
+
                     else -> {
                         dialogShow(
                             "Eroare modificare cont!",
@@ -354,7 +362,10 @@ class BillDetailsFragment : Fragment() {
                             ItemKitLineBinder(
                                 ItemKitLine(
                                     tag = "kitLine",
-                                    line = kitLine,
+                                    assortmentId = kitLine.AssortimentUid,
+                                    count = kitLine.Count,
+                                    price = kitLine.SumAfterDiscount,
+                                    queueNumber = kitLine.QueueNumber,
                                     isLast = (index + 1) == it.size
                                 )
                             )

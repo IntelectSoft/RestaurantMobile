@@ -1,5 +1,6 @@
 package md.edi.mobilewaiter.presentation.main.items
 
+import android.view.InputQueue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -8,6 +9,7 @@ import md.edi.mobilewaiter.common.delegates.DelegateAdapterItem
 import md.edi.mobilewaiter.common.delegates.DelegateBinder
 import md.edi.mobilewaiter.common.delegates.Item
 import md.edi.mobilewaiter.controllers.AssortmentController
+import md.edi.mobilewaiter.data.remote.models.bill.OrderItem
 import md.edi.mobilewaiter.data.remote.response.bills.LineItem
 import md.edi.mobilewaiter.databinding.ItemBillLineBinding
 import md.edi.mobilewaiter.databinding.ItemKitLineBinding
@@ -16,7 +18,10 @@ import java.text.DecimalFormat
 
 data class ItemKitLine(
     val tag: String,
-    val line: LineItem,
+    val assortmentId: String,
+    val count: Double,
+    val price: Double,
+    val queueNumber: Int,
     val isLast: Boolean
 ) : Item
 
@@ -27,14 +32,14 @@ class ItemKitLineBinder(val item: ItemKitLine) : DelegateAdapterItem(item) {
         val payloads = mutableListOf<Payloadable>()
         if (other is ItemKitLineBinder) {
             payloads.apply {
-                if (item.line.QueueNumber != other.item.line.QueueNumber)
-                    add(Payloads.OnNumberChanged(other.item.line.QueueNumber))
-                if (item.line.AssortimentUid != other.item.line.AssortimentUid)
-                    add(Payloads.OnNameChanged(other.item.line.AssortimentUid))
-                if (item.line.Count != other.item.line.Count)
-                    add(Payloads.OnCountChanged(other.item.line.Count))
-                if (item.line.SumAfterDiscount != other.item.line.SumAfterDiscount)
-                    add(Payloads.OnSumChanged(other.item.line.SumAfterDiscount))
+                if (item.queueNumber != other.item.queueNumber)
+                    add(Payloads.OnNumberChanged(other.item.queueNumber))
+                if (item.assortmentId != other.item.assortmentId)
+                    add(Payloads.OnNameChanged(other.item.assortmentId))
+                if (item.count != other.item.count)
+                    add(Payloads.OnCountChanged(other.item.count))
+                if (item.price != other.item.price)
+                    add(Payloads.OnSumChanged(other.item.price))
             }
         }
         return payloads
@@ -49,7 +54,7 @@ class ItemKitLineBinder(val item: ItemKitLine) : DelegateAdapterItem(item) {
 }
 
 class ItemKitLineDelegate(
-    private val onItemClick: (item: LineItem) -> Unit
+    private val onItemClick: (item: Any) -> Unit
 ) :
     DelegateBinder<ItemKitLineBinder, ItemKitLineDelegate.ItemKitLineViewHolder>(
         ItemKitLineBinder::class.java
@@ -78,14 +83,16 @@ class ItemKitLineDelegate(
                     is ItemBillLineBinder.Payloads.OnNameChanged -> {
                         viewHolder.loadName(it.name)
                     }
+
                     is ItemBillLineBinder.Payloads.OnCountChanged -> {
                         viewHolder.loadCount(it.count)
                     }
+
                     is ItemBillLineBinder.Payloads.OnSumChanged -> {
                         viewHolder.loadSum(it.sum)
                     }
                 }
-                viewHolder.setClicks(model.item.line)
+                viewHolder.setClicks(model.item)
             }
         }
     }
@@ -94,9 +101,9 @@ class ItemKitLineDelegate(
         private val binding: ItemKitLineBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ItemKitLine) {
-            loadName(item.line.AssortimentUid)
-            loadCount(item.line.Count)
-            loadSum(item.line.SumAfterDiscount)
+            loadName(item.assortmentId)
+            loadCount(item.count)
+            loadSum(item.price)
             if (item.isLast) {
                 binding.divider11.isVisible = false
             }
@@ -107,7 +114,10 @@ class ItemKitLineDelegate(
         }
 
         fun loadName(id: String) {
-            val tableName = AssortmentController.getAssortmentNameById(id)
+            var tableName = AssortmentController.getAssortmentNameById(id)
+            if(tableName == "Not found"){
+                tableName = AssortmentController.getCommentById(id)?.Comment ?: "Not found"
+            }
             binding.textNameAssortment.text = tableName
         }
 
@@ -115,9 +125,9 @@ class ItemKitLineDelegate(
             binding.textCount.text = HelperFormatter.formatDouble(count, false)
         }
 
-        fun setClicks(item: LineItem) {
+        fun setClicks(item: ItemKitLine) {
             binding.root.setOnClickListener {
-                onItemClick.invoke(item)
+                onItemClick.invoke(item.assortmentId)
             }
         }
     }

@@ -18,6 +18,10 @@ import md.edi.mobilewaiter.utils.DeviceInfo
 import md.edi.mobilewaiter.utils.Urls
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import md.edi.mobilewaiter.presentation.main.items.ItemBillLine
+import md.edi.mobilewaiter.presentation.main.items.ItemBillLineBinder
+import md.edi.mobilewaiter.presentation.main.items.ItemKitLine
+import md.edi.mobilewaiter.presentation.main.items.ItemKitLineBinder
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,20 +36,50 @@ class NewOrderViewModel @Inject constructor(
     fun getOrderLinesAssortment(): MutableList<DelegateAdapterItem> {
         val adapter = mutableListOf<DelegateAdapterItem>()
         val lines = CreateBillController.orderModel.Orders.toMutableList()
+        val filteredList =
+            lines.filter { it.kitUid == "00000000-0000-0000-0000-000000000000" }
 
-        lines.map {
+        filteredList.forEach { line ->
+            val kitLines = lines.filter { it.kitUid == line.assortimentUid }
             adapter.add(
                 ItemOrderBinder(
                     ItemOrder(
                         tag = "order_line",
-                        id = it.assortimentUid ?: "",
+                        id = line.assortimentUid ?: "",
                         name = AssortmentController.getAssortmentNameById(
-                            it.assortimentUid ?: ""
+                            line.assortimentUid ?: ""
                         ),
-                        line = it
+                        line = line
                     )
                 )
             )
+
+            if (line.comments.isNotEmpty()) {
+                val comments = line.comments.filter { it.length == 36 }
+                comments.forEachIndexed { index, id ->
+                    adapter.add(
+                        ItemKitLineBinder(
+                            ItemKitLine(
+                                tag = "kitLine",
+                                assortmentId = id,
+                                count = line.count,
+                                price = if ((AssortmentController.getAssortmentById(id)?.Price
+                                        ?: 0.0) == 0.0
+                                ) AssortmentController.getCommentById(id)?.Price ?: 0.0 else 0.0,
+                                queueNumber = line.numberPrepare,
+                                isLast = (index + 1) == comments.size
+                            )
+                        )
+                    )
+                }
+            }
+
+            kitLines.let {
+                it.forEachIndexed { index, kitLine ->
+
+                }
+            }
+
         }
 
 //        val filteredList = lines.filter { it.kitUid == "00000000-0000-0000-0000-000000000000" }

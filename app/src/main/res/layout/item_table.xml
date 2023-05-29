@@ -4,29 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/container_table"
     android:background="@drawable/line_gray_transparent_background">
 
     <TextView
         android:id="@+id/table_list"
-        android:layout_width="@dimen/_40sdp"
-        android:layout_height="@dimen/_40sdp"
-        android:layout_marginTop="4dp"
-        android:background="@drawable/icon_table"
-        android:backgroundTint="@color/red"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="3"
         android:textAlignment="center"
         android:textColor="@color/black"
-        android:textSize="@dimen/_14ssp"
+        android:textSize="@dimen/_16ssp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:layout_editor_absoluteY="12dp" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="8dp"
         android:padding="2dp"
         app:layout_constraintEnd_toStartOf="@+id/textTableGuests"

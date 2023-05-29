@@ -34,6 +34,7 @@ import md.edi.mobilewaiter.presentation.main.items.ItemBillLine
 import md.edi.mobilewaiter.presentation.main.items.ItemBillLineBinder
 import md.edi.mobilewaiter.presentation.main.items.ItemKitLine
 import md.edi.mobilewaiter.presentation.main.items.ItemKitLineBinder
+import md.edi.mobilewaiter.presentation.main.items.ItemKitLineDelegate
 
 
 @AndroidEntryPoint
@@ -53,6 +54,11 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
                     BillLineDetailsDialogFragment::class.simpleName
                 )
             })
+            .add(
+                ItemKitLineDelegate { line ->
+
+                }
+            )
             .build()
     }
 
@@ -67,9 +73,10 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
 
         binding.button5.setOnClickListener {
             if (compositeAdapter.delegates.size() > 0) {
+                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.setCancelable(false)
+                progressDialog.show()
                 lifecycleScope.launch(Dispatchers.Main) {
-                    progressDialog.setMessage("Va rugam asteptati")
-                    progressDialog.show()
                     viewModel.saveNewOrder()
                 }
             } else {
@@ -121,9 +128,7 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launchWhenResumed {
-            val lines = viewModel.getOrderLinesAssortment()
-
-            initList(lines)
+            initList(viewModel.getOrderLinesAssortment())
         }
 
         initToolbar()
@@ -175,7 +180,8 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
     private fun dialogShow(title: String?, description: String?) {
         ContextManager.retrieveContext()?.let {
             DialogAction(it, title, description, "Reincearca", "Renunta", {
-                progressDialog.setMessage("Va rugam asteptati")
+                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.setCancelable(false)
                 progressDialog.show()
                 lifecycleScope.launch(Dispatchers.IO) {
                     viewModel.saveNewOrder()
