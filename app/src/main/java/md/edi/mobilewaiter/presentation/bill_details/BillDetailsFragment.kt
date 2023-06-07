@@ -75,8 +75,8 @@ class BillDetailsFragment : Fragment() {
                 ItemBillLineDelegate { line ->
                     Log.e("TAG", "Line clicked: ${line} ")
                     dialogShowLineClicked(
-                        "Eliberare ${AssortmentController.getAssortmentNameById(line.AssortimentUid)}",
-                        "Sunteti sigur ca doriti sa eliberati acest produs?"
+                        getString(R.string.eliberare) + AssortmentController.getAssortmentNameById(line.AssortimentUid),
+                        getString(R.string.sunteti_sigur_ca_doriti_sa_eliberati_acest_produs)
                     )
                 }
             ).add(
@@ -108,14 +108,14 @@ class BillDetailsFragment : Fragment() {
 
                         -9 -> {
                             dialogGetBillsShow(
-                                "Eroare la obtinerea contului",
+                                getString(R.string.eroare_la_obtinerea_contului),
                                 it.ResultMessage.toString()
                             )
                         }
 
                         else -> {
                             dialogGetBillsShow(
-                                "Eroare la obtinerea contului",
+                                getString(R.string.eroare_la_obtinerea_contului),
                                 ErrorHandler().getErrorMessage(
                                     EnumRemoteErrors.getByValue(it.Result)
                                 )
@@ -135,7 +135,7 @@ class BillDetailsFragment : Fragment() {
             if (printerList.isEmpty()) {
                 printBill()
             } else {
-                showPrinters(printerList, "Alegeti unde sa imprimi!", false)
+                showPrinters(printerList, getString(R.string.alegeti_unde_sa_imprimi), false)
             }
         }
 
@@ -169,20 +169,20 @@ class BillDetailsFragment : Fragment() {
                 progressDialog.dismiss()
                 when (it.Result) {
                     0 -> {
-                        Toast.makeText(context, "Contul a fost imprimat!", Toast.LENGTH_SHORT)
+                        Toast.makeText(context, getString(R.string.contul_a_fost_imprimat), Toast.LENGTH_SHORT)
                             .show()
                     }
 
                     -9 -> {
                         dialogShow(
-                            "Contul nu a fost printat!",
+                            getString(R.string.contul_nu_a_fost_printat),
                             it.ResultMessage
                         )
                     }
 
                     else -> {
                         dialogShow(
-                            "Contul nu a fost printat!",
+                            getString(R.string.contul_nu_a_fost_printat),
                             ErrorHandler().getErrorMessage(
                                 EnumRemoteErrors.getByValue(it.Result)
                             )
@@ -200,7 +200,7 @@ class BillDetailsFragment : Fragment() {
                         findNavController().popBackStack()
                         Toast.makeText(
                             context,
-                            "Contul a fost inchis cu succes!",
+                            getString(R.string.contul_a_fost_inchis_cu_succes),
                             Toast.LENGTH_SHORT
                         )
                             .show()
@@ -208,14 +208,14 @@ class BillDetailsFragment : Fragment() {
 
                     -9 -> {
                         dialogShowCloseBill(
-                            "Contul nu a fost inchis!",
+                            getString(R.string.contul_nu_a_fost_inchis),
                             it.ResultMessage
                         )
                     }
 
                     else -> {
                         dialogShowCloseBill(
-                            "Contul nu a fost inchis!",
+                            getString(R.string.contul_nu_a_fost_inchis),
                             if (it.Result == 6) {
                                 ErrorHandler().getErrorMessage(
                                     EnumRemoteErrors.getByValue(it.Result)
@@ -239,7 +239,7 @@ class BillDetailsFragment : Fragment() {
                         CreateBillController.clearAllData()
                         Toast.makeText(
                             requireContext(),
-                            "Contul a fost modificat!",
+                            getString(R.string.contul_a_fost_modificat),
                             Toast.LENGTH_SHORT
                         ).show()
                         BillsController.changeTableForBill(
@@ -247,18 +247,18 @@ class BillDetailsFragment : Fragment() {
                             it.BillsList[0].TableUid
                         )
                         initToolbar(
-                            "Contul: ${it.BillsList[0].Number}",
-                            "Oaspeti: ${it.BillsList[0].Guests}"
+                            getString(R.string.contul) + " ${it.BillsList[0].Number}",
+                            getString(R.string.oaspeti) + " ${it.BillsList[0].Guests}"
                         )
                     }
 
                     -9 -> {
-                        dialogShow("Eroare modificare cont!", it.ResultMessage)
+                        dialogShow(getString(R.string.eroare_modificare_cont), it.ResultMessage)
                     }
 
                     else -> {
                         dialogShow(
-                            "Eroare modificare cont!",
+                            getString(R.string.eroare_modificare_cont),
                             ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result))
                         )
                     }
@@ -272,7 +272,7 @@ class BillDetailsFragment : Fragment() {
                 bill?.let {
                     CreateBillController.changeTableBill(it, result)
                     binding.textBillNumber.text = AssortmentController.getTableNumberById(result)
-                    progressDialog.setMessage("Va rugam asteptati...")
+                    progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                     progressDialog.show()
                     lifecycleScope.launch(Dispatchers.IO) {
                         viewModel.changeOrder()
@@ -287,12 +287,12 @@ class BillDetailsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         billId?.let {
-            progressDialog.setMessage("Va rugam asteptati...")
+            progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
             progressDialog.show()
             viewModel.getBillDetail(it)
         } ?: dialogGetBillsShow(
-            "Imposibil de obtinut detalii contului",
-            "Nu s-a transmis identificatorul unic al contului!",
+            getString(R.string.imposibil_de_obtinut_detalii_contului),
+            getString(R.string.nu_s_a_transmis_identificatorul_unic_al_contului),
             true
         )
     }
@@ -301,8 +301,8 @@ class BillDetailsFragment : Fragment() {
         bill?.let {
 
             initToolbar(
-                "Contul: ${it.Number}",
-                "Oaspeti: ${it.Guests}"
+                 getString(R.string.contul) + " ${it.Number}",
+                getString(R.string.oaspeti) + " ${it.Guests}"
             )
 
             it.TableUid.let {
@@ -317,7 +317,7 @@ class BillDetailsFragment : Fragment() {
                         it.Sum,
                         false
                     )
-                } /cu red: ${HelperFormatter.formatDouble(it.SumAfterDiscount, true)}"
+                } " + getString(R.string.cu_red) + " ${HelperFormatter.formatDouble(it.SumAfterDiscount, true)}"
                 binding.textSum.text = sumText
             } else {
                 if (it.Sum == 0.0) {
@@ -329,7 +329,7 @@ class BillDetailsFragment : Fragment() {
 
             binding.buttonChangeTable.setOnClickListener { view_ ->
                 if (AssortmentController.getTablesDelegate().isEmpty()) {
-                    Toast.makeText(context, "Mesele nu sunt setate!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, getString(R.string.mesele_nu_sunt_setate), Toast.LENGTH_SHORT).show()
                 } else {
                     App.instance.navigateToAnimated(
                         findNavController(),
@@ -378,8 +378,8 @@ class BillDetailsFragment : Fragment() {
             binding.list.adapter = compositeAdapter
             compositeAdapter.submitList(adapter)
         } ?: dialogGetBillsShow(
-            "Imposibil de obtinut detalii contului",
-            "Lista de conturi goala!",
+            getString(R.string.imposibil_de_obtinut_detalii_contului),
+            getString(R.string.lista_de_conturi_goala),
             true
         )
     }
@@ -393,7 +393,7 @@ class BillDetailsFragment : Fragment() {
         toolbar.showLeftBtn(true)
 
         toolbar.setRightIcon(R.drawable.ic_change_guest_number) {
-            dialogShowChangeGuest("Introduceti noul numar de oaspeti!")
+            dialogShowChangeGuest(getString(R.string.introduceti_noul_numar_de_oaspeti))
         }
 
         toolbar.setLeftClickListener {
@@ -403,7 +403,7 @@ class BillDetailsFragment : Fragment() {
     }
 
     private fun printBill() {
-        progressDialog.setMessage("Va rugam asteptati...")
+        progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
         progressDialog.show()
         billId?.let {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -415,7 +415,7 @@ class BillDetailsFragment : Fragment() {
     private fun closeBill() {
         billId?.let {
             lifecycleScope.launch(Dispatchers.Main) {
-                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                 progressDialog.show()
                 viewModel.closeBill(it, closureId, closedPrinterId)
             }
@@ -446,7 +446,7 @@ class BillDetailsFragment : Fragment() {
             )
         )
         val dialog: AlertDialog.Builder = AlertDialog.Builder(requireContext())
-        dialog.setTitle("Alegeti tipul de plata")
+        dialog.setTitle(getString(R.string.alegeti_tipul_de_plata))
         dialog.setCancelable(false)
         dialog.setAdapter(adapterComments) { _, which ->
             closureId = closureItemsMapList[which]["Guid"] as String
@@ -454,10 +454,10 @@ class BillDetailsFragment : Fragment() {
             if (printerList.isEmpty()) {
                 closeBill()
             } else {
-                showPrinters(printerList, "Alegeti unde sa imprimi bonul final!", true)
+                showPrinters(printerList, getString(R.string.alegeti_unde_sa_imprimi_bonul_final), true)
             }
         }
-        dialog.setNegativeButton("Renunta") { dialogInterface, i ->
+        dialog.setNegativeButton(getString(R.string.renun)) { dialogInterface, i ->
             dialogInterface.dismiss()
         }
 
@@ -466,7 +466,7 @@ class BillDetailsFragment : Fragment() {
 
     private fun dialogShowLineClicked(title: String, description: String) {
         ContextManager.retrieveContext()?.let {
-            DialogAction(it, title, description, "DA", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.da), getString(R.string.renun), {
                 it.dismiss()
 
             }, {
@@ -512,10 +512,10 @@ class BillDetailsFragment : Fragment() {
                 printBill()
             }
         }
-        dialog.setNegativeButton("Renunta") { dialogInterface, i ->
+        dialog.setNegativeButton(getString(R.string.renun)) { dialogInterface, i ->
             dialogInterface.dismiss()
         }
-        dialog.setPositiveButton("Imprima implicit") { dialogInterface, i ->
+        dialog.setPositiveButton(getString(R.string.imprima_implicit)) { dialogInterface, i ->
             if (actionCloseBill) {
                 closedPrinterId = null
                 closeBill()
@@ -530,7 +530,7 @@ class BillDetailsFragment : Fragment() {
 
     private fun dialogShow(title: String, description: String?) {
         ContextManager.retrieveContext()?.let {
-            DialogAction(it, title, description, "Reincearca", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.reincearca), getString(R.string.renun), {
                 it.dismiss()
                 printBill()
             }, {
@@ -541,7 +541,7 @@ class BillDetailsFragment : Fragment() {
 
     private fun dialogShowCloseBill(title: String, description: String?) {
         ContextManager.retrieveContext()?.let {
-            DialogAction(it, title, description, "Reincearca", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.reincearca), getString(R.string.renun), {
                 it.dismiss()
                 closeBill()
             }, {
@@ -552,11 +552,11 @@ class BillDetailsFragment : Fragment() {
 
     private fun dialogShowChangeGuest(title: String, description: String? = null) {
         requireContext().let {
-            DialogActionInputText(it, title, description, "Salveaza", "Renunta", { dialog, text ->
+            DialogActionInputText(it, title, description, getString(R.string.salveaza), getString(R.string.renun), { dialog, text ->
                 dialog.dismiss()
                 bill?.let {
                     CreateBillController.changeTableBill(it, "", text.toInt())
-                    progressDialog.setMessage("Va rugam asteptati...")
+                    progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                     progressDialog.show()
                     lifecycleScope.launch(Dispatchers.IO) {
                         viewModel.changeOrder()
@@ -577,14 +577,14 @@ class BillDetailsFragment : Fragment() {
             requireActivity(),
             title,
             description,
-            if (isTerminated) "OK" else "Reincearca",
-            "Renunta",
+            if (isTerminated) getString(R.string.ok) else getString(R.string.reincearca),
+            getString(R.string.renun),
             {
                 it.dismiss()
                 if (isTerminated) {
                     findNavController().popBackStack()
                 } else {
-                    progressDialog.setMessage("Va rugam asteptati...")
+                    progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                     progressDialog.show()
                     billId?.let {
                         viewModel.getBillDetail(it)

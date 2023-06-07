@@ -83,7 +83,7 @@
                     android:layout_height="0dp"
                     android:background="@drawable/background_round_gray"
                     android:gravity="top"
-                    android:hint="Completeaza aici"
+                    android:hint="@string/completeaza_aici"
                     android:overScrollMode="always"
                     android:padding="5dp"
                     android:scrollbarStyle="insideInset"
@@ -185,7 +185,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Comentarii/complecte:"
+                android:text="@string/comentarii_complecte"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -198,7 +198,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="Predifinite:"
+                android:text="@string/predifinite"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayoutComplects" />
 
@@ -208,7 +208,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="Complecte:"
+                android:text="@string/complecte"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -218,7 +218,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="Simple:"
+                android:text="@string/simple"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayoutComments" />
 
@@ -227,7 +227,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Alege cantitatea:"
+                android:text="@string/alege_cantitatea"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView15" />
@@ -237,7 +237,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:text="Pret:"
+                android:text="@string/pret"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -264,7 +264,7 @@
         android:lines="1"
         android:paddingStart="@dimen/_8sdp"
         android:paddingEnd="@dimen/_8sdp"
-        android:text="Salveaza"
+        android:text="@string/salveaza"
         android:textAllCaps="false"
         app:layout_constraintBottom_toTopOf="@+id/textBack2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -277,7 +277,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:clickable="true"
-        android:text="Renunță"
+        android:text="@string/renun"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"

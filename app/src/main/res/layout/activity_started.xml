@@ -27,7 +27,7 @@
         android:layout_alignParentLeft="true"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:text="Start"
+        android:text="@string/start"
         android:textColor="@android:color/background_light"
         android:textSize="@dimen/_18ssp"
         app:layout_constraintBottom_toTopOf="@+id/txt_version_mobile"
@@ -52,7 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Bun venit"
+        android:text="@string/bun_venit"
         android:textColor="@color/black"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -67,12 +67,39 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:gravity="center"
-        android:text="Pentru a începe utilizarea aplicației, faceți click pe butonul de jos."
+        android:text="@string/pentru_a_ncepe_utilizarea_aplica_iei_face_i_click_pe_butonul_de_jos"
         android:textColor="@color/black"
         android:textSize="@dimen/_12sdp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView10" />
+
+    <TextView
+        android:id="@+id/textView37"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/application_language"
+        android:textSize="@dimen/_10ssp"
+        app:layout_constraintBottom_toBottomOf="@+id/textAppLanguage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textAppLanguage" />
+
+    <TextView
+        android:id="@+id/textAppLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/application_language"
+        android:textColor="@color/black"
+        android:clickable="true"
+        android:padding="@dimen/_3sdp"
+        android:textSize="@dimen/_10ssp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_start"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/textView37" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

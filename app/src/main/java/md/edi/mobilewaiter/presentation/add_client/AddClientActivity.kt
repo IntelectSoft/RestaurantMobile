@@ -41,6 +41,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import md.edi.mobilewaiter.R
 import okhttp3.internal.and
 import okio.IOException
 import java.math.BigInteger
@@ -77,14 +78,14 @@ class AddClientActivity : AppCompatActivity() {
         if (billId != null) {
             nfcAdapter = NfcAdapter.getDefaultAdapter(this)
             if (nfcAdapter == null) {
-                Toast.makeText(this, "Acest dispozitiv nu suporta NFC", Toast.LENGTH_LONG).show()
-                binding.textView30.text = "Acest dispozitiv nu suporta NFC"
+                Toast.makeText(this, getString(R.string.acest_dispozitiv_nu_suporta_nfc), Toast.LENGTH_LONG).show()
+                binding.textView30.text = getString(R.string.acest_dispozitiv_nu_suporta_nfc)
             } else {
                 nfcAdapter?.let {
                     if (!it.isEnabled) {
                         dialogShow(
-                            "NFC dezactivat!",
-                            "Pentru a putea folosi cardul NFC a clientului, este nevoie sa porniti NFC!"
+                            getString(R.string.nfc_dezactivat),
+                            getString(R.string.pentru_a_putea_folosi_cardul_nfc_a_clientului_este_nevoie_sa_porniti_nfc)
                         )
                     } else {
                         readFromIntent(intent)
@@ -131,7 +132,7 @@ class AddClientActivity : AppCompatActivity() {
         })
 
         binding.buttonApply.setOnClickListener {
-            progressDialog.setMessage("Va rugam asteptati...")
+            progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
             progressDialog.setCancelable(false)
             progressDialog.show()
 
@@ -149,7 +150,7 @@ class AddClientActivity : AppCompatActivity() {
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES)
-                options.setPrompt("Scaneaza codul clientului")
+                options.setPrompt(getString(R.string.scaneaza_codul_clientului))
                 options.setCameraId(0) // Use a specific camera of the device
                 options.setBeepEnabled(false)
                 options.setBarcodeImageEnabled(true)
@@ -169,17 +170,17 @@ class AddClientActivity : AppCompatActivity() {
                     0 -> {
                         Toast.makeText(
                             this@AddClientActivity,
-                            "Clientul a fost adaugat!",
+                            getString(R.string.clientul_a_fost_adaugat),
                             Toast.LENGTH_SHORT
                         ).show()
                         finish()
                     }
                     -9 -> {
-                        dialogShowAddCard("Eroare adaugare clientului!", it.ResultMessage)
+                        dialogShowAddCard(getString(R.string.eroare_adaugare_clientului), it.ResultMessage)
                     }
                     else -> {
                         dialogShowAddCard(
-                            "Eroare adaugare clientului",
+                            getString(R.string.eroare_adaugare_clientului),
                             ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result))
                                     + "\n" + if (it.ResultMessage.isNullOrBlank()) "" else it.ResultMessage
                         )
@@ -196,7 +197,7 @@ class AddClientActivity : AppCompatActivity() {
         ScanContract()
     ) { result: ScanIntentResult ->
         if (result.contents == null) {
-            Toast.makeText(this@AddClientActivity, "Cancelled", Toast.LENGTH_LONG).show()
+            Toast.makeText(this@AddClientActivity, getString(R.string.anulat), Toast.LENGTH_LONG).show()
         } else {
             binding.etCardCode.setText(result.contents)
             binding.buttonApply.performClick()
@@ -206,8 +207,8 @@ class AddClientActivity : AppCompatActivity() {
     private fun initToolbar() {
         val toolbar = binding.toolbar
 
-        toolbar.setTitle("Adauga client")
-        toolbar.setSubTitle("Introduceti codul sau scanati cardul")
+        toolbar.setTitle(getString(R.string.adauga_client))
+        toolbar.setSubTitle(getString(R.string.introduceti_codul_sau_scanati_cardul))
         toolbar.showBottomLine(true)
 
         toolbar.showLeftBtn(true)
@@ -224,7 +225,7 @@ class AddClientActivity : AppCompatActivity() {
         if (requestCode == 90) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 options.setDesiredBarcodeFormats(ScanOptions.ALL_CODE_TYPES)
-                options.setPrompt("Scan a barcode")
+                options.setPrompt(getString(R.string.scan_a_barcode))
                 options.setCameraId(0) // Use a specific camera of the device
                 options.setOrientationLocked(false)
                 options.setBeepEnabled(false)
@@ -251,7 +252,7 @@ class AddClientActivity : AppCompatActivity() {
 
     private fun dialogShow(title: String, description: String) {
         this.let {
-            DialogAction(it, title, description, "Porneste", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.porneste), getString(R.string.renun), {
                 it.dismiss()
                 val intentSettings = Intent(Settings.ACTION_NFC_SETTINGS);
                 startActivity(intentSettings);
@@ -263,7 +264,7 @@ class AddClientActivity : AppCompatActivity() {
 
     private fun dialogShowAddCard(title: String, description: String?) {
         this.let {
-            DialogAction(it, title, description, "OK", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.ok), getString(R.string.renun), {
                 it.dismiss()
                 cardCode = ""
                 binding.etCardCode.setText("")

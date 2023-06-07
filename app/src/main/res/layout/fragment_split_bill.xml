@@ -41,6 +41,6 @@
         android:lines="1"
         android:paddingStart="@dimen/_8sdp"
         android:paddingEnd="@dimen/_8sdp"
-        android:text="Salveaza"
+        android:text="@string/salveaza"
         android:textAllCaps="false" />
 </RelativeLayout>

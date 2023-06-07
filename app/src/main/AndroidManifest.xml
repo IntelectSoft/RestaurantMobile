@@ -83,6 +83,13 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".presentation.settings.language.ActivityLanguage"
+            android:configChanges="orientation"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
         <service
             android:name="md.edi.mobilewaiter.data.service.FirebaseMessagingService"
             android:exported="true">

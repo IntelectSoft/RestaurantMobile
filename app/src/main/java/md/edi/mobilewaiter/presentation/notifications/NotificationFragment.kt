@@ -17,6 +17,7 @@ import md.edi.mobilewaiter.presentation.notifications.items.ItemNotificationDele
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import md.edi.mobilewaiter.R
 import md.edi.mobilewaiter.common.delegates.CompositeAdapter
 
 @AndroidEntryPoint
@@ -69,7 +70,7 @@ class NotificationFragment : Fragment() {
     private fun initToolbar() {
         val toolbar = binding.toolbar
 
-        toolbar.setTitle("Notificari")
+        toolbar.setTitle(getString(R.string.notificari))
         toolbar.showBottomLine(true)
 
         toolbar.showLeftBtn(true)

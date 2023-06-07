@@ -40,7 +40,7 @@ class ActivationAppFragment : DialogFragment(){
 
         textCode.afterTextChanged {
             if (it.isEmpty()){
-                textCode.error = "Completati codul licentei!"
+                textCode.error = getString(R.string.completati_codul_licentei)
             }
             else{
                 textCode.error = null
@@ -52,7 +52,7 @@ class ActivationAppFragment : DialogFragment(){
                 onLicenseListener?.onLicenseActivate(dialogs, textCode.text.toString())
             }
             else{
-                Toast.makeText(ContextManager.retrieveApplicationContext(), "Completati codul de activare!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(ContextManager.retrieveApplicationContext(), getString(R.string.completati_codul_de_activare), Toast.LENGTH_SHORT).show()
             }
         }
 

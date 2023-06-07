@@ -29,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import md.edi.mobilewaiter.R
 import md.edi.mobilewaiter.common.delegates.CompositeAdapter
 
 @AndroidEntryPoint
@@ -116,7 +117,7 @@ class SplitBillFragment : Fragment() {
 
             if (listFiltered.isNotEmpty()){
                 lifecycleScope.launch(Dispatchers.Main) {
-                    progressDialog.setMessage("Va rugam asteptati")
+                    progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                     progressDialog.show()
                     bill?.let {
                         viewModel.splitBill(bill, listFiltered)
@@ -124,7 +125,7 @@ class SplitBillFragment : Fragment() {
                 }
 
             }else{
-                Toast.makeText(context, "Selectati cel putin un produs!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.selectati_cel_putin_un_produs), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -134,14 +135,14 @@ class SplitBillFragment : Fragment() {
                 when (it.Result) {
                     0 -> {
                         BillsController.splitBill(it.BillsList[0])
-                        Toast.makeText(requireContext(),"Contul a fost salvat!",Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(),getString(R.string.contul_a_fost_salvat),Toast.LENGTH_SHORT).show()
                         findNavController().popBackStack()
                     }
                     -9 -> {
-                        dialogShow("Eroare salvare contului", it.ResultMessage)
+                        dialogShow(getString(R.string.eroare_salvare_contului), it.ResultMessage)
                     }
                     else -> {
-                        dialogShow("Eroare salvare contului",ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result)))
+                        dialogShow(getString(R.string.eroare_salvare_contului),ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result)))
                     }
                 }
             }
@@ -158,8 +159,8 @@ class SplitBillFragment : Fragment() {
     private fun initToolbar() {
         val toolbar = binding.toolbar
 
-        toolbar.setTitle("Impartirea contului")
-        toolbar.setSubTitle("Selectati produse care urmeaza adaugate in cont nou")
+        toolbar.setTitle(getString(R.string.impartirea_contului))
+        toolbar.setSubTitle(getString(R.string.selectati_produse_care_urmeaza_adaugate_in_cont_nou))
         toolbar.showBottomLine(true)
 
         toolbar.showLeftBtn(true)
@@ -177,7 +178,7 @@ class SplitBillFragment : Fragment() {
 
     private fun dialogShow(title: String, description: String?) {
         ContextManager.retrieveContext()?.let {
-            DialogAction(it, title, description, "OK", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.ok), getString(R.string.renun), {
                 it.dismiss()
             }, {
 

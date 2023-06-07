@@ -55,7 +55,7 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
                     if (pairToCombine) {
                         mainViewModel.arrayCombine.add(bill.Uid)
                         if (mainViewModel.arrayCombine.size == 2) {
-                            dialogConfirmCombineBillsShow("Atentie!", "Confirmati ca doriti sa comasati contul $firstBillCombineNumber in contul ${bill.Number} ?")
+                            dialogConfirmCombineBillsShow(getString(R.string.atentie), getString(R.string.confirmati_ca_doriti_sa_comasati_contul, "$firstBillCombineNumber", "${bill.Number}"))
                         }
                     } else {
                         App.instance.navigateToAnimated(
@@ -70,7 +70,7 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
                         firstBillCombineNumber = billLongClick.Number
                         mainViewModel.arrayCombine.add(billLongClick.Uid)
                         binding.toolbar.setShowCombineMenu(true)
-                        binding.toolbar.setCombineMenuTitle("Combina contul ${billLongClick.Number} cu -> ")
+                        binding.toolbar.setCombineMenuTitle(getString(R.string.combina_contul,"${billLongClick.Number}"))
                         binding.toolbar.setCloseCombineMenuClickListener {
                             pairToCombine = false
                             binding.toolbar.setShowCombineMenu(false)
@@ -113,11 +113,11 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
                             mainViewModel.initData(BillsController.billsBody)
                         }
                         -9 -> {
-                            dialogGetBillsShow("Eroare la obtinerea conturilor", it.ResultMessage.toString())
+                            dialogGetBillsShow(getString(R.string.eroare_la_obtinerea_contului), it.ResultMessage.toString())
                         }
                         else -> {
                             dialogGetBillsShow(
-                                "Eroare la obtinerea conturilor",
+                                getString(R.string.eroare_la_obtinerea_contului),
                                 ErrorHandler().getErrorMessage(
                                     EnumRemoteErrors.getByValue(it.Result)
                                 )
@@ -138,7 +138,7 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
                         MyBillsFragmentDirections.actionMyBillsToBillsDetails(billFind.Uid)
                     )
                 } else {
-                    Toast.makeText(requireContext(), "Contul nu a fost gasit!", Toast.LENGTH_SHORT)
+                    Toast.makeText(requireContext(), getString(R.string.contul_nu_a_fost_gasit), Toast.LENGTH_SHORT)
                         .show()
                 }
             }
@@ -153,7 +153,7 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
                         requireActivity().finish()
                     }
                     else {
-                        Toast.makeText(requireContext(), "Mai tastati odata pentru a iesi din aplicatie!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.mai_tastati_odata_pentru_a_iesi_din_aplicatie), Toast.LENGTH_SHORT).show()
                     }
                     mBackPressed = System.currentTimeMillis()
                 }
@@ -183,7 +183,7 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
             )
         }
 
-        toolbar.setTitle("Conturile mele")
+        toolbar.setTitle(getString(R.string.conturile_mele))
         toolbar.showBottomLine(true)
 
         toolbar.showLeftBtn(true)
@@ -237,7 +237,7 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
     }
 
     private fun dialogCombineBillsShow(title: String?, description: String?) {
-        DialogAction(requireActivity(), title, description, "OK", "Renunta", {
+        DialogAction(requireActivity(), title, description, getString(R.string.ok), getString(R.string.renun), {
             it.dismiss()
         }, {
             it.dismiss()
@@ -245,10 +245,10 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
     }
 
     private fun dialogConfirmCombineBillsShow(title: String?, description: String?) {
-        DialogAction(requireActivity(), title, description, "Da", "Renunta", {
+        DialogAction(requireActivity(), title, description, getString(R.string.da), getString(R.string.renun), {
             it.dismiss()
             lifecycleScope.launch(Dispatchers.Main) {
-                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                 progressDialog.show()
                 mainViewModel.combineBill()
             }
@@ -264,12 +264,12 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
                             }
                             -9 -> {
                                 progressDialog.dismiss()
-                                dialogCombineBillsShow("Eroare la comasarea conturilor", it.ResultMessage.toString())
+                                dialogCombineBillsShow(getString(R.string.eroare_la_comasarea_conturilor), it.ResultMessage.toString())
                             }
                             else -> {
                                 progressDialog.dismiss()
                                 dialogCombineBillsShow(
-                                    "Eroare la comasarea conturilor",
+                                    getString(R.string.eroare_la_comasarea_conturilor),
                                     ErrorHandler().getErrorMessage(
                                         EnumRemoteErrors.getByValue(it.Result)
                                     )
@@ -286,10 +286,10 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
     }
 
     private fun dialogGetBillsShow(title: String?, description: String?) {
-        DialogAction(requireActivity(), title, description, "Reincearca", "Renunta", {
+        DialogAction(requireActivity(), title, description, getString(R.string.reincearca), getString(R.string.renun), {
             it.dismiss()
             lifecycleScope.launch(Dispatchers.Main) {
-                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                 progressDialog.show()
                 mainViewModel.getMyBills()
             }
@@ -301,8 +301,8 @@ class MyBillsFragment : Fragment(), ActionOnBillListener {
     override fun onResume() {
         super.onResume()
         activity?.let{
-            val cout =  childFragmentManager.backStackEntryCount
-            if(cout > 1){
+            val count =  childFragmentManager.backStackEntryCount
+            if(count > 1){
                 childFragmentManager.popBackStackImmediate()
             }
         }

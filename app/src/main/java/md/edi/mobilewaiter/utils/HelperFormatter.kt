@@ -1,6 +1,7 @@
 package md.edi.mobilewaiter.utils
 
 import java.text.DecimalFormat
+import java.util.Locale
 
 object HelperFormatter {
 
@@ -11,5 +12,11 @@ object HelperFormatter {
             if (withMdl) DecimalFormat("0.0#").format(number) + " MDL"
             else DecimalFormat("0.0#").format(number)
         }
+    }
+}
+
+fun String.capitaliseWord(locale: Locale = Locale.getDefault()): String {
+    return this.replaceFirstChar { char ->
+        if (char.isLowerCase()) char.titlecase(locale) else char.toString()
     }
 }

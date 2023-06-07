@@ -1,6 +1,5 @@
 package md.edi.mobilewaiter.presentation.assortment
 
-import android.R
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
@@ -18,6 +17,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isVisible
+import md.edi.mobilewaiter.R
 import md.edi.mobilewaiter.controllers.AssortmentController
 import md.edi.mobilewaiter.controllers.CreateBillController
 import md.edi.mobilewaiter.data.remote.response.assortment.AssortmentItem
@@ -52,8 +52,8 @@ class AssortmentInsertActivity : AppCompatActivity() {
             0,
             22
         ) + "..." else assortmentItem.Name
-        binding.buttonAddCounts.text = "Adauga: ${binding.etCountOfItem.text} - $buttonItemName"
-        binding.textItemPrice.text = "${assortmentItem.Price} MDL"
+        binding.buttonAddCounts.text = getString(R.string.adauga) + " ${binding.etCountOfItem.text} - $buttonItemName"
+        binding.textItemPrice.text = getString(R.string.mdl,assortmentItem.Price.toString())
 
         binding.numberPicker.minValue = 0
         binding.numberPicker.maxValue = CreateBillController.numberCook + 10
@@ -61,13 +61,13 @@ class AssortmentInsertActivity : AppCompatActivity() {
         binding.numberPicker.wrapSelectorWheel = false
 
         binding.textItemAllowNonInteger.text =
-            if (!assortmentItem.AllowNonIntegerSale) "Nu" else "Da"
+            if (!assortmentItem.AllowNonIntegerSale) getString(R.string.nu) else getString(R.string.da)
         binding.etCountOfItem.inputType =
             if (!assortmentItem.AllowNonIntegerSale) InputType.TYPE_CLASS_NUMBER else InputType.TYPE_NUMBER_FLAG_DECIMAL
         binding.textContainsKitMembers.text =
-            if (assortmentItem.KitMembers.isNullOrEmpty()) "Nu" else "Da"
+            if (assortmentItem.KitMembers.isNullOrEmpty()) getString(R.string.nu) else getString(R.string.da)
         binding.textContainMandatoryComments.text =
-            if (!assortmentItem.MandatoryComment) "Nu" else "Da"
+            if (!assortmentItem.MandatoryComment) getString(R.string.nu) else getString(R.string.da)
 
         if (assortmentItem.Comments.isNullOrEmpty()) {
             binding.textTitleComments.isVisible = false
@@ -109,7 +109,7 @@ class AssortmentInsertActivity : AppCompatActivity() {
                         binding.buttonAddCounts.isEnabled = false
                     } else {
                         binding.buttonAddCounts.text =
-                            "Adauga: ${binding.etCountOfItem.text} - $buttonItemName"
+                            getString(R.string.adauga) + " ${binding.etCountOfItem.text} - $buttonItemName"
                         binding.buttonAddCounts.isEnabled = true
                     }
                 }
@@ -201,7 +201,7 @@ class AssortmentInsertActivity : AppCompatActivity() {
 
             for (i in assortmentListKitMember.indices) {
                 val kitName = AssortmentController.getAssortmentById(assortmentListKitMember[i])
-                val asortimentKitMebmerMap: HashMap<String, Any> = HashMap()
+                val asortimentKitMebmerMap = HashMap<String, Any>()
                 asortimentKitMebmerMap["Name"] = kitName?.Name ?: ""
                 asortimentKitMebmerMap["Guid"] = assortmentListKitMember[i]
                 kitAssortmentList.add(asortimentKitMebmerMap)
@@ -218,10 +218,10 @@ class AssortmentInsertActivity : AppCompatActivity() {
                 val adapterKitMebmers = SimpleAdapter(
                     this,
                     kitAssortmentList,
-                    R.layout.simple_list_item_1,
+                    android.R.layout.simple_list_item_1,
                     arrayOf("Name"),
                     intArrayOf(
-                        R.id.text1
+                        android.R.id.text1
                     )
                 )
                 val dialog: AlertDialog.Builder = AlertDialog.Builder(this)
@@ -270,21 +270,21 @@ class AssortmentInsertActivity : AppCompatActivity() {
         val adapterComments = SimpleAdapter(
             this,
             commentsAssortmentList,
-            R.layout.simple_list_item_1,
+            android.R.layout.simple_list_item_1,
             arrayOf("Name"),
             intArrayOf(
-                R.id.text1
+                android.R.id.text1
             )
         )
         val dialog: AlertDialog.Builder = AlertDialog.Builder(this)
-        dialog.setTitle("Selectati comentariu:")
+        dialog.setTitle(getString(R.string.selectati_comentariu))
         dialog.setCancelable(false)
         dialog.setAdapter(adapterComments) { dialog, which ->
             val selectedGuid = commentsAssortmentList[which]["Guid"] as String
             if (listOfSelectedComments.contains(selectedGuid)) {
                 dialogShow(
-                    "Atentie, produsul deja exista!",
-                    " ${commentsAssortmentList[which]["Name"]} deja este adaugat! \nSunteti sigur ca doriti sa mai adaugati odata?",
+                    getString(R.string.atentie_produsul_deja_exista),
+                    commentsAssortmentList[which]["Name"] + getString(R.string.deja_este_adaugat_sunteti_sigur_ca_doriti_sa_mai_adaugati_odata),
                     selectedGuid,
                     commentsAssortmentList[which]["Name"] as String
                 )
@@ -298,7 +298,7 @@ class AssortmentInsertActivity : AppCompatActivity() {
             }
 
         }
-        dialog.setNegativeButton("Renunta") { dialogInterface, i ->
+        dialog.setNegativeButton(getString(md.edi.mobilewaiter.R.string.renun)) { dialogInterface, i ->
             dialogInterface.dismiss()
         }
 
@@ -309,7 +309,7 @@ class AssortmentInsertActivity : AppCompatActivity() {
     private fun checkAndSave() {
         if (assortmentItem.MandatoryComment) {
             if(listOfSelectedComments.isEmpty()) {
-                Toast.makeText(this, "Nu ati ales nici un comentariu!", Toast.LENGTH_SHORT)
+                Toast.makeText(this, getString(R.string.nu_ati_ales_nici_un_comentariu), Toast.LENGTH_SHORT)
                     .show()
             }else{
                 saveOrderLine()
@@ -340,7 +340,7 @@ class AssortmentInsertActivity : AppCompatActivity() {
 
     private fun dialogShow(title: String, description: String, guid: String, name: String) {
         this.let {
-            DialogAction(it, title, description, "Adauga", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.adauga), getString(md.edi.mobilewaiter.R.string.renun), {
                 it.dismiss()
                 listOfSelectedComments.add(guid)
                 binding.textComments.append(" | $name")

@@ -14,6 +14,7 @@ import md.edi.mobilewaiter.presentation.dialog.DialogAction
 import md.edi.mobilewaiter.utils.ContextManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import md.edi.mobilewaiter.R
 import java.text.DecimalFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -94,7 +95,7 @@ class BillLineDetailsDialogFragment : BottomSheetDialogFragment() {
             }
 
             binding.buttonRemoveLine.setOnClickListener {  view2 ->
-                dialogShow("Eliminare pozitiei!", "Sunteti sigur ca doriti sa eliminati ${AssortmentController.getAssortmentNameById(it.assortimentUid)}?", it.internUid)
+                dialogShow(getString(R.string.eliminare_pozitiei), getString(R.string.sunteti_sigur_ca_doriti_sa_eliminati) + "${AssortmentController.getAssortmentNameById(it.assortimentUid)}?", it.internUid)
             }
         }
 
@@ -116,7 +117,7 @@ class BillLineDetailsDialogFragment : BottomSheetDialogFragment() {
 
     private fun dialogShow(title: String, description: String, internUid: String) {
         ContextManager.retrieveContext()?.let {
-            DialogAction(it, title, description, "Elimina", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.elimina), getString(R.string.renun), {
                 it.dismiss()
                 onDismissListener?.onDialogDismiss(this@BillLineDetailsDialogFragment, internUid)
             }, {

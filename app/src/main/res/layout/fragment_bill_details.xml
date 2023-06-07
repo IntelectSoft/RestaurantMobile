@@ -141,7 +141,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Masa:"
+        android:text="@string/masa"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
@@ -162,7 +162,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Client:"
+        android:text="@string/client"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textBillNumber" />
 
@@ -185,7 +185,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Suma:"
+        android:text="@string/suma"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textClient" />
 
@@ -218,7 +218,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="8dp"
-        android:text="Denumire"
+        android:text="@string/denumire"
         android:textColor="@color/black"
         app:layout_constraintEnd_toStartOf="@+id/textView34"
         app:layout_constraintStart_toEndOf="@+id/textView32"
@@ -230,7 +230,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="8dp"
-        android:text="Cant."
+        android:text="@string/cant"
         android:textColor="@color/black"
         app:layout_constraintEnd_toStartOf="@+id/textView35"
         app:layout_constraintTop_toBottomOf="@+id/divider12" />
@@ -242,7 +242,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="8dp"
         android:gravity="right"
-        android:text="Suma"
+        android:text="@string/suma_title"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider12" />

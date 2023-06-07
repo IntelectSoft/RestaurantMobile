@@ -15,7 +15,9 @@ import android.view.LayoutInflater
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -42,6 +44,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import md.edi.mobilewaiter.R
+import md.edi.mobilewaiter.presentation.settings.language.ActivityLanguage
+import md.edi.mobilewaiter.utils.capitaliseWord
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -69,6 +75,11 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        val sph = runBlocking { SettingsRepository(this@LaunchActivity).getLanguage().first() }
+        val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(sph.language)
+        binding.textAppLanguage.text = Locale(sph.language).displayLanguage.capitaliseWord()
+        AppCompatDelegate.setApplicationLocales(appLocale)
+
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {
                 return@OnCompleteListener
@@ -89,6 +100,10 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
         Log.e("TAG", "onCreate launch:  $billId, $tagNotify")
 
         binding.txtVersionMobile.text = "v. $versionApp"
+
+        binding.textAppLanguage.setOnClickListener {
+            startActivity(Intent(this, ActivityLanguage::class.java))
+        }
 
         askNotificationPermission()
 
@@ -122,7 +137,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
             lifecycleScope.launch(Dispatchers.Main) {
                 DeviceInfo.licenseCode = settingsRepository.getLicenseCode().first()
                 if (DeviceInfo.licenseCode.isNotBlank()) {
-                    progressDialog.setMessage("Verificare starea terminalului...")
+                    progressDialog.setMessage(getString(R.string.verificare_starea_terminalului))
                     progressDialog.show()
                     launchViewModel.getURI()
                 }
@@ -140,16 +155,16 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                     when (it.Result) {
                         0 -> {
                             DeviceInfo.deviceNumber = it.DeviceNumber
-                            progressDialog.setMessage("Sincronizare...")
+                            progressDialog.setMessage(getString(R.string.sincronizare_loading))
                             launchViewModel.syncAssortment()
                         }
                         -9 -> {
                             progressDialog.dismiss()
-                            dialogShowRegisterDevice("Eroare", it.ResultMessage.toString())
+                            dialogShowRegisterDevice(getString(R.string.eroare), it.ResultMessage.toString())
                         }
                         else -> {
                             progressDialog.dismiss()
-                            dialogShowRegisterDevice("Eroare", ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result)))
+                            dialogShowRegisterDevice(getString(R.string.eroare), ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result)))
                         }
                     }
                 }
@@ -171,14 +186,14 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                         }
                         -9 -> {
                             dialogShow(
-                                "Dispozitivul:  ${DeviceInfo.deviceNumber}",
+                                getString(R.string.dispozitivul) + DeviceInfo.deviceNumber,
                                 it.errorMessage,
                                 true
                             )
                         }
                         else -> {
                             dialogShow(
-                                "Dispozitivul:  ${DeviceInfo.deviceNumber}",
+                                getString(R.string.dispozitivul) + DeviceInfo.deviceNumber,
                                 ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result)),
                                 true
                             )
@@ -206,22 +221,22 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                                 }
                                 else{
                                     dialogShowActivateApp(
-                                        "Eroare",
-                                        "Nu este setat adresa de conectare a aplicatiei!"
+                                        getString(R.string.eroare),
+                                        getString(R.string.nu_este_setat_adresa_de_conectare_a_aplicatiei)
                                     )
                                 }
                             }
                         }
                         -9 -> {
                             dialogShow(
-                                "Atentie",
+                                getString(R.string.atentie),
                                 it.ErrorMessage,
                                 true
                             )
                         }
                         else -> {
                             dialogShow(
-                                "Atentie",
+                                getString(R.string.atentie),
                                 ErrorHandler().getErrorLicenseMessage(
                                     EnumLicenseErrors.getByValue(
                                         it.ErrorCode!!
@@ -239,7 +254,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
 
     override fun onLicenseActivate(dialogs: Dialog, code: String) {
 
-        progressDialog.setMessage("Activare aplicatiei...")
+        progressDialog.setMessage(getString(R.string.activare_aplicatiei))
         progressDialog.show()
         launchViewModel.registerApplication(code)
 
@@ -253,14 +268,14 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                             saveLicenseInfo(applicationInfo)
 
                             if(!applicationInfo.URI.isNullOrEmpty()){
-                                progressDialog.setMessage("Verificare starea terminalului...")
+                                progressDialog.setMessage(getString(R.string.verificare_starea_terminalului))
                                 progressDialog.show()
                                 launchViewModel.registerTerminal()
                             }
                             else{
                                 dialogShowActivateApp(
-                                    "Eroare la activarea aplicatiei!",
-                                    "Nu este setat adresa de conectare a aplicatiei!"
+                                    getString(R.string.eroare_la_activarea_aplicatiei),
+                                    getString(R.string.nu_este_setat_adresa_de_conectare_a_aplicatiei)
                                 )
                             }
                         }
@@ -269,13 +284,13 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                         it.ErrorMessage?.let {msg ->
                             if(msg.length > 1000){
                                 dialogShowActivateApp(
-                                    "Eroare la activarea aplicatiei!",
-                                    "Incercati mai tirziu sau luati legatura cu provider-ul aplicatiei!"
+                                    getString(R.string.eroare_la_activarea_aplicatiei),
+                                    getString(R.string.incercati_mai_tirziu_sau_luati_legatura_cu_provider_ul_aplicatiei)
                                 )
                             }
                             else{
                                 dialogShowActivateApp(
-                                    "Eroare",
+                                    getString(R.string.eroare),
                                     msg
                                 )
                             }
@@ -284,7 +299,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
                     else -> {
                         it.ErrorCode?.let { code ->
                             dialogShowActivateApp(
-                                "Eroare",
+                                getString(R.string.eroare),
                                 ErrorHandler().getErrorLicenseMessage(EnumLicenseErrors.getByValue(code))
                             )
                         }
@@ -366,14 +381,14 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
     }
 
     private fun dialogShow(title: String?, description: String?, reloadSyncAssortment: Boolean) {
-        DialogAction(this, title, description, "Reincearca", "Renunta", {
+        DialogAction(this, title, description, getString(R.string.reincearca), getString(R.string.renun), {
             it.dismiss()
             if (reloadSyncAssortment) {
-                progressDialog.setMessage("Sincronizare...")
+                progressDialog.setMessage(getString(R.string.sincronizare_loading))
                 progressDialog.show()
                 launchViewModel.syncAssortment()
             } else {
-                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                 progressDialog.show()
                 launchViewModel.registerTerminal()
             }
@@ -383,7 +398,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
         }).show()
     }
     private fun dialogShowActivateApp(title: String?, description: String?) {
-        DialogAction(this, title, description, "OK", "Renunta", {
+        DialogAction(this, title, description, getString(R.string.ok), getString(R.string.renun), {
             it.dismiss()
         }, {
             finish()
@@ -391,7 +406,7 @@ class LaunchActivity : AppCompatActivity(), OnLicenseListener {
     }
 
     private fun dialogShowRegisterDevice(title: String?, description: String?) {
-        DialogAction(this, title, description, "OK", "Renunta", {
+        DialogAction(this, title, description, getString(R.string.ok), getString(R.string.renun), {
             it.dismiss()
         }, {
             it.dismiss()

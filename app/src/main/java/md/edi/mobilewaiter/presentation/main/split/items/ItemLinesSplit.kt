@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import md.edi.mobilewaiter.R
 import md.edi.mobilewaiter.common.delegates.DelegateAdapterItem
 import md.edi.mobilewaiter.common.delegates.DelegateBinder
 import md.edi.mobilewaiter.common.delegates.Item
@@ -119,7 +120,7 @@ class ItemLinesSplitDelegate(private val onItemChecked: (item: ItemLinesSplit) -
                         val selectedValue = charSequence.toString().toDouble()
                         Log.e("TAG", "on count split Changed: $selectedValue and assortment ${AssortmentController.getAssortmentById(item.line.AssortimentUid)?.Name}")
                         if(selectedValue > item.line.Count){
-                            binding.editTextCountSelected.error = "Introduceti cantitate mai mica!"
+                            binding.editTextCountSelected.error = binding.editTextCountSelected.context.getString(R.string.introduceti_cantitate_mai_mica)
                         }
                         else{
                             item.line.Count = selectedValue
@@ -150,7 +151,7 @@ class ItemLinesSplitDelegate(private val onItemChecked: (item: ItemLinesSplit) -
                     binding.checkBoxSelected.isChecked = false
                     item.isChecked = false
                     onItemChecked(item)
-                    Toast.makeText(ContextManager.retrieveContext(), "Nu puteti selecta toate pozitiile!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ContextManager.retrieveContext(), binding.editTextCountSelected.context.getString(R.string.nu_puteti_selecta_toate_pozitiile), Toast.LENGTH_SHORT).show()
                 }
             }
         }

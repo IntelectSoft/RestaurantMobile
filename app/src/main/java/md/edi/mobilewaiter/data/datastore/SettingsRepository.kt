@@ -1,6 +1,7 @@
 package md.edi.mobilewaiter.data.datastore
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.floatPreferencesKey
@@ -8,6 +9,7 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -163,6 +165,25 @@ class SettingsRepository @Inject constructor(private val context: Context) : Dat
         }
     }
 
+    suspend fun setLanguage(locale: Locale) {
+        edit {
+            val key = stringPreferencesKey(LANG)
+            it[key] = locale.language
+        }
+    }
+
+    suspend fun getLanguage(): Flow<Locale>{
+        return getFlow {
+            val key = stringPreferencesKey(LANG)
+//            it[key] ?: Locale.getDefault().language
+            it[key]?.let { langCode ->
+                Locale(langCode).also {
+                    Log.d("Locale", "Locale from settings = ${it.language}")
+                }
+            } ?: Locale("ro")
+        }
+    }
+
 
     private companion object {
         //KEYS
@@ -177,5 +198,6 @@ class SettingsRepository @Inject constructor(private val context: Context) : Dat
         const val LIC_CODE = "lic_code"
         const val DEV_ID = "deviceId"
         const val TKN = "token"
+        const val LANG = "language"
     }
 }

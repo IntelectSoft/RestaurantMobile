@@ -56,7 +56,7 @@ class LineEditFragment : Fragment() {
             Log.e("TAG", "onViewCreated: assortent item: $assortmentItem")
             Log.e("TAG", "onViewCreated: order item: $orderLine")
 
-            binding.textItemPrice.text = "${assortmentItem.Price} MDL"
+            binding.textItemPrice.text = getString(R.string.mdl,"${assortmentItem.Price}")
 
             if (!assortmentItem.AllowNonIntegerSale) {
                 binding.etCountOfItem.setText(selectedValue.toInt().toString())

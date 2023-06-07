@@ -73,7 +73,7 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
 
         binding.button5.setOnClickListener {
             if (compositeAdapter.delegates.size() > 0) {
-                progressDialog.setMessage("Va rugam asteptati...")
+                progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                 progressDialog.setCancelable(false)
                 progressDialog.show()
                 lifecycleScope.launch(Dispatchers.Main) {
@@ -82,7 +82,7 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
             } else {
                 Toast.makeText(
                     context,
-                    "Adaugati produse pentru a crea un cont!",
+                    getString(R.string.adaugati_produse_pentru_a_crea_un_cont),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -97,7 +97,7 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
                         CreateBillController.clearAllData()
                         Toast.makeText(
                             requireContext(),
-                            "Contul a fost salvat!",
+                            getString(R.string.contul_a_fost_salvat),
                             Toast.LENGTH_SHORT
                         ).show()
                         App.instance.navigateToAnimatedPopBackStack(
@@ -108,11 +108,11 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
                         )
                     }
                     -9 -> {
-                        dialogShow("Eroare salvare contului", it.ResultMessage)
+                        dialogShow(getString(R.string.eroare_salvare_contului), it.ResultMessage)
                     }
                     else -> {
                         dialogShow(
-                            "Eroare salvare contului",
+                            getString(R.string.eroare_salvare_contului),
                             ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result))
                         )
                     }
@@ -137,7 +137,7 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
     private fun initToolbar() {
         val toolbar = binding.toolbar
 
-        toolbar.setTitle("Previzualizare cont")
+        toolbar.setTitle(getString(R.string.previzualizare_cont))
         toolbar.showBottomLine(true)
 
         toolbar.showLeftBtn(true)
@@ -166,7 +166,7 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
         CreateBillController.orderModel.Orders.forEach {
             sumBill += it.sum
         }
-        binding.textSumTotal.text = "$sumBill MDL"
+        binding.textSumTotal.text = getString(R.string.mdl,"$sumBill" )
     }
 
     override fun onDialogDismiss(dialogs: BillLineDetailsDialogFragment, toString: String) {
@@ -179,8 +179,8 @@ class NewOrderFragment : Fragment(), BottomSheetOnDismissListener {
 
     private fun dialogShow(title: String?, description: String?) {
         ContextManager.retrieveContext()?.let {
-            DialogAction(it, title, description, "Reincearca", "Renunta", {
-                progressDialog.setMessage("Va rugam asteptati...")
+            DialogAction(it, title, description, getString(R.string.reincearca), getString(R.string.renun), {
+                progressDialog.setMessage(getString(R.string.va_rugam_asteptati))
                 progressDialog.setCancelable(false)
                 progressDialog.show()
                 lifecycleScope.launch(Dispatchers.IO) {

@@ -141,7 +141,7 @@ class AssortmentFragment : Fragment() {
         Log.e("TAG", "init toolbar")
         val toolbar = binding.toolbar
 
-        toolbar.setTitle("Adauga produse")
+        toolbar.setTitle(getString(R.string.adauga_produse))
         toolbar.showBottomLine(true)
         toolbar.showLeftBtn(true)
 
@@ -213,8 +213,8 @@ class AssortmentFragment : Fragment() {
             if (viewModel.getBackPage()) {
                 if (CreateBillController.orderModel.Orders.isNotEmpty()) {
                     dialogShow(
-                        "Atentie",
-                        "Contul nu a fost salvat, sunteti sigur ca doriti sa inchideti pagina?"
+                        getString(R.string.atentie),
+                        getString(R.string.contul_nu_a_fost_salvat_sunteti_sigur_ca_doriti_sa_inchideti_pagina)
                     )
                 } else {
                     findNavController().popBackStack(R.id.myBills, false)
@@ -243,7 +243,7 @@ class AssortmentFragment : Fragment() {
     }
 
     private fun dialogShow(title: String, description: String) {
-        DialogAction(requireActivity(), title, description, "Da", "Nu", {
+        DialogAction(requireActivity(), title, description, getString(R.string.da), getString(R.string.nu), {
             it.dismiss()
             lifecycleScope.launch(Dispatchers.IO) {
                 CreateBillController.clearAllData()

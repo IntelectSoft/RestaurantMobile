@@ -34,13 +34,13 @@ class TableFragment : Fragment() {
                 if (billId == null || billId == "") {
                     if (!isOccupied) {
                         dialogShowEnterGuest(
-                            "Introduceti numarul de oaspeti pentru masa $name",
+                            getString(R.string.introduceti_numarul_de_oaspet_pe_masa,name),
                             tableId = id
                         )
                     } else {
                         dialogShowAlertTableBusy(
-                            "Pe masa $name exista conturi!",
-                            "Sunteti sigur ca doriti sa continuati?",
+                            getString(R.string.pe_masa_exista_conturi,name),
+                            getString(R.string.sunteti_sigur_ca_doriti_sa_continuati),
                             id,
                             name
                         )
@@ -88,7 +88,7 @@ class TableFragment : Fragment() {
     private fun initToolbar() {
         val toolbar = binding.toolbar
 
-        toolbar.setTitle("Alege masa clientului")
+        toolbar.setTitle(getString(R.string.alege_masa_clientului))
         toolbar.showBottomLine(true)
 
         toolbar.showLeftBtn(true)
@@ -124,10 +124,10 @@ class TableFragment : Fragment() {
         name: String
     ) {
         requireContext().let {
-            DialogAction(it, title, description, "Da", "Renunta", {
+            DialogAction(it, title, description, getString(R.string.da), getString(R.string.renun), {
                 it.dismiss()
                 dialogShowEnterGuest(
-                    "Introduceti numarul de oaspeti pentru masa $name",
+                    getString(R.string.introduceti_numarul_de_oaspet_pe_masa, name),
                     tableId = tableId
                 )
             }, {
@@ -138,7 +138,7 @@ class TableFragment : Fragment() {
 
     private fun dialogShowEnterGuest(title: String, description: String? = null, tableId: String) {
         requireContext().let {
-            DialogActionInputText(it, title, description, "Continua", "Renunta", { dialog, text ->
+            DialogActionInputText(it, title, description, getString(R.string.continua), getString(R.string.renun), { dialog, text ->
                 dialog.dismiss()
 
                 CreateBillController.setTableId(tableId)

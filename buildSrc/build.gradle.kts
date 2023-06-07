@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     implementation("com.android.tools.build:gradle:8.0.0")
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0")
     implementation("com.squareup:javapoet:1.13.0")
     implementation("androidx.navigation:navigation-safe-args-gradle-plugin:2.5.3")
     implementation("com.google.gms:google-services:4.3.14")

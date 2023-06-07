@@ -1,10 +1,12 @@
 package md.edi.mobilewaiter.presentation.settings
 
 import android.app.ProgressDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.LocaleListCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -22,7 +24,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import md.edi.mobilewaiter.R
+import md.edi.mobilewaiter.presentation.settings.language.ActivityLanguage
+import md.edi.mobilewaiter.utils.capitaliseWord
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -62,9 +69,15 @@ class SettingsFragment : Fragment() {
         binding.textSLastSync.text = DeviceInfo.lastSync
 
         binding.btnSync.setOnClickListener {
-            progressDialog.setMessage("Sincronizare...")
+            progressDialog.setMessage(getString(R.string.sincronizare_loading))
             progressDialog.show()
             launchViewModel.syncAssortment()
+        }
+        val sph = runBlocking { SettingsRepository(requireContext()).getLanguage().first() }
+        binding.textLanguage.text = Locale(sph.language).displayLanguage.capitaliseWord()
+
+        binding.textLanguage.setOnClickListener {
+            startActivity(Intent(requireContext(), ActivityLanguage::class.java))
         }
 
         lifecycleScope.launch(Dispatchers.Main) {
@@ -80,13 +93,13 @@ class SettingsFragment : Fragment() {
                         }
                         -9 -> {
                             dialogShow(
-                                "Dispozitivul:  ${DeviceInfo.deviceNumber}",
+                                getString(R.string.dispozitivul)+ "${DeviceInfo.deviceNumber}",
                                 it.errorMessage,
                             )
                         }
                         else -> {
                             dialogShow(
-                                "Dispozitivul:  ${DeviceInfo.deviceNumber}",
+                                getString(R.string.dispozitivul)+ "${DeviceInfo.deviceNumber}",
                                 ErrorHandler().getErrorMessage(EnumRemoteErrors.getByValue(it.Result)),
                             )
                         }
@@ -106,7 +119,7 @@ class SettingsFragment : Fragment() {
     private fun initToolbar() {
         val toolbar = binding.toolbar
 
-        toolbar.setTitle("Setari")
+        toolbar.setTitle(getString(R.string.setari))
         toolbar.showBottomLine(true)
 
         toolbar.showLeftBtn(true)
@@ -116,9 +129,9 @@ class SettingsFragment : Fragment() {
     }
 
     private fun dialogShow(title: String, description: String?) {
-        DialogAction(requireActivity(), title, description, "Reincearca", "Renunta", {
+        DialogAction(requireActivity(), title, description, getString(R.string.reincearca), getString(R.string.renun), {
             it.dismiss()
-            progressDialog.setMessage("Sincronizare...")
+            progressDialog.setMessage(getString(R.string.sincronizare_loading))
             progressDialog.show()
             launchViewModel.syncAssortment()
 
