@@ -96,14 +96,24 @@ class BillDetailsFragment : Fragment() {
 
         billId = arguments?.getString("billId")
 
+        if (billId== null){
+            dialogShowCloseFragment("Atentie!","Nu a fost obtinut identificatorul contului!")
+        }
+
         lifecycleScope.launch(Dispatchers.Main) {
             viewModel.getBillDetailResult.collectLatest {
                 progressDialog.dismiss()
-                it.let {
+                if(it != null){
                     when (it.Result) {
                         0 -> {
                             bill = it.BillsList.first()
-                            displayBillDetail(bill)
+
+                            if(bill == null){
+                                dialogShowCloseFragment("Atentie!","Nu am putut obtine detalii despre cont!")
+                            }
+                            else{
+                                displayBillDetail(bill)
+                            }
                         }
 
                         -9 -> {
@@ -122,6 +132,9 @@ class BillDetailsFragment : Fragment() {
                             )
                         }
                     }
+                }
+                else{
+                    dialogShowCloseFragment("Atentie!","Nu a fost obtinut raspuns de la serviciu!")
                 }
             }
         }
@@ -546,6 +559,16 @@ class BillDetailsFragment : Fragment() {
                 closeBill()
             }, {
                 it.dismiss()
+            }).show()
+        }
+    }
+
+    private fun dialogShowCloseFragment(title: String, description: String?) {
+        ContextManager.retrieveContext()?.let {
+            DialogAction(it, title, description, getString(R.string.ok), getString(R.string.renun), {
+                findNavController().popBackStack()
+            }, {
+                findNavController().popBackStack()
             }).show()
         }
     }
