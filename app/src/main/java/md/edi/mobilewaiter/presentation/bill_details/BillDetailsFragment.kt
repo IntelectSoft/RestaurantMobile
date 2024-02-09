@@ -101,8 +101,11 @@ class BillDetailsFragment : Fragment() {
         }
 
         lifecycleScope.launch(Dispatchers.Main) {
-            viewModel.getBillDetailResult.collectLatest {
+
+            viewModel.getBillDetailResult.collect {
+
                 progressDialog.dismiss()
+
                 if(it != null){
                     when (it.Result) {
                         0 -> {

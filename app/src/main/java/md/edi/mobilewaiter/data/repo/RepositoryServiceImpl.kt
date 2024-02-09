@@ -1,5 +1,6 @@
 package md.edi.mobilewaiter.data.repo
 
+import android.util.Log
 import md.edi.mobilewaiter.data.remote.models.RegisterDeviceModel
 import md.edi.mobilewaiter.data.remote.models.bill.AddOrdersModel
 import md.edi.mobilewaiter.data.remote.models.bill.CombineBillsModel
@@ -42,7 +43,9 @@ class RepositoryServiceImpl @Inject constructor(private val apiInterface: Remote
         deviceId: String,
         billId: String
     ): Response<BillListResponse> {
-        return apiInterface.getBill(url, deviceId, billId)
+        val rez = apiInterface.getBill(url, deviceId, billId)
+
+        return rez
     }
 
     override suspend fun printBill(

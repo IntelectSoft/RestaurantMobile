@@ -1,5 +1,6 @@
 package md.edi.mobilewaiter.presentation.main.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import md.edi.mobilewaiter.common.delegates.DelegateAdapterItem
@@ -86,11 +87,17 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO){
             try {
                 val response = serviceRepo.getBill(Urls.GetBill, DeviceInfo.deviceId, id)
+                //print("RESPONSE: $response");
+                //Log.d("WAITER","REZULT: $response");
                 if (response.isSuccessful) {
+
                     response.body()?.let {
+
                         getBillDetailResult.emit(it)
+
                     }
                 } else {
+
                     getBillDetailResult.emit(
                         BillListResponse(
                             Result = -9,
